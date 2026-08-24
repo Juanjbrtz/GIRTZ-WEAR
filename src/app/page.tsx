@@ -2,7 +2,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
-import { products } from "@/data/products";
+import { getCatalogProducts } from "@/lib/catalog";
+
+export const dynamic = "force-dynamic";
 
 const catalogRoutes = [
   {
@@ -31,7 +33,10 @@ const catalogRoutes = [
   },
 ];
 
-export default function Home() {
+export default async function Home() {
+  const catalogProducts = await getCatalogProducts();
+  const heroProduct = catalogProducts[0];
+
   return (
     <main className="home-page">
       <SiteHeader />
@@ -39,10 +44,11 @@ export default function Home() {
       <section className="home-stage">
         <div className="home-visual">
           <Image
-            src={products[0].image}
-            alt={products[0].imageAlt}
+            src={heroProduct.image}
+            alt={heroProduct.imageAlt}
             fill
             priority
+            unoptimized
             sizes="(max-width: 900px) 100vw, 58vw"
           />
           <div className="home-visual-overlay" />
@@ -70,8 +76,8 @@ export default function Home() {
           </div>
 
           <div className="home-visual-meta">
-            <span>SELECCIÓN MULTIMARCA</span>
-            <span>HOMBRE · MUJER · UNISEX</span>
+            <span>{heroProduct.brand.toUpperCase()} / {heroProduct.name}</span>
+            <span>{heroProduct.audience.toUpperCase()} · DESTACADO</span>
           </div>
         </div>
 
