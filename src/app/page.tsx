@@ -1,6 +1,5 @@
 import Image from "next/image";
 import Link from "next/link";
-import { IntroMark } from "@/components/intro-mark";
 import { ProductCard } from "@/components/product-card";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
@@ -11,7 +10,6 @@ const statements = ["CURATED SNEAKERS", "COLOMBIA", "DROP CULTURE", "MOVE DIFFER
 export default function Home() {
   return (
     <main>
-      <IntroMark />
       <SiteHeader />
 
       <section className="hero-shell">
