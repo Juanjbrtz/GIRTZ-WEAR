@@ -3,31 +3,30 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SiteHeader } from "@/components/site-header";
-import { formatCop, products } from "@/data/products";
+import { formatCop } from "@/data/products";
+import { getCatalogProductBySlug } from "@/lib/catalog";
 
 type ProductPageProps = {
   params: Promise<{ slug: string }>;
 };
 
-export function generateStaticParams() {
-  return products.map((product) => ({ slug: product.slug }));
-}
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const product = products.find((item) => item.slug === slug);
+  const product = await getCatalogProductBySlug(slug);
 
   if (!product) return {};
 
   return {
-    title: product.name,
+    title: `${product.brand} ${product.name}`,
     description: product.description,
   };
 }
 
 export default async function ProductPage({ params }: ProductPageProps) {
   const { slug } = await params;
-  const product = products.find((item) => item.slug === slug);
+  const product = await getCatalogProductBySlug(slug);
 
   if (!product) notFound();
 
@@ -42,6 +41,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
             alt={product.imageAlt}
             fill
             priority
+            unoptimized
             sizes="(max-width: 800px) 100vw, 58vw"
           />
           <span className="product-detail-category">{product.audience}</span>
@@ -49,7 +49,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
         <div className="product-detail">
           <div className="product-detail-topline">
-            <span>CATÁLOGO MULTIMARCA</span>
+            <span>{product.brand.toUpperCase()} / MULTIMARCA</span>
             <Link href="/shop">VOLVER AL CATÁLOGO</Link>
           </div>
 
@@ -65,9 +65,11 @@ export default async function ProductPage({ params }: ProductPageProps) {
               <small>Selecciona la referencia al consultar disponibilidad.</small>
             </div>
             <div className="size-grid" aria-label={`Tallas disponibles para ${product.name}`}>
-              {product.sizes.map((size) => (
-                <span key={size}>{size}</span>
-              ))}
+              {product.sizes.length ? (
+                product.sizes.map((size) => <span key={size}>{size}</span>)
+              ) : (
+                <small>Consulta disponibilidad de talla.</small>
+              )}
             </div>
           </div>
 
@@ -79,12 +81,6 @@ export default async function ProductPage({ params }: ProductPageProps) {
               INFORMACIÓN DE ENVÍO
             </Link>
           </div>
-
-          <p className="product-note">
-            Las referencias actuales son de muestra para construir la experiencia
-            del catálogo. El inventario real reemplazará estos datos al conectar
-            proveedores y administración.
-          </p>
         </div>
       </section>
     </main>
