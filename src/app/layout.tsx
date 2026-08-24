@@ -3,6 +3,7 @@ import { Instrument_Sans } from "next/font/google";
 import "./globals.css";
 import "./info.css";
 import "./account-admin.css";
+import "./admin-overrides.css";
 
 const instrumentSans = Instrument_Sans({
   variable: "--font-brand",
