@@ -1,9 +1,11 @@
 import Link from "next/link";
 
 const navItems = [
-  { href: "/shop", label: "SHOP" },
-  { href: "/#drop", label: "DROP 001" },
-  { href: "/#about", label: "NOSOTROS" },
+  { href: "/", label: "INICIO" },
+  { href: "/shop", label: "CATÁLOGO" },
+  { href: "/shop?categoria=hombre", label: "HOMBRE" },
+  { href: "/shop?categoria=mujer", label: "MUJER" },
+  { href: "/shop?categoria=unisex", label: "UNISEX" },
 ];
 
 export function SiteHeader() {
@@ -23,7 +25,7 @@ export function SiteHeader() {
       </nav>
 
       <Link href="/shop" className="header-cta">
-        VER DROP <span aria-hidden="true">↗</span>
+        VER CATÁLOGO
       </Link>
     </header>
   );
