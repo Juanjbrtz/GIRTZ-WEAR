@@ -15,6 +15,9 @@ export const products = pgTable(
     id: uuid("id").defaultRandom().primaryKey(),
     name: text("name").notNull(),
     slug: text("slug").notNull(),
+    brand: text("brand"),
+    audience: text("audience"),
+    sku: text("sku"),
     description: text("description"),
     price: integer("price").notNull(),
     cost: integer("cost").notNull(),
@@ -27,7 +30,10 @@ export const products = pgTable(
   },
   (table) => [
     uniqueIndex("products_slug_idx").on(table.slug),
+    uniqueIndex("products_sku_idx").on(table.sku),
     index("products_active_featured_idx").on(table.active, table.featured),
+    index("products_brand_idx").on(table.brand),
+    index("products_audience_idx").on(table.audience),
   ],
 );
 
@@ -39,12 +45,14 @@ export const productVariants = pgTable(
       .notNull()
       .references(() => products.id, { onDelete: "cascade" }),
     size: text("size").notNull(),
+    sku: text("sku"),
     stockStatus: text("stock_status").default("available").notNull(),
     stockQuantity: integer("stock_quantity"),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (table) => [
     uniqueIndex("product_variant_product_size_idx").on(table.productId, table.size),
+    uniqueIndex("product_variants_sku_idx").on(table.sku),
   ],
 );
 
@@ -52,14 +60,22 @@ export const customers = pgTable(
   "customers",
   {
     id: uuid("id").defaultRandom().primaryKey(),
+    authUserId: text("auth_user_id"),
+    role: text("role").default("customer").notNull(),
     name: text("name").notNull(),
     phone: text("phone"),
     email: text("email"),
     address: text("address"),
     city: text("city"),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
   },
-  (table) => [index("customers_email_idx").on(table.email), index("customers_phone_idx").on(table.phone)],
+  (table) => [
+    uniqueIndex("customers_auth_user_id_idx").on(table.authUserId),
+    index("customers_role_idx").on(table.role),
+    index("customers_email_idx").on(table.email),
+    index("customers_phone_idx").on(table.phone),
+  ],
 );
 
 export const orders = pgTable(
