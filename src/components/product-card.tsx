@@ -10,6 +10,7 @@ export function ProductCard({ product }: { product: Product }) {
           src={product.image}
           alt={product.imageAlt}
           fill
+          unoptimized
           sizes="(max-width: 720px) 92vw, (max-width: 1100px) 46vw, 25vw"
         />
         <span className="product-audience">{product.audience}</span>
@@ -18,13 +19,12 @@ export function ProductCard({ product }: { product: Product }) {
       <div className="product-info">
         <div className="product-heading-row">
           <div>
-            <p className="product-kicker">SELECCIÓN GIRTZ</p>
+            <p className="product-kicker">{product.brand}</p>
             <h3>{product.name}</h3>
           </div>
           <strong>{formatCop(product.price)}</strong>
         </div>
 
-        <div className="product-size-label">TALLAS DISPONIBLES</div>
         <div className="product-sizes" aria-label={`Tallas disponibles para ${product.name}`}>
           {product.sizes.slice(0, 6).map((size) => (
             <span key={size}>{size}</span>
