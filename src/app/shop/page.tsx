@@ -1,37 +1,85 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { ProductCard } from "@/components/product-card";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
-import { products } from "@/data/products";
+import { products, type Audience } from "@/data/products";
 
 export const metadata: Metadata = {
-  title: "Shop",
-  description: "Explora el primer drop de sneakers seleccionados por GIRTZ WEAR.",
+  title: "Catálogo",
+  description:
+    "Explora el catálogo multimarca de sneakers GIRTZ WEAR para hombre, mujer y unisex.",
 };
 
-export default function ShopPage() {
+type ShopPageProps = {
+  searchParams: Promise<{ categoria?: string }>;
+};
+
+const filters = [
+  { label: "TODOS", value: "todos", href: "/shop" },
+  { label: "HOMBRE", value: "hombre", href: "/shop?categoria=hombre" },
+  { label: "MUJER", value: "mujer", href: "/shop?categoria=mujer" },
+  { label: "UNISEX", value: "unisex", href: "/shop?categoria=unisex" },
+];
+
+const categoryMap: Record<string, Audience> = {
+  hombre: "Hombre",
+  mujer: "Mujer",
+  unisex: "Unisex",
+};
+
+export default async function ShopPage({ searchParams }: ShopPageProps) {
+  const { categoria } = await searchParams;
+  const activeCategory = categoria && categoryMap[categoria] ? categoria : "todos";
+  const audience = categoryMap[activeCategory];
+  const visibleProducts = audience
+    ? products.filter((product) => product.audience === audience)
+    : products;
+
   return (
-    <main className="inner-page">
+    <main className="inner-page catalog-page">
       <SiteHeader />
-      <section className="shop-shell">
-        <div className="shop-heading">
+
+      <section className="catalog-shell">
+        <div className="catalog-heading">
           <div>
-            <span className="section-index">GIRTZ WEAR / DROP 001</span>
-            <h1>SHOP</h1>
+            <span className="eyebrow">GIRTZ WEAR / MULTIMARCA</span>
+            <h1>CATÁLOGO</h1>
           </div>
           <p>
-            Primera selección de referencias. El catálogo, disponibilidad y
-            precios actuales son datos de muestra mientras conectamos el
-            inventario real.
+            Una selección reducida para comprar mejor. Filtra por categoría y
+            entra directamente a cada referencia para revisar tallas y detalles.
           </p>
         </div>
 
-        <div className="product-grid">
-          {products.map((product) => (
+        <nav className="catalog-filters" aria-label="Filtrar catálogo por categoría">
+          {filters.map((filter) => (
+            <Link
+              key={filter.value}
+              href={filter.href}
+              className={activeCategory === filter.value ? "active" : undefined}
+            >
+              {filter.label}
+            </Link>
+          ))}
+        </nav>
+
+        <div className="catalog-result-bar">
+          <span>
+            {activeCategory === "todos"
+              ? "TODAS LAS REFERENCIAS"
+              : categoryMap[activeCategory].toUpperCase()}
+          </span>
+          <span>{visibleProducts.length} PRODUCTOS</span>
+        </div>
+
+        <div className="product-grid catalog-grid">
+          {visibleProducts.map((product) => (
             <ProductCard key={product.slug} product={product} />
           ))}
         </div>
       </section>
+
       <SiteFooter />
     </main>
   );
