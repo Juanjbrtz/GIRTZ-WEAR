@@ -18,12 +18,13 @@ export function ProductCard({ product }: { product: Product }) {
       <div className="product-info">
         <div className="product-heading-row">
           <div>
-            <p className="product-kicker">CATÁLOGO MULTIMARCA</p>
+            <p className="product-kicker">SELECCIÓN GIRTZ</p>
             <h3>{product.name}</h3>
           </div>
           <strong>{formatCop(product.price)}</strong>
         </div>
 
+        <div className="product-size-label">TALLAS DISPONIBLES</div>
         <div className="product-sizes" aria-label={`Tallas disponibles para ${product.name}`}>
           {product.sizes.slice(0, 6).map((size) => (
             <span key={size}>{size}</span>
