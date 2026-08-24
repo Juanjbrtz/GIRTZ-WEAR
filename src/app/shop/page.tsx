@@ -3,7 +3,10 @@ import Link from "next/link";
 import { ProductCard } from "@/components/product-card";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
-import { products, type Audience } from "@/data/products";
+import type { Audience } from "@/data/products";
+import { getCatalogProducts } from "@/lib/catalog";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Catálogo",
@@ -29,12 +32,15 @@ const categoryMap: Record<string, Audience> = {
 };
 
 export default async function ShopPage({ searchParams }: ShopPageProps) {
-  const { categoria } = await searchParams;
+  const [{ categoria }, catalogProducts] = await Promise.all([
+    searchParams,
+    getCatalogProducts(),
+  ]);
   const activeCategory = categoria && categoryMap[categoria] ? categoria : "todos";
   const audience = categoryMap[activeCategory];
   const visibleProducts = audience
-    ? products.filter((product) => product.audience === audience)
-    : products;
+    ? catalogProducts.filter((product) => product.audience === audience)
+    : catalogProducts;
 
   return (
     <main className="inner-page catalog-page">
