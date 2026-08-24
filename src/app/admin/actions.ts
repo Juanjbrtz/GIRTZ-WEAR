@@ -41,7 +41,7 @@ export async function createProduct(formData: FormData) {
     throw new Error("Completa los campos obligatorios del producto.");
   }
 
-  if (!['Hombre', 'Mujer', 'Unisex'].includes(audience)) {
+  if (!["Hombre", "Mujer", "Unisex"].includes(audience)) {
     throw new Error("Categoría de público inválida.");
   }
 
@@ -68,7 +68,7 @@ export async function createProduct(formData: FormData) {
       category: "Sneakers",
       imageUrl,
       featured: formData.get("featured") === "on",
-      active: formData.get("active") !== "off",
+      active: formData.get("active") === "on",
     })
     .returning({ id: products.id });
 
