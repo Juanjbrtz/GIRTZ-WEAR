@@ -9,13 +9,13 @@ const catalogRoutes = [
     href: "/shop",
     index: "01",
     title: "CATÁLOGO",
-    description: "Explora todas las referencias disponibles.",
+    description: "Todas las referencias disponibles en un solo lugar.",
   },
   {
     href: "/shop?categoria=hombre",
     index: "02",
     title: "HOMBRE",
-    description: "Sneakers seleccionados para hombre.",
+    description: "Selección de sneakers para hombre.",
   },
   {
     href: "/shop?categoria=mujer",
@@ -27,7 +27,7 @@ const catalogRoutes = [
     href: "/shop?categoria=unisex",
     index: "04",
     title: "UNISEX",
-    description: "Siluetas versátiles sin categoría cerrada.",
+    description: "Siluetas versátiles para distintos estilos.",
   },
 ];
 
@@ -55,13 +55,22 @@ export default function Home() {
               CON PRESENCIA.
             </h1>
             <p>
-              Una selección multimarca pensada para encontrar mejores pares sin
-              perder tiempo entre cientos de referencias.
+              Una selección multimarca para encontrar referencias con estilo,
+              tallas claras y una experiencia de compra directa.
             </p>
+
+            <div className="home-editorial-actions">
+              <Link href="/shop" className="primary-button">
+                VER CATÁLOGO
+              </Link>
+              <Link href="/contact" className="secondary-button">
+                CONTACTO
+              </Link>
+            </div>
           </div>
 
           <div className="home-visual-meta">
-            <span>CATÁLOGO CURADO</span>
+            <span>SELECCIÓN MULTIMARCA</span>
             <span>HOMBRE · MUJER · UNISEX</span>
           </div>
         </div>
@@ -69,10 +78,10 @@ export default function Home() {
         <div className="home-navigation">
           <div className="home-navigation-head">
             <span className="eyebrow">EXPLORA GIRTZ</span>
-            <h2>¿QUÉ ESTÁS BUSCANDO?</h2>
+            <h2>ELIGE DÓNDE EMPEZAR.</h2>
             <p>
-              Entra directamente a la sección que necesitas. Sin recorridos
-              innecesarios.
+              Accede directamente a la categoría que buscas. Menos recorrido,
+              más producto.
             </p>
           </div>
 
@@ -91,12 +100,12 @@ export default function Home() {
 
           <div className="home-service-note">
             <div>
-              <strong>COMPRA CLARA</strong>
-              <span>Tallas y precios visibles desde el catálogo.</span>
+              <strong>TALLAS VISIBLES</strong>
+              <span>Consulta disponibilidad desde el catálogo.</span>
             </div>
             <div>
               <strong>ATENCIÓN DIRECTA</strong>
-              <span>Acompañamiento para disponibilidad y pedido.</span>
+              <span>Acompañamiento antes y después de tu pedido.</span>
             </div>
           </div>
         </div>
