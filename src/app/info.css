@@ -1,6 +1,7 @@
 .info-shell {
-  min-height: 70vh;
-  padding: 110px 7vw 130px;
+  min-height: calc(100svh - 76px);
+  padding: 96px 7vw 120px;
+  background: var(--black-soft);
 }
 
 .info-shell > span {
@@ -14,15 +15,16 @@
 
 .info-shell h1 {
   margin: 0;
+  max-width: 1000px;
   font-family: var(--font-display), sans-serif;
-  font-size: clamp(72px, 11vw, 170px);
-  font-weight: 650;
+  font-size: clamp(70px, 10vw, 150px);
+  font-weight: 560;
   letter-spacing: -.075em;
   line-height: .82;
 }
 
 .info-copy {
-  width: min(620px, 100%);
+  width: min(660px, 100%);
   margin: 58px 0 0 auto;
   padding-top: 28px;
   border-top: 1px solid var(--line);
@@ -30,18 +32,19 @@
 
 .info-copy p {
   margin: 0 0 20px;
-  color: #615e57;
-  font-size: 14px;
+  color: var(--muted-light);
+  font-size: 13px;
   line-height: 1.85;
 }
 
 @media (max-width: 760px) {
   .info-shell {
-    padding: 72px 20px 90px;
+    min-height: auto;
+    padding: 66px 20px 86px;
   }
 
   .info-shell h1 {
-    font-size: 21vw;
+    font-size: 20vw;
   }
 
   .info-copy {
