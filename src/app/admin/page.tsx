@@ -26,10 +26,14 @@ export default async function AdminDashboardPage() {
         </Link>
       </header>
 
-      <div className="admin-metric-grid">
+      <div className="admin-metric-grid five">
         <article>
           <span>VENTAS ACUMULADAS</span>
           <strong>{formatCop(stats.revenue)}</strong>
+        </article>
+        <article>
+          <span>UTILIDAD BRUTA</span>
+          <strong>{formatCop(stats.grossProfit)}</strong>
         </article>
         <article>
           <span>PEDIDOS</span>
