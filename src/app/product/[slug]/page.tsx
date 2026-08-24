@@ -32,8 +32,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
   if (!product) notFound();
 
   return (
-    <main className="inner-page">
+    <main className="inner-page product-inner-page">
       <SiteHeader />
+
       <section className="product-page">
         <div className="product-detail-media">
           <Image
@@ -41,19 +42,29 @@ export default async function ProductPage({ params }: ProductPageProps) {
             alt={product.imageAlt}
             fill
             priority
-            sizes="(max-width: 760px) 100vw, 58vw"
+            sizes="(max-width: 800px) 100vw, 58vw"
           />
+          <span className="product-detail-category">{product.audience}</span>
         </div>
 
         <div className="product-detail">
-          <span>{product.eyebrow} / GIRTZ SELECTED</span>
+          <div className="product-detail-topline">
+            <span>CATÁLOGO MULTIMARCA</span>
+            <Link href="/shop">VOLVER AL CATÁLOGO</Link>
+          </div>
+
           <h1>{product.name}</h1>
           <div className="product-price">{formatCop(product.price)}</div>
           <p className="product-description">{product.description}</p>
 
+          <div className="product-divider" />
+
           <div className="size-block">
-            <span>SELECCIONA TU TALLA</span>
-            <div className="size-grid" aria-label="Tallas disponibles de muestra">
+            <div className="size-title-row">
+              <span>TALLAS DISPONIBLES</span>
+              <small>Selecciona la referencia al consultar disponibilidad.</small>
+            </div>
+            <div className="size-grid" aria-label={`Tallas disponibles para ${product.name}`}>
               {product.sizes.map((size) => (
                 <span key={size}>{size}</span>
               ))}
@@ -62,12 +73,17 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
           <div className="product-actions">
             <Link href="/contact" className="primary-button">
-              COMPRAR POR WHATSAPP <span aria-hidden="true">↗</span>
+              CONSULTAR DISPONIBILIDAD
+            </Link>
+            <Link href="/shipping" className="secondary-button">
+              INFORMACIÓN DE ENVÍO
             </Link>
           </div>
+
           <p className="product-note">
-            Referencia, precio y disponibilidad de muestra. Se reemplazarán al
-            conectar el catálogo real y el checkout.
+            Las referencias actuales son de muestra para construir la experiencia
+            del catálogo. El inventario real reemplazará estos datos al conectar
+            proveedores y administración.
           </p>
         </div>
       </section>
