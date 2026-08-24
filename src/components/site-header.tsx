@@ -6,6 +6,7 @@ const navItems = [
   { href: "/shop?categoria=hombre", label: "HOMBRE" },
   { href: "/shop?categoria=mujer", label: "MUJER" },
   { href: "/shop?categoria=unisex", label: "UNISEX" },
+  { href: "/account", label: "CUENTA" },
 ];
 
 export function SiteHeader() {
@@ -24,8 +25,8 @@ export function SiteHeader() {
         ))}
       </nav>
 
-      <Link href="/shop" className="header-cta">
-        VER CATÁLOGO
+      <Link href="/account" className="header-cta">
+        MI CUENTA
       </Link>
     </header>
   );
