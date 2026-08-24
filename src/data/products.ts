@@ -3,6 +3,7 @@ export type Audience = "Hombre" | "Mujer" | "Unisex";
 export type Product = {
   slug: string;
   name: string;
+  brand: string;
   audience: Audience;
   price: number;
   image: string;
@@ -15,6 +16,7 @@ export const products: Product[] = [
   {
     slug: "nightshift-01",
     name: "NIGHTSHIFT 01",
+    brand: "SELECCIÓN DEMO",
     audience: "Hombre",
     price: 199900,
     image:
@@ -27,6 +29,7 @@ export const products: Product[] = [
   {
     slug: "whitecode-02",
     name: "WHITECODE 02",
+    brand: "SELECCIÓN DEMO",
     audience: "Mujer",
     price: 194900,
     image:
@@ -39,6 +42,7 @@ export const products: Product[] = [
   {
     slug: "afterdark-03",
     name: "AFTERDARK 03",
+    brand: "SELECCIÓN DEMO",
     audience: "Unisex",
     price: 209900,
     image:
@@ -51,6 +55,7 @@ export const products: Product[] = [
   {
     slug: "signal-04",
     name: "SIGNAL 04",
+    brand: "SELECCIÓN DEMO",
     audience: "Unisex",
     price: 204900,
     image:
