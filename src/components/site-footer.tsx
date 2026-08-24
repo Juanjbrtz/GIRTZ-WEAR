@@ -18,10 +18,11 @@ export function SiteFooter() {
         <Link href="/shop?categoria=hombre">HOMBRE</Link>
         <Link href="/shop?categoria=mujer">MUJER</Link>
         <Link href="/shop?categoria=unisex">UNISEX</Link>
-        <Link href="/contact">CONTACTO</Link>
+        <Link href="/account">MI CUENTA</Link>
       </div>
 
       <div className="footer-links secondary">
+        <Link href="/contact">CONTACTO</Link>
         <Link href="/shipping">ENVÍOS</Link>
         <Link href="/returns">CAMBIOS</Link>
         <span className="footer-copy">© 2026 GIRTZ WEAR</span>
