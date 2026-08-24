@@ -88,22 +88,31 @@ export async function getOrdersForCustomer(customerId: string) {
 
 export async function getAdminStats() {
   if (!isDatabaseConfigured()) {
-    return { customers: 0, orders: 0, products: 0, revenue: 0 };
+    return { customers: 0, orders: 0, products: 0, revenue: 0, grossProfit: 0 };
   }
 
   const db = getDb();
-  const [[customerCount], [orderCount], [productCount], [revenue]] = await Promise.all([
+  const [[customerCount], [orderCount], [productCount], [totals]] = await Promise.all([
     db.select({ value: sql<number>`count(*)::int` }).from(customers),
     db.select({ value: sql<number>`count(*)::int` }).from(orders),
     db.select({ value: sql<number>`count(*)::int` }).from(products),
-    db.select({ value: sql<number>`coalesce(sum(${orders.total}), 0)::int` }).from(orders),
+    db
+      .select({
+        revenue: sql<number>`coalesce(sum(${orders.total}), 0)::int`,
+        cost: sql<number>`coalesce(sum(${orders.totalCost}), 0)::int`,
+      })
+      .from(orders),
   ]);
+
+  const revenue = totals?.revenue || 0;
+  const cost = totals?.cost || 0;
 
   return {
     customers: customerCount?.value || 0,
     orders: orderCount?.value || 0,
     products: productCount?.value || 0,
-    revenue: revenue?.value || 0,
+    revenue,
+    grossProfit: revenue - cost,
   };
 }
 
