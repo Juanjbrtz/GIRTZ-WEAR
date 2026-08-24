@@ -1,15 +1,10 @@
 import type { Metadata } from "next";
-import { Inter, Space_Grotesk } from "next/font/google";
+import { Instrument_Sans } from "next/font/google";
 import "./globals.css";
 import "./info.css";
 
-const inter = Inter({
-  variable: "--font-body",
-  subsets: ["latin"],
-});
-
-const spaceGrotesk = Space_Grotesk({
-  variable: "--font-display",
+const instrumentSans = Instrument_Sans({
+  variable: "--font-brand",
   subsets: ["latin"],
 });
 
@@ -28,7 +23,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" className={`${inter.variable} ${spaceGrotesk.variable}`}>
+    <html lang="es" className={instrumentSans.variable}>
       <body>{children}</body>
     </html>
   );
