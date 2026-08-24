@@ -15,11 +15,11 @@ const spaceGrotesk = Space_Grotesk({
 
 export const metadata: Metadata = {
   title: {
-    default: "GIRTZ WEAR — Sneakers con presencia",
+    default: "GIRTZ WEAR — Catálogo premium de sneakers",
     template: "%s | GIRTZ WEAR",
   },
   description:
-    "Sneakers seleccionados para moverse distinto. Descubre los primeros drops de GIRTZ WEAR en Colombia.",
+    "Catálogo multimarca de sneakers para hombre, mujer y unisex en Colombia. Selección curada, tallas visibles y atención directa.",
 };
 
 export default function RootLayout({
