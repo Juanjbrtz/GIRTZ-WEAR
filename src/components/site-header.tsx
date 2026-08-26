@@ -2,7 +2,6 @@ import Link from "next/link";
 
 const navItems = [
   { href: "/", label: "INICIO" },
-  { href: "/shop", label: "CATÁLOGO" },
   { href: "/shop?categoria=hombre", label: "HOMBRE" },
   { href: "/shop?categoria=mujer", label: "MUJER" },
   { href: "/shop?categoria=unisex", label: "UNISEX" },
