@@ -70,11 +70,6 @@ export function IntroMark() {
   const [frame, setFrame] = useState(0);
 
   useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      setVisible(false);
-      return;
-    }
-
     let current = 0;
     const frameTimer = window.setInterval(() => {
       current += 1;
@@ -112,7 +107,6 @@ export function IntroMark() {
         p{position:absolute;bottom:9svh;margin:0;color:rgba(255,255,255,.78);font-size:10px;font-weight:700;letter-spacing:.44em}
         @keyframes introExit{0%,82%{opacity:1;visibility:visible}100%{opacity:0;visibility:hidden}}
         @media(max-width:640px){.intro-stage{width:min(72vw,300px)}p{bottom:11svh;font-size:9px;letter-spacing:.34em}}
-        @media(prefers-reduced-motion:reduce){.girtz-intro{display:none}}
       `}</style>
     </div>
   );
