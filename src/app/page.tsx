@@ -1,6 +1,5 @@
 import Image from "next/image";
 import Link from "next/link";
-import { IntroMark } from "@/components/intro-mark";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { getCatalogProducts } from "@/lib/catalog";
@@ -40,7 +39,6 @@ export default async function Home() {
 
   return (
     <main className="home-page">
-      <IntroMark />
       <SiteHeader />
 
       <section className="home-stage">
