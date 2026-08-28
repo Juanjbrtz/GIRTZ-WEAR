@@ -38,7 +38,7 @@ function statusLabel(value: string) {
 }
 
 export default async function AccountPage() {
-  const { session, customer } = await requireAccount();
+  const { session, customer, isAdmin } = await requireAccount();
   const orderHistory = customer ? await getOrdersForCustomer(customer.id) : [];
   const name = session.user.name || customer?.name || "Cliente GIRTZ";
 
@@ -49,14 +49,20 @@ export default async function AccountPage() {
       <section className="account-shell">
         <header className="account-heading">
           <div>
-            <span className="eyebrow">GIRTZ WEAR / MI CUENTA</span>
+            <span className="eyebrow">
+              {isAdmin ? "GIRTZ WEAR / CUENTA ADMIN" : "GIRTZ WEAR / MI CUENTA"}
+            </span>
             <h1>HOLA, {name.split(" ")[0].toUpperCase()}.</h1>
-            <p>Consulta tu historial y sigue el estado de tus compras desde aquí.</p>
+            <p>
+              {isAdmin
+                ? "Tu cuenta tiene acceso administrativo y también conserva el historial de compras."
+                : "Consulta tu historial y sigue el estado de tus compras desde aquí."}
+            </p>
           </div>
 
           <div className="account-heading-actions">
-            {customer?.role === "admin" ? (
-              <Link href="/admin" className="secondary-button">
+            {isAdmin ? (
+              <Link href="/admin" className="primary-button">
                 PANEL ADMIN
               </Link>
             ) : null}
@@ -79,7 +85,7 @@ export default async function AccountPage() {
           </article>
           <article>
             <span>PERFIL</span>
-            <strong className="summary-copy">{customer ? "ACTIVO" : "PENDIENTE"}</strong>
+            <strong className="summary-copy">{isAdmin ? "ADMIN" : customer ? "ACTIVO" : "PENDIENTE"}</strong>
           </article>
         </div>
 
