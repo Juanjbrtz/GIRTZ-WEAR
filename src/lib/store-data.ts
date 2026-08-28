@@ -11,6 +11,7 @@ export type AuthUserShape = {
   id: string;
   name?: string | null;
   email?: string | null;
+  role?: "admin" | "customer";
 };
 
 export function isDatabaseConfigured() {
@@ -21,6 +22,7 @@ export async function ensureCustomerForUser(user: AuthUserShape) {
   if (!isDatabaseConfigured()) return null;
 
   const db = getDb();
+  const roleUpdate = user.role ? { role: user.role } : {};
   const [byAuthId] = await db
     .select()
     .from(customers)
@@ -33,6 +35,7 @@ export async function ensureCustomerForUser(user: AuthUserShape) {
       .set({
         name: user.name || byAuthId.name,
         email: user.email || byAuthId.email,
+        ...roleUpdate,
         updatedAt: new Date(),
       })
       .where(eq(customers.id, byAuthId.id))
@@ -54,6 +57,7 @@ export async function ensureCustomerForUser(user: AuthUserShape) {
         .set({
           authUserId: user.id,
           name: user.name || byEmail.name,
+          ...roleUpdate,
           updatedAt: new Date(),
         })
         .where(eq(customers.id, byEmail.id))
@@ -69,6 +73,7 @@ export async function ensureCustomerForUser(user: AuthUserShape) {
       authUserId: user.id,
       name: user.name || user.email || "Cliente GIRTZ",
       email: user.email || null,
+      role: user.role || "customer",
     })
     .returning();
 
