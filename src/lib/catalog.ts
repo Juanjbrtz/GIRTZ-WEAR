@@ -1,22 +1,22 @@
 import { and, desc, eq } from "drizzle-orm";
 import { getDb } from "@/db";
 import { products as productTable, productVariants } from "@/db/schema";
-import {
-  products as demoProducts,
-  type Audience,
-  type Product,
-} from "@/data/products";
+import { approvedCatalogProducts } from "@/data/catalog-approved";
+import type { Audience, Product } from "@/data/products";
 import { isDatabaseConfigured } from "@/lib/store-data";
 
 function normalizeAudience(value: string | null): Audience {
-  if (value === "Hombre" || value === "Mujer" || value === "Unisex") {
-    return value;
-  }
+  if (value === "Hombre" || value === "Mujer" || value === "Unisex") return value;
   return "Unisex";
 }
 
+function dbProductImage(value: string | null) {
+  return value || "/api/catalog-image/hombre";
+}
+
 export async function getCatalogProducts(): Promise<Product[]> {
-  if (!isDatabaseConfigured()) return demoProducts;
+  const approved = approvedCatalogProducts;
+  if (!isDatabaseConfigured()) return approved;
 
   try {
     const db = getDb();
@@ -26,25 +26,27 @@ export async function getCatalogProducts(): Promise<Product[]> {
       .where(eq(productTable.active, true))
       .orderBy(desc(productTable.featured), desc(productTable.createdAt));
 
-    if (!rows.length) return demoProducts;
+    if (!rows.length) return approved;
 
     const variants = await db.select().from(productVariants);
-
-    return rows.map((row) => ({
+    const adminProducts: Product[] = rows.map((row) => ({
       slug: row.slug,
       name: row.name,
-      brand: row.brand || "MULTIMARCA",
+      brand: row.brand || "SELECCIÓN GIRTZ",
       audience: normalizeAudience(row.audience),
       price: row.price,
-      image: row.imageUrl || demoProducts[0].image,
+      image: dbProductImage(row.imageUrl),
       imageAlt: `${row.brand || "Sneaker"} ${row.name}`,
       sizes: variants
         .filter((variant) => variant.productId === row.id && variant.stockStatus !== "out_of_stock")
         .map((variant) => variant.size),
       description: row.description || "Referencia seleccionada por GIRTZ WEAR.",
     }));
+
+    const adminSlugs = new Set(adminProducts.map((product) => product.slug));
+    return [...adminProducts, ...approved.filter((product) => !adminSlugs.has(product.slug))];
   } catch {
-    return demoProducts;
+    return approved;
   }
 }
 
@@ -67,10 +69,10 @@ export async function getCatalogProductBySlug(slug: string): Promise<Product | n
         return {
           slug: row.slug,
           name: row.name,
-          brand: row.brand || "MULTIMARCA",
+          brand: row.brand || "SELECCIÓN GIRTZ",
           audience: normalizeAudience(row.audience),
           price: row.price,
-          image: row.imageUrl || demoProducts[0].image,
+          image: dbProductImage(row.imageUrl),
           imageAlt: `${row.brand || "Sneaker"} ${row.name}`,
           sizes: variants
             .filter((variant) => variant.stockStatus !== "out_of_stock")
@@ -79,9 +81,9 @@ export async function getCatalogProductBySlug(slug: string): Promise<Product | n
         };
       }
     } catch {
-      // La tienda pública mantiene los demos si Neon no está disponible.
+      // El catálogo aprobado permanece disponible aunque Neon esté temporalmente fuera de servicio.
     }
   }
 
-  return demoProducts.find((product) => product.slug === slug) || null;
+  return approvedCatalogProducts.find((product) => product.slug === slug) || null;
 }
