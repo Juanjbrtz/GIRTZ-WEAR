@@ -1,0 +1,1 @@
+Los activos de imagen del catálogo se generan desde los seis PDF aprobados. Cada catálogo conserva sus propias fotografías y referencias.
