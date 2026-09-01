@@ -5,6 +5,7 @@ import "./globals.css";
 import "./info.css";
 import "./account-admin.css";
 import "./admin-overrides.css";
+import "./storefront-commerce.css";
 
 const instrumentSans = Instrument_Sans({
   variable: "--font-brand",
