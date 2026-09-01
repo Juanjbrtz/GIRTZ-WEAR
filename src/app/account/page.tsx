@@ -113,6 +113,7 @@ export default async function AccountPage() {
                     <span>PEDIDO</span>
                     <strong>#{order.id.slice(0, 8).toUpperCase()}</strong>
                     <small>{formatDate(order.createdAt)}</small>
+                    <Link href={`/order/${order.id}`}>VER DETALLE</Link>
                   </div>
                   <div>
                     <span>TOTAL</span>
@@ -131,9 +132,6 @@ export default async function AccountPage() {
                     <strong>{statusLabel(order.shippingStatus)}</strong>
                     {order.trackingNumber ? <small>{order.trackingNumber}</small> : null}
                   </div>
-                  <Link href={`/order/${order.id}`} className="order-detail-link">
-                    VER DETALLE
-                  </Link>
                 </article>
               ))}
             </div>
