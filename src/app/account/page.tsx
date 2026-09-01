@@ -29,6 +29,7 @@ function statusLabel(value: string) {
     received: "Recibido",
     confirmed: "Confirmado",
     processing: "En proceso",
+    preparing: "En preparación",
     shipped: "Enviado",
     delivered: "Entregado",
     cancelled: "Cancelado",
@@ -130,6 +131,9 @@ export default async function AccountPage() {
                     <strong>{statusLabel(order.shippingStatus)}</strong>
                     {order.trackingNumber ? <small>{order.trackingNumber}</small> : null}
                   </div>
+                  <Link href={`/order/${order.id}`} className="order-detail-link">
+                    VER DETALLE
+                  </Link>
                 </article>
               ))}
             </div>
