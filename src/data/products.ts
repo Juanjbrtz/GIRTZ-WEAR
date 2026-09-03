@@ -1,5 +1,12 @@
 export type Audience = "Hombre" | "Mujer" | "Unisex";
 
+export type ProductSprite = {
+  src: string;
+  index: number;
+  columns: number;
+  rows: number;
+};
+
 export type Product = {
   id?: string;
   slug: string;
@@ -12,6 +19,9 @@ export type Product = {
   sizes: string[];
   description: string;
   featured?: boolean;
+  catalogBatch?: number;
+  catalogReference?: string;
+  sprite?: ProductSprite;
 };
 
 export function formatCop(value: number) {
