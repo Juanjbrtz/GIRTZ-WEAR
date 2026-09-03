@@ -23,7 +23,7 @@ const fileCatalogs: Record<string, string[]> = {
     "public/catalog-data/hombre-c2/part-02.b64",
   ],
   "mujer-c2": ["public/catalog-data/mujer-c2/part-01.b64"],
-  "unisex-c2": ["public/catalog/unisex-c2.b64"],
+  "unisex-c2": ["public/catalog-data/unisex-c2/part-01.b64"],
 };
 
 async function readEncodedCatalog(files: string[]) {
