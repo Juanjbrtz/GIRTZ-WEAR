@@ -1,0 +1,334 @@
+/* GIRTZ ADMIN — product management V2 */
+.admin-heading-v2 {
+  align-items: flex-end;
+}
+
+.admin-heading-v2 > div:first-child > p {
+  max-width: 620px;
+  margin: 16px 0 0;
+  color: #888884;
+  font-size: 11px;
+  line-height: 1.65;
+}
+
+.admin-settings-strip {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 520px);
+  gap: 36px;
+  margin: 22px 0;
+  padding: 26px;
+  border: 1px solid #282828;
+  background: #0d0d0d;
+}
+
+.admin-settings-strip > div > span,
+.admin-whatsapp-form label > span,
+.admin-product-note strong {
+  color: #777773;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: .12em;
+}
+
+.admin-settings-strip h2 {
+  margin: 8px 0 0;
+  font-size: 24px;
+  font-weight: 560;
+  letter-spacing: -.035em;
+}
+
+.admin-settings-strip p {
+  max-width: 620px;
+  margin: 12px 0 0;
+  color: #8e8e89;
+  font-size: 10px;
+  line-height: 1.6;
+}
+
+.admin-whatsapp-form {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: end;
+}
+
+.admin-whatsapp-form label {
+  display: grid;
+  gap: 8px;
+}
+
+.admin-whatsapp-form input {
+  width: 100%;
+  min-height: 46px;
+  padding: 0 13px;
+  border: 1px solid #303030;
+  background: #080808;
+  color: #f4f4f0;
+  outline: none;
+}
+
+.admin-whatsapp-form input:focus { border-color: #73736f; }
+
+.admin-products-layout-v2 {
+  display: grid;
+  grid-template-columns: minmax(370px, .8fr) minmax(0, 1.2fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.product-create-panel-v2 {
+  position: sticky;
+  top: 24px;
+}
+
+.admin-product-form-v2 {
+  gap: 18px;
+}
+
+.admin-image-field {
+  display: grid;
+  grid-template-columns: minmax(160px, 210px) minmax(0, 1fr);
+  gap: 14px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid #242424;
+}
+
+.admin-image-preview {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: #ecece8;
+  color: #777;
+  font-size: 8px;
+  letter-spacing: .12em;
+}
+
+.admin-image-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 7%;
+}
+
+.admin-file-picker {
+  min-height: 100%;
+  display: flex !important;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px !important;
+  padding: 18px;
+  border: 1px dashed #3c3c3c;
+  cursor: pointer;
+  transition: border-color .2s ease, background .2s ease;
+}
+
+.admin-file-picker:hover {
+  border-color: #696965;
+  background: #111;
+}
+
+.admin-file-picker > span {
+  color: #f0f0ec !important;
+  font-size: 10px !important;
+}
+
+.admin-file-picker small {
+  color: #777773;
+  font-size: 9px;
+}
+
+.admin-file-picker input {
+  width: 100%;
+  min-height: auto !important;
+  padding: 10px 0 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  color: #9a9a95 !important;
+  font-size: 9px !important;
+}
+
+.admin-product-note {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 15px 16px;
+  border: 1px solid #262626;
+  background: #0b0b0b;
+}
+
+.admin-product-note span {
+  max-width: 420px;
+  color: #8b8b87;
+  font-size: 9px;
+  line-height: 1.55;
+  text-align: right;
+}
+
+.admin-catalog-panel-v2 {
+  min-width: 0;
+}
+
+.admin-product-list-v2 {
+  display: grid;
+}
+
+.admin-product-row-v2 {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr) 125px auto;
+  gap: 18px;
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid #242424;
+}
+
+.admin-product-thumb {
+  position: relative;
+  aspect-ratio: 1;
+  overflow: hidden;
+  background: #ecece8;
+}
+
+.admin-product-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 6%;
+}
+
+.admin-product-copy {
+  min-width: 0;
+  display: grid;
+  gap: 7px;
+}
+
+.admin-product-copy > strong {
+  overflow: hidden;
+  font-size: 16px;
+  font-weight: 560;
+  letter-spacing: -.02em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-product-copy > small {
+  color: #777773;
+  font-size: 9px;
+}
+
+.admin-product-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.admin-product-badges span,
+.admin-product-badges b,
+.admin-product-badges i {
+  padding: 5px 7px;
+  border: 1px solid #303030;
+  color: #8e8e89;
+  font-size: 7px;
+  font-style: normal;
+  font-weight: 700;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+}
+
+.admin-product-badges b {
+  background: #efefeb;
+  border-color: #efefeb;
+  color: #080808;
+}
+
+.admin-product-badges i {
+  color: #b67d7d;
+  border-color: #4a2f2f;
+}
+
+.admin-product-price-v2 {
+  text-align: right;
+}
+
+.admin-product-price-v2 strong {
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.admin-product-actions-v2 {
+  display: grid;
+  gap: 6px;
+}
+
+.admin-product-actions-v2 .admin-ghost-action {
+  min-width: 90px;
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0 10px;
+  border: 1px solid #303030;
+  background: transparent;
+  color: #b5b5b0;
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  cursor: pointer;
+}
+
+.admin-product-actions-v2 .admin-ghost-action:hover {
+  border-color: #6a6a65;
+  color: #fff;
+}
+
+.admin-empty-v2 {
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 10px;
+}
+
+.admin-empty-v2 strong {
+  color: #efefeb;
+  font-size: 16px;
+  letter-spacing: -.02em;
+}
+
+.admin-empty-v2 span {
+  color: #777773;
+  font-size: 10px;
+}
+
+.admin-edit-panel {
+  width: min(900px, 100%);
+  margin-top: 22px;
+}
+
+@media (max-width: 1180px) {
+  .admin-products-layout-v2 {
+    grid-template-columns: 1fr;
+  }
+  .product-create-panel-v2 { position: static; }
+}
+
+@media (max-width: 860px) {
+  .admin-settings-strip { grid-template-columns: 1fr; }
+  .admin-whatsapp-form { grid-template-columns: 1fr; }
+  .admin-product-row-v2 { grid-template-columns: 82px minmax(0, 1fr); }
+  .admin-product-price-v2,
+  .admin-product-actions-v2 { grid-column: 2; text-align: left; }
+  .admin-product-actions-v2 { grid-template-columns: repeat(2, max-content); }
+}
+
+@media (max-width: 560px) {
+  .admin-settings-strip { padding: 18px; }
+  .admin-image-field { grid-template-columns: 1fr; }
+  .admin-image-preview { max-width: 240px; }
+  .admin-form-grid.two { grid-template-columns: 1fr; }
+  .admin-product-note { align-items: flex-start; flex-direction: column; gap: 8px; }
+  .admin-product-note span { text-align: left; }
+}
