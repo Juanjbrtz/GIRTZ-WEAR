@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Catálogo",
   description:
-    "Explora GIRTZ WEAR por sección y marca. Agrega tus modelos al carrito y consulta disponibilidad directamente por WhatsApp.",
+    "Explora GIRTZ WEAR por sección y marca y consulta disponibilidad directamente por WhatsApp.",
 };
 
 type ShopPageProps = {
@@ -67,18 +67,15 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
       <section className="catalog-shell catalog-shell-v3">
         <div className="catalog-heading catalog-heading-v3">
           <div>
-            <span className="eyebrow">GIRTZ WEAR / SNEAKER SELECTION</span>
+            <span className="eyebrow">GIRTZ WEAR</span>
             <h1>ENCUENTRA<br />TU PRÓXIMO PAR.</h1>
           </div>
           <div className="catalog-intro-v3">
-            <p>
-              Filtra por sección y marca. La disponibilidad de tallas se confirma directamente
-              por WhatsApp antes de coordinar tu compra.
-            </p>
+            <p>Explora por sección y marca.</p>
             <div className="catalog-service-badges">
-              <span>FOTOS REALES</span>
-              <span>CONSULTA DIRECTA</span>
-              <span>+ ENVÍO</span>
+              <span>HOMBRE</span>
+              <span>MUJER</span>
+              <span>UNISEX</span>
             </div>
           </div>
         </div>
@@ -98,7 +95,7 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
         {brands.length ? (
           <div className="brand-filter-shell">
             <div className="brand-filter-title">
-              <span>FILTRAR POR MARCA</span>
+              <span>MARCA</span>
               {activeBrand ? <strong>{activeBrand}</strong> : <strong>TODAS</strong>}
             </div>
             <nav className="brand-filter-row" aria-label="Filtrar catálogo por marca">
@@ -121,7 +118,7 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
         <div className="catalog-result-bar catalog-result-bar-v3">
           <span>
             {activeCategory === "todos"
-              ? "CATÁLOGO COMPLETO"
+              ? "CATÁLOGO"
               : categoryMap[activeCategory].toUpperCase()}
             {activeBrand ? ` / ${activeBrand.toUpperCase()}` : ""}
           </span>
@@ -140,11 +137,9 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
           </div>
         ) : (
           <div className="catalog-empty-v3">
-            <span className="eyebrow">CATÁLOGO EN ACTUALIZACIÓN</span>
-            <h2>PRONTO HABRÁ NUEVAS REFERENCIAS AQUÍ.</h2>
-            <p>
-              El catálogo ahora se administra con fotografías individuales en alta calidad.
-            </p>
+            <span className="eyebrow">GIRTZ WEAR</span>
+            <h2>NUEVAS REFERENCIAS MUY PRONTO.</h2>
+            <p>Estamos preparando nuestra próxima selección.</p>
           </div>
         )}
       </section>
