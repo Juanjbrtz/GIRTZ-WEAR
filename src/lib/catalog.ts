@@ -1,7 +1,6 @@
 import { and, desc, eq } from "drizzle-orm";
 import { getDb } from "@/db";
-import { products as productTable, productVariants } from "@/db/schema";
-import { approvedCatalogProducts } from "@/data/catalog-approved";
+import { products as productTable } from "@/db/schema";
 import type { Audience, Product } from "@/data/products";
 import { isDatabaseConfigured } from "@/lib/store-data";
 
@@ -10,9 +9,28 @@ function normalizeAudience(value: string | null): Audience {
   return "Unisex";
 }
 
+function mapProduct(row: typeof productTable.$inferSelect): Product {
+  return {
+    id: row.id,
+    slug: row.slug,
+    name: row.name,
+    brand: row.brand || "GIRTZ",
+    audience: normalizeAudience(row.audience),
+    price: row.price,
+    image: row.imageUrl
+      ? `${row.imageUrl}${row.imageUrl.includes("?") ? "&" : "?"}v=${row.updatedAt.getTime()}`
+      : `/api/product-image/${row.id}?v=${row.updatedAt.getTime()}`,
+    imageAlt: `${row.brand || "Sneaker"} ${row.name}`,
+    sizes: [],
+    description:
+      row.description ||
+      "Referencia seleccionada por GIRTZ WEAR. Consulta disponibilidad de tallas por WhatsApp.",
+    featured: row.featured,
+  };
+}
+
 export async function getCatalogProducts(): Promise<Product[]> {
-  const approved = approvedCatalogProducts;
-  if (!isDatabaseConfigured()) return approved;
+  if (!isDatabaseConfigured()) return [];
 
   try {
     const db = getDb();
@@ -20,69 +38,32 @@ export async function getCatalogProducts(): Promise<Product[]> {
       .select()
       .from(productTable)
       .where(eq(productTable.active, true))
-      .orderBy(desc(productTable.featured), desc(productTable.createdAt));
+      .orderBy(desc(productTable.featured), desc(productTable.updatedAt));
 
-    if (!rows.length) return approved;
-
-    const variants = await db.select().from(productVariants);
-    const adminProducts: Product[] = rows.map((row) => ({
-      slug: row.slug,
-      name: row.name,
-      brand: row.brand || "SELECCIÓN GIRTZ",
-      audience: normalizeAudience(row.audience),
-      price: row.price,
-      image: row.imageUrl || "",
-      imageAlt: `${row.brand || "Sneaker"} ${row.name}`,
-      sizes: variants
-        .filter((variant) => variant.productId === row.id && variant.stockStatus !== "out_of_stock")
-        .map((variant) => variant.size),
-      description: row.description || "Referencia seleccionada por GIRTZ WEAR.",
-    }));
-
-    const adminSlugs = new Set(adminProducts.map((product) => product.slug));
-    return [...adminProducts, ...approved.filter((product) => !adminSlugs.has(product.slug))];
+    return rows.map(mapProduct);
   } catch {
-    return approved;
+    return [];
   }
 }
 
 export async function getCatalogProductBySlug(slug: string): Promise<Product | null> {
-  const approved = approvedCatalogProducts.find((product) => product.slug === slug);
-  if (approved) return approved;
+  if (!isDatabaseConfigured()) return null;
 
-  if (isDatabaseConfigured()) {
-    try {
-      const db = getDb();
-      const [row] = await db
-        .select()
-        .from(productTable)
-        .where(and(eq(productTable.slug, slug), eq(productTable.active, true)))
-        .limit(1);
+  try {
+    const db = getDb();
+    const [row] = await db
+      .select()
+      .from(productTable)
+      .where(and(eq(productTable.slug, slug), eq(productTable.active, true)))
+      .limit(1);
 
-      if (row) {
-        const variants = await db
-          .select()
-          .from(productVariants)
-          .where(eq(productVariants.productId, row.id));
-
-        return {
-          slug: row.slug,
-          name: row.name,
-          brand: row.brand || "SELECCIÓN GIRTZ",
-          audience: normalizeAudience(row.audience),
-          price: row.price,
-          image: row.imageUrl || "",
-          imageAlt: `${row.brand || "Sneaker"} ${row.name}`,
-          sizes: variants
-            .filter((variant) => variant.stockStatus !== "out_of_stock")
-            .map((variant) => variant.size),
-          description: row.description || "Referencia seleccionada por GIRTZ WEAR.",
-        };
-      }
-    } catch {
-      // El catálogo aprobado permanece disponible si Neon no está disponible.
-    }
+    return row ? mapProduct(row) : null;
+  } catch {
+    return null;
   }
+}
 
-  return null;
+export async function getFeaturedProduct(): Promise<Product | null> {
+  const products = await getCatalogProducts();
+  return products.find((product) => product.featured) || products[0] || null;
 }
