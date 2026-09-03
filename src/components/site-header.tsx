@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CartLink } from "@/components/cart-link";
 
 const navItems = [
   { href: "/", label: "INICIO" },
@@ -24,9 +25,12 @@ export function SiteHeader() {
         ))}
       </nav>
 
-      <Link href="/account" className="header-cta">
-        MI CUENTA
-      </Link>
+      <div className="header-actions">
+        <CartLink compact />
+        <Link href="/account" className="header-cta">
+          MI CUENTA
+        </Link>
+      </div>
     </header>
   );
 }

@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { Instrument_Sans } from "next/font/google";
+import { CartProvider } from "@/components/cart-provider";
 import "./globals.css";
 import "./info.css";
 import "./account-admin.css";
 import "./admin-overrides.css";
+import "./storefront-commerce.css";
 
 const instrumentSans = Instrument_Sans({
   variable: "--font-brand",
@@ -26,7 +28,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es" className={instrumentSans.variable}>
-      <body>{children}</body>
+      <body>
+        <CartProvider>{children}</CartProvider>
+      </body>
     </html>
   );
 }

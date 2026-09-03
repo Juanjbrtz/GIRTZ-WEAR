@@ -29,6 +29,7 @@ function statusLabel(value: string) {
     received: "Recibido",
     confirmed: "Confirmado",
     processing: "En proceso",
+    preparing: "En preparación",
     shipped: "Enviado",
     delivered: "Entregado",
     cancelled: "Cancelado",
@@ -112,6 +113,7 @@ export default async function AccountPage() {
                     <span>PEDIDO</span>
                     <strong>#{order.id.slice(0, 8).toUpperCase()}</strong>
                     <small>{formatDate(order.createdAt)}</small>
+                    <Link href={`/order/${order.id}`}>VER DETALLE</Link>
                   </div>
                   <div>
                     <span>TOTAL</span>
