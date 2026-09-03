@@ -2,16 +2,16 @@
 
 import Link from "next/link";
 import { useCart } from "@/components/cart-provider";
+import { WhatsappConsultButton } from "@/components/whatsapp-consult-button";
 import { formatCop } from "@/data/products";
 
-export function CartPanel() {
+export function CartPanel({ whatsappNumber }: { whatsappNumber: string }) {
   const {
     items,
     subtotal,
     hydrated,
     removeItem,
     updateQuantity,
-    updateSize,
     clearCart,
   } = useCart();
 
@@ -21,58 +21,56 @@ export function CartPanel() {
 
   if (!items.length) {
     return (
-      <section className="cart-empty">
+      <section className="cart-empty cart-empty-v3">
         <span className="eyebrow">TU SELECCIÓN</span>
-        <h1>EL CARRITO ESTÁ VACÍO.</h1>
-        <p>Explora las referencias de Hombre, Mujer y Unisex y agrega las que quieras consultar o comprar.</p>
+        <h1>GUARDA AQUÍ LOS MODELOS QUE TE INTERESAN.</h1>
+        <p>
+          Agrega uno o varios pares y luego envía una sola consulta por WhatsApp
+          para conocer las tallas disponibles.
+        </p>
         <Link href="/shop" className="primary-button">
-          VER CATÁLOGO
+          EXPLORAR CATÁLOGO
         </Link>
       </section>
     );
   }
 
   return (
-    <section className="cart-shell">
-      <div className="cart-heading">
+    <section className="cart-shell cart-shell-v3">
+      <div className="cart-heading cart-heading-v3">
         <div>
           <span className="eyebrow">TU SELECCIÓN</span>
-          <h1>CARRITO.</h1>
+          <h1>CARRITO DE CONSULTA.</h1>
+          <p>{items.length} modelos listos para consultar por WhatsApp.</p>
         </div>
         <button type="button" className="cart-clear" onClick={clearCart}>
           VACIAR CARRITO
         </button>
       </div>
 
-      <div className="cart-layout">
-        <div className="cart-items">
-          {items.map((item) => (
-            <article key={`${item.slug}-${item.size}`} className="cart-item">
-              <div className="cart-item-number">{String(items.indexOf(item) + 1).padStart(2, "0")}</div>
+      <div className="cart-layout cart-layout-v3">
+        <div className="cart-items cart-items-v3">
+          {items.map((item, index) => (
+            <article key={item.slug} className="cart-item cart-item-v3">
+              <div className="cart-item-number">{String(index + 1).padStart(2, "0")}</div>
               <div className="cart-item-main">
                 <div className="cart-item-topline">
+                  <span>{item.brand.toUpperCase()}</span>
                   <span>{item.audience.toUpperCase()}</span>
-                  <span>{item.catalogReference || "GIRTZ WEAR"}</span>
                 </div>
                 <h2>{item.name}</h2>
                 <strong>{formatCop(item.price)} + envío</strong>
+                <div className="cart-size-request-v3">
+                  TALLAS · CONSULTAR DISPONIBILIDAD
+                </div>
 
                 <div className="cart-item-controls">
-                  <label>
-                    <span>TALLA</span>
-                    <input
-                      value={item.size === "POR CONFIRMAR" ? "" : item.size}
-                      placeholder="Por confirmar"
-                      onChange={(event) => updateSize(item.slug, event.target.value)}
-                    />
-                  </label>
-
                   <label>
                     <span>CANTIDAD</span>
                     <div className="quantity-control">
                       <button
                         type="button"
-                        onClick={() => updateQuantity(item.slug, item.quantity - 1, item.size)}
+                        onClick={() => updateQuantity(item.slug, item.quantity - 1)}
                         aria-label={`Reducir cantidad de ${item.name}`}
                       >
                         −
@@ -80,7 +78,7 @@ export function CartPanel() {
                       <b>{item.quantity}</b>
                       <button
                         type="button"
-                        onClick={() => updateQuantity(item.slug, item.quantity + 1, item.size)}
+                        onClick={() => updateQuantity(item.slug, item.quantity + 1)}
                         aria-label={`Aumentar cantidad de ${item.name}`}
                       >
                         +
@@ -92,7 +90,7 @@ export function CartPanel() {
 
               <div className="cart-item-side">
                 <strong>{formatCop(item.price * item.quantity)}</strong>
-                <button type="button" onClick={() => removeItem(item.slug, item.size)}>
+                <button type="button" onClick={() => removeItem(item.slug)}>
                   ELIMINAR
                 </button>
               </div>
@@ -100,32 +98,34 @@ export function CartPanel() {
           ))}
         </div>
 
-        <aside className="cart-summary">
-          <span className="eyebrow">RESUMEN</span>
+        <aside className="cart-summary cart-summary-v3">
+          <span className="eyebrow">CONSULTA</span>
+          <h2>CONFIRMA TALLAS POR WHATSAPP.</h2>
           <div className="cart-summary-row">
-            <span>PRODUCTOS</span>
+            <span>UNIDADES</span>
             <strong>{items.reduce((sum, item) => sum + item.quantity, 0)}</strong>
           </div>
           <div className="cart-summary-row">
-            <span>SUBTOTAL</span>
+            <span>VALOR PRODUCTOS</span>
             <strong>{formatCop(subtotal)}</strong>
           </div>
           <div className="cart-summary-row muted">
             <span>ENVÍO</span>
-            <strong>POR CALCULAR</strong>
-          </div>
-          <div className="cart-summary-total">
-            <span>TOTAL PRODUCTOS</span>
-            <strong>{formatCop(subtotal)}</strong>
+            <strong>POR CONFIRMAR</strong>
           </div>
 
-          <Link href="/checkout" className="primary-button">
-            CONTINUAR COMPRA
-          </Link>
+          <WhatsappConsultButton
+            whatsappNumber={whatsappNumber}
+            className="whatsapp-button whatsapp-button-cart"
+            label="CONSULTAR TODO EN WHATSAPP"
+          />
           <Link href="/shop" className="secondary-button">
-            SEGUIR COMPRANDO
+            AGREGAR MÁS MODELOS
           </Link>
-          <p>La talla y el valor final del envío se confirman antes del despacho.</p>
+          <p>
+            WhatsApp recibirá automáticamente los modelos y cantidades de este carrito.
+            Allí te confirmamos qué tallas hay disponibles.
+          </p>
         </aside>
       </div>
     </section>
