@@ -6,6 +6,8 @@ import "./info.css";
 import "./account-admin.css";
 import "./admin-overrides.css";
 import "./storefront-commerce.css";
+import "./storefront-v3.css";
+import "./admin-v2.css";
 
 const instrumentSans = Instrument_Sans({
   variable: "--font-brand",
@@ -14,11 +16,11 @@ const instrumentSans = Instrument_Sans({
 
 export const metadata: Metadata = {
   title: {
-    default: "GIRTZ WEAR — Catálogo premium de sneakers",
+    default: "GIRTZ WEAR — Sneakers multimarca",
     template: "%s | GIRTZ WEAR",
   },
   description:
-    "Catálogo multimarca de sneakers para hombre, mujer y unisex en Colombia. Selección curada, tallas visibles y atención directa.",
+    "Sneakers multimarca para hombre, mujer y unisex. Guarda tus favoritos y consulta disponibilidad de tallas directamente por WhatsApp.",
 };
 
 export default function RootLayout({
