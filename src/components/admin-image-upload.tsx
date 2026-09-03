@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ChangeEvent } from "react";
 
 export function AdminImageUpload({
   name = "image",
@@ -20,7 +20,7 @@ export function AdminImageUpload({
     };
   }, [objectUrl]);
 
-  function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
+  function handleChange(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     if (!file) {
       setPreview(currentImage || null);
