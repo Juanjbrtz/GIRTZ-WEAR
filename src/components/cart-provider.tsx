@@ -13,11 +13,10 @@ import {
 export type CartItem = {
   slug: string;
   name: string;
+  brand: string;
   audience: "Hombre" | "Mujer" | "Unisex";
   price: number;
   quantity: number;
-  size: string;
-  catalogReference?: string;
 };
 
 type AddCartItem = Omit<CartItem, "quantity"> & { quantity?: number };
@@ -28,13 +27,12 @@ type CartContextValue = {
   subtotal: number;
   hydrated: boolean;
   addItem: (item: AddCartItem) => void;
-  removeItem: (slug: string, size?: string) => void;
-  updateQuantity: (slug: string, quantity: number, size?: string) => void;
-  updateSize: (slug: string, size: string) => void;
+  removeItem: (slug: string) => void;
+  updateQuantity: (slug: string, quantity: number) => void;
   clearCart: () => void;
 };
 
-const STORAGE_KEY = "girtz-cart-v1";
+const STORAGE_KEY = "girtz-cart-v2";
 const CartContext = createContext<CartContextValue | null>(null);
 
 export function CartProvider({ children }: { children: ReactNode }) {
@@ -61,16 +59,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, [hydrated, items]);
 
   const addItem = useCallback((item: AddCartItem) => {
-    const size = item.size || "POR CONFIRMAR";
     const quantity = Math.max(1, item.quantity || 1);
 
     setItems((current) => {
-      const index = current.findIndex(
-        (entry) => entry.slug === item.slug && entry.size === size,
-      );
+      const index = current.findIndex((entry) => entry.slug === item.slug);
 
       if (index === -1) {
-        return [...current, { ...item, size, quantity }];
+        return [...current, { ...item, quantity }];
       }
 
       return current.map((entry, entryIndex) =>
@@ -81,39 +76,25 @@ export function CartProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  const removeItem = useCallback((slug: string, size?: string) => {
-    setItems((current) =>
-      current.filter(
-        (entry) => !(entry.slug === slug && (!size || entry.size === size)),
-      ),
-    );
+  const removeItem = useCallback((slug: string) => {
+    setItems((current) => current.filter((entry) => entry.slug !== slug));
   }, []);
 
   const updateQuantity = useCallback(
-    (slug: string, quantity: number, size?: string) => {
+    (slug: string, quantity: number) => {
       if (quantity <= 0) {
-        removeItem(slug, size);
+        removeItem(slug);
         return;
       }
 
       setItems((current) =>
         current.map((entry) =>
-          entry.slug === slug && (!size || entry.size === size)
-            ? { ...entry, quantity }
-            : entry,
+          entry.slug === slug ? { ...entry, quantity: Math.min(20, quantity) } : entry,
         ),
       );
     },
     [removeItem],
   );
-
-  const updateSize = useCallback((slug: string, size: string) => {
-    setItems((current) =>
-      current.map((entry) =>
-        entry.slug === slug ? { ...entry, size: size || "POR CONFIRMAR" } : entry,
-      ),
-    );
-  }, []);
 
   const clearCart = useCallback(() => setItems([]), []);
 
@@ -132,10 +113,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
       addItem,
       removeItem,
       updateQuantity,
-      updateSize,
       clearCart,
     };
-  }, [items, hydrated, addItem, removeItem, updateQuantity, updateSize, clearCart]);
+  }, [items, hydrated, addItem, removeItem, updateQuantity, clearCart]);
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }
