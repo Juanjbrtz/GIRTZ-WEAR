@@ -4,7 +4,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { WhatsappConsultButton } from "@/components/whatsapp-consult-button";
 import { formatCop } from "@/data/products";
-import { getCatalogProducts, getFeaturedProduct } from "@/lib/catalog";
+import { getFeaturedProduct } from "@/lib/catalog";
 import { getWhatsappNumber } from "@/lib/store-settings";
 
 export const dynamic = "force-dynamic";
@@ -20,23 +20,21 @@ const catalogRoutes = [
     href: "/shop?categoria=mujer",
     index: "02",
     title: "MUJER",
-    description: "Referencias seleccionadas para mujer.",
+    description: "Una selección pensada para mujer.",
   },
   {
     href: "/shop?categoria=unisex",
     index: "03",
     title: "UNISEX",
-    description: "Modelos versátiles para distintos estilos.",
+    description: "Modelos versátiles para todos los estilos.",
   },
 ];
 
 export default async function Home() {
-  const [heroProduct, catalogProducts, whatsappNumber] = await Promise.all([
+  const [heroProduct, whatsappNumber] = await Promise.all([
     getFeaturedProduct(),
-    getCatalogProducts(),
     getWhatsappNumber(),
   ]);
-  const brandCount = new Set(catalogProducts.map((product) => product.brand)).size;
 
   return (
     <main className="home-page home-page-v3">
@@ -45,25 +43,18 @@ export default async function Home() {
       <section className="home-hero-v3">
         <div className="home-hero-copy-v3">
           <span className="eyebrow">GIRTZ WEAR / COLOMBIA</span>
-          <h1>ENCUENTRA EL PAR QUE HABLA POR TI.</h1>
+          <h1>SNEAKERS QUE HABLAN POR TI.</h1>
           <p>
-            Sneakers multimarca, fotografías reales y una compra más simple:
-            guarda tus favoritos y consulta tallas directamente por WhatsApp.
+            Descubre nuestra selección multimarca y encuentra tu próximo par.
           </p>
 
           <div className="home-hero-actions-v3">
             <Link href="/shop" className="primary-button">
-              EXPLORAR CATÁLOGO
+              VER CATÁLOGO
             </Link>
             <Link href="/cart" className="secondary-button">
-              VER MI SELECCIÓN
+              MI SELECCIÓN
             </Link>
-          </div>
-
-          <div className="home-stats-v3">
-            <div><strong>{catalogProducts.length}</strong><span>MODELOS PUBLICADOS</span></div>
-            <div><strong>{brandCount}</strong><span>MARCAS</span></div>
-            <div><strong>1:1</strong><span>ATENCIÓN POR WHATSAPP</span></div>
           </div>
         </div>
 
@@ -76,7 +67,7 @@ export default async function Home() {
                   priority
                   sizes="(max-width: 900px) 100vw, 50vw"
                 />
-                <span className="home-featured-tag">PRODUCTO DESTACADO</span>
+                <span className="home-featured-tag">DESTACADO</span>
               </Link>
               <div className="home-featured-info-v3">
                 <div>
@@ -89,16 +80,14 @@ export default async function Home() {
                 product={heroProduct}
                 whatsappNumber={whatsappNumber}
                 className="whatsapp-button home-whatsapp-v3"
-                label="CONSULTAR TALLAS DEL DESTACADO"
+                label="CONSULTAR DISPONIBILIDAD"
               />
             </>
           ) : (
             <div className="home-featured-empty-v3">
-              <span className="eyebrow">PORTADA ADMINISTRABLE</span>
-              <h2>ELIGE EL PRODUCTO DESTACADO DESDE /ADMIN.</h2>
-              <p>
-                Cuando publiques un producto como destacado, su fotografía aparecerá aquí en alta calidad.
-              </p>
+              <span className="eyebrow">GIRTZ WEAR</span>
+              <h2>NUEVA SELECCIÓN.</h2>
+              <p>Muy pronto encontrarás aquí nuestros modelos destacados.</p>
             </div>
           )}
         </div>
@@ -106,8 +95,8 @@ export default async function Home() {
 
       <section className="home-discovery-v3">
         <div className="home-discovery-head-v3">
-          <span className="eyebrow">EXPLORA POR SECCIÓN</span>
-          <h2>TRES FORMAS DE EMPEZAR.</h2>
+          <span className="eyebrow">EXPLORA</span>
+          <h2>ENCUENTRA TU ESTILO.</h2>
         </div>
 
         <div className="home-category-grid-v3">
@@ -116,27 +105,9 @@ export default async function Home() {
               <span>{item.index}</span>
               <h3>{item.title}</h3>
               <p>{item.description}</p>
-              <strong>VER CATÁLOGO →</strong>
+              <strong>VER →</strong>
             </Link>
           ))}
-        </div>
-      </section>
-
-      <section className="home-process-v3">
-        <div>
-          <span>01</span>
-          <strong>ELIGE</strong>
-          <p>Explora por sección o marca y guarda los modelos que te interesan.</p>
-        </div>
-        <div>
-          <span>02</span>
-          <strong>CONSULTA</strong>
-          <p>Envía el carrito por WhatsApp y pregunta por las tallas disponibles.</p>
-        </div>
-        <div>
-          <span>03</span>
-          <strong>COORDINA</strong>
-          <p>Confirmamos disponibilidad y envío contigo antes de cerrar la compra.</p>
         </div>
       </section>
 
