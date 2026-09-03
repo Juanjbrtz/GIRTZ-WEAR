@@ -9,8 +9,8 @@ export const runtime = "nodejs";
 
 const fileCatalogs: Record<string, string[]> = {
   "mujer-c1": [
-    "src/server/catalog-atlas-v3/mujer-c1/chunk-01.b64",
-    "src/server/catalog-atlas-v3/mujer-c1/chunk-02.b64",
+    "public/catalog-data/mujer-c1/part-01.b64",
+    "public/catalog-data/mujer-c1/part-02.b64",
   ],
   "unisex-c1": [
     "public/catalog-data/unisex-c1/part-01.b64",
@@ -19,12 +19,10 @@ const fileCatalogs: Record<string, string[]> = {
     "public/catalog-data/unisex-c1/part-04.b64",
   ],
   "hombre-c2": [
-    "src/server/catalog-atlas-v3/hombre-c2/chunk-01.b64",
-    "src/server/catalog-atlas-v3/hombre-c2/chunk-02.b64",
+    "public/catalog-data/hombre-c2/part-01.b64",
+    "public/catalog-data/hombre-c2/part-02.b64",
   ],
-  "mujer-c2": [
-    "src/server/catalog-atlas-v3/mujer-c2/chunk-01.b64",
-  ],
+  "mujer-c2": ["public/catalog-data/mujer-c2/part-01.b64"],
   "unisex-c2": ["public/catalog/unisex-c2.b64"],
 };
 
