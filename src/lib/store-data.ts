@@ -100,7 +100,10 @@ export async function getAdminStats() {
   const [[customerCount], [orderCount], [productCount], [totals]] = await Promise.all([
     db.select({ value: sql<number>`count(*)::int` }).from(customers),
     db.select({ value: sql<number>`count(*)::int` }).from(orders),
-    db.select({ value: sql<number>`count(*)::int` }).from(products),
+    db
+      .select({ value: sql<number>`count(*)::int` })
+      .from(products)
+      .where(sql`${products.category} IS DISTINCT FROM '__asset'`),
     db
       .select({
         revenue: sql<number>`coalesce(sum(${orders.total}), 0)::int`,
@@ -157,7 +160,11 @@ export async function getAdminProducts() {
   if (!isDatabaseConfigured()) return [];
   const db = getDb();
 
-  const rows = await db.select().from(products).orderBy(desc(products.createdAt));
+  const rows = await db
+    .select()
+    .from(products)
+    .where(sql`${products.category} IS DISTINCT FROM '__asset'`)
+    .orderBy(desc(products.featured), desc(products.updatedAt));
   if (!rows.length) return [];
 
   const variants = await db

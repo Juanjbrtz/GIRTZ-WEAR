@@ -8,6 +8,7 @@ export type ProductSprite = {
 };
 
 export type Product = {
+  id?: string;
   slug: string;
   name: string;
   brand: string;
@@ -17,6 +18,7 @@ export type Product = {
   imageAlt: string;
   sizes: string[];
   description: string;
+  featured?: boolean;
   catalogBatch?: number;
   catalogReference?: string;
   sprite?: ProductSprite;
