@@ -158,7 +158,7 @@ export async function registerInventoryPurchase(formData: FormData) {
         ${product.name}, ${size}, 'purchase', ${quantity}, ${unitCost}, ${product.price}, ${supplier || null}, ${note || null}, now()
       )
     `,
-  ], { isolationMode: "Serializable" });
+  ]);
 
   revalidateStorefront(product.slug);
   redirect(`/admin/inventory?added=1&product=${productId}`);
@@ -207,7 +207,7 @@ export async function registerManualSale(formData: FormData) {
         ${product.name}, ${size}, 'sale_manual', ${quantity}, ${unitCost}, ${unitPrice}, ${note || 'Venta registrada manualmente'}, now()
       )
     `,
-  ], { isolationMode: "Serializable" });
+  ]);
 
   revalidateStorefront(product.slug);
   redirect(`/admin/sales?created=1&product=${productId}`);
