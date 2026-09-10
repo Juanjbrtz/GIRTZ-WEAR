@@ -5,14 +5,12 @@ import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import type { Audience } from "@/data/products";
 import { getCatalogProducts } from "@/lib/catalog";
-import { getWhatsappNumber } from "@/lib/store-settings";
 
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Catálogo",
-  description:
-    "Explora GIRTZ WEAR por sección y marca y consulta disponibilidad directamente por WhatsApp.",
+  title: "Tienda",
+  description: "Catálogo de sneakers GIRTZ WEAR con tallas y disponibilidad de inventario.",
 };
 
 type ShopPageProps = {
@@ -41,10 +39,9 @@ function brandHref(category: string, brand?: string) {
 }
 
 export default async function ShopPage({ searchParams }: ShopPageProps) {
-  const [{ categoria, marca }, catalogProducts, whatsappNumber] = await Promise.all([
+  const [{ categoria, marca }, catalogProducts] = await Promise.all([
     searchParams,
     getCatalogProducts(),
-    getWhatsappNumber(),
   ]);
 
   const activeCategory = categoria && categoryMap[categoria] ? categoria : "todos";
@@ -52,7 +49,6 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
   const categoryProducts = audience
     ? catalogProducts.filter((product) => product.audience === audience)
     : catalogProducts;
-
   const brands = [...new Set(categoryProducts.map((product) => product.brand).filter(Boolean))]
     .sort((a, b) => a.localeCompare(b, "es"));
   const activeBrand = marca && brands.includes(marca) ? marca : "";
@@ -63,7 +59,6 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
   return (
     <main className="inner-page catalog-page catalog-page-v3">
       <SiteHeader />
-
       <section className="catalog-shell catalog-shell-v3">
         <div className="catalog-heading catalog-heading-v3">
           <div>
@@ -71,43 +66,25 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
             <h1>ENCUENTRA<br />TU PRÓXIMO PAR.</h1>
           </div>
           <div className="catalog-intro-v3">
-            <p>Explora por sección y marca.</p>
-            <div className="catalog-service-badges">
-              <span>HOMBRE</span>
-              <span>MUJER</span>
-              <span>UNISEX</span>
-            </div>
+            <p>Elige tu modelo y talla. Agrega al carrito y compra en línea.</p>
           </div>
         </div>
 
-        <nav className="catalog-filters catalog-filters-v3" aria-label="Filtrar catálogo por sección">
+        <nav className="catalog-filters catalog-filters-v3" aria-label="Filtrar por sección">
           {filters.map((filter) => (
-            <Link
-              key={filter.value}
-              href={filter.href}
-              className={activeCategory === filter.value ? "active" : undefined}
-            >
+            <Link key={filter.value} href={filter.href} className={activeCategory === filter.value ? "active" : undefined}>
               {filter.label}
             </Link>
           ))}
         </nav>
 
-        {brands.length ? (
+        {brands.length > 1 ? (
           <div className="brand-filter-shell">
-            <div className="brand-filter-title">
-              <span>MARCA</span>
-              {activeBrand ? <strong>{activeBrand}</strong> : <strong>TODAS</strong>}
-            </div>
-            <nav className="brand-filter-row" aria-label="Filtrar catálogo por marca">
-              <Link href={brandHref(activeCategory)} className={!activeBrand ? "active" : undefined}>
-                TODAS
-              </Link>
+            <div className="brand-filter-title"><span>MARCA</span><strong>{activeBrand || "TODAS"}</strong></div>
+            <nav className="brand-filter-row" aria-label="Filtrar por marca">
+              <Link href={brandHref(activeCategory)} className={!activeBrand ? "active" : undefined}>TODAS</Link>
               {brands.map((brand) => (
-                <Link
-                  key={brand}
-                  href={brandHref(activeCategory, brand)}
-                  className={activeBrand === brand ? "active" : undefined}
-                >
+                <Link key={brand} href={brandHref(activeCategory, brand)} className={activeBrand === brand ? "active" : undefined}>
                   {brand.toUpperCase()}
                 </Link>
               ))}
@@ -116,34 +93,21 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
         ) : null}
 
         <div className="catalog-result-bar catalog-result-bar-v3">
-          <span>
-            {activeCategory === "todos"
-              ? "CATÁLOGO"
-              : categoryMap[activeCategory].toUpperCase()}
-            {activeBrand ? ` / ${activeBrand.toUpperCase()}` : ""}
-          </span>
+          <span>{activeCategory === "todos" ? "CATÁLOGO" : categoryMap[activeCategory].toUpperCase()}{activeBrand ? ` / ${activeBrand.toUpperCase()}` : ""}</span>
           <span>{visibleProducts.length} MODELOS</span>
         </div>
 
         {visibleProducts.length ? (
           <div className="product-grid catalog-grid product-grid-v3">
-            {visibleProducts.map((product) => (
-              <ProductCard
-                key={product.slug}
-                product={product}
-                whatsappNumber={whatsappNumber}
-              />
-            ))}
+            {visibleProducts.map((product) => <ProductCard key={product.slug} product={product} />)}
           </div>
         ) : (
           <div className="catalog-empty-v3">
             <span className="eyebrow">GIRTZ WEAR</span>
             <h2>NUEVAS REFERENCIAS MUY PRONTO.</h2>
-            <p>Estamos preparando nuestra próxima selección.</p>
           </div>
         )}
       </section>
-
       <SiteFooter />
     </main>
   );
