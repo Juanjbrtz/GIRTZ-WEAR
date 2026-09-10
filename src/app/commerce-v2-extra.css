@@ -1,0 +1,271 @@
+/* GIRTZ WEAR — commerce + inventory refinements */
+.purchase-controls {
+  display: grid;
+  gap: 14px;
+  margin-top: 24px;
+}
+
+.purchase-controls.compact {
+  margin-top: 16px;
+}
+
+.purchase-size-select {
+  display: grid;
+  gap: 7px;
+}
+
+.purchase-size-select > span {
+  color: var(--muted);
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: .12em;
+}
+
+.purchase-size-select select {
+  width: 100%;
+  min-height: 46px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  background: #0a0a0a;
+  color: var(--white);
+  font: inherit;
+  outline: none;
+}
+
+.purchase-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.purchase-controls.compact .purchase-actions {
+  grid-template-columns: 1fr;
+}
+
+.out-of-stock-button {
+  min-height: 48px;
+  display: grid;
+  place-items: center;
+  margin-top: 18px;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .12em;
+}
+
+.product-stock-line {
+  margin-top: 14px;
+  color: var(--muted-light);
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: .11em;
+}
+
+.product-size-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.product-size-preview span {
+  min-width: 32px;
+  min-height: 28px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  color: var(--muted-light);
+  font-size: 9px;
+}
+
+.product-inventory-block {
+  margin-top: 28px;
+  padding: 20px;
+  border: 1px solid var(--line);
+  background: var(--black-soft);
+}
+
+.product-inventory-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  color: var(--muted);
+  font-size: 8px;
+  letter-spacing: .1em;
+}
+
+.product-size-stock-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.product-size-stock-grid > span {
+  min-width: 58px;
+  display: grid;
+  gap: 3px;
+  padding: 11px;
+  border: 1px solid var(--line);
+}
+
+.product-size-stock-grid b {
+  font-size: 13px;
+}
+
+.product-size-stock-grid small {
+  color: var(--muted);
+  font-size: 8px;
+}
+
+.product-size-stock-grid .product-out-message {
+  width: 100%;
+  color: var(--muted);
+}
+
+.commerce-metrics {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.admin-dashboard-shortcuts {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 0 0 28px;
+}
+
+.admin-dashboard-shortcuts a {
+  min-height: 110px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 18px;
+  border: 1px solid var(--line);
+  background: var(--black-soft);
+}
+
+.admin-dashboard-shortcuts span {
+  color: var(--muted);
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: .12em;
+}
+
+.admin-dashboard-shortcuts strong {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.sales-kpis {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.profitability-table td strong {
+  color: var(--white);
+}
+
+.admin-heading-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.admin-product-note.compact {
+  min-height: 70px;
+  display: grid;
+  align-content: center;
+  gap: 5px;
+  padding: 12px 15px;
+  border: 1px solid var(--line);
+}
+
+.admin-product-note.compact strong {
+  color: var(--muted);
+  font-size: 8px;
+  letter-spacing: .1em;
+}
+
+.admin-product-note.compact span {
+  font-size: 13px;
+}
+
+.edit-stock-chips {
+  margin: 0;
+  padding: 14px;
+  border: 1px solid var(--line);
+}
+
+.checkout-payment-note {
+  grid-column: 1 / -1;
+  color: var(--muted);
+  font-size: 9px;
+  line-height: 1.5;
+}
+
+.order-next-steps > p {
+  color: var(--muted-light);
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.order-next-steps > a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+@media (max-width: 980px) {
+  .commerce-metrics,
+  .sales-kpis {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .admin-dashboard-shortcuts {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 780px) {
+  .admin-mobile-nav {
+    grid-template-columns: repeat(5, 1fr) !important;
+  }
+
+  .admin-mobile-nav a {
+    padding: 0 3px;
+    text-align: center;
+    font-size: 6.5px;
+  }
+
+  .commerce-metrics,
+  .sales-kpis {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .purchase-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .product-inventory-head {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .admin-heading-actions {
+    width: 100%;
+  }
+
+  .admin-heading-actions a {
+    flex: 1;
+    text-align: center;
+  }
+}
+
+@media (max-width: 460px) {
+  .commerce-metrics,
+  .sales-kpis {
+    grid-template-columns: 1fr;
+  }
+}
