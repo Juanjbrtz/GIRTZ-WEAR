@@ -49,10 +49,33 @@ export const productVariants = pgTable(
     stockStatus: text("stock_status").default("available").notNull(),
     stockQuantity: integer("stock_quantity"),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (table) => [
     uniqueIndex("product_variant_product_size_idx").on(table.productId, table.size),
     uniqueIndex("product_variants_sku_idx").on(table.sku),
+  ],
+);
+
+export const inventoryMovements = pgTable(
+  "inventory_movements",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    productId: uuid("product_id").references(() => products.id, { onDelete: "set null" }),
+    variantId: uuid("variant_id").references(() => productVariants.id, { onDelete: "set null" }),
+    productName: text("product_name").notNull(),
+    size: text("size"),
+    movementType: text("movement_type").notNull(),
+    quantity: integer("quantity").notNull(),
+    unitCost: integer("unit_cost").default(0).notNull(),
+    unitPrice: integer("unit_price").default(0).notNull(),
+    supplier: text("supplier"),
+    note: text("note"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    index("inventory_movements_product_idx").on(table.productId),
+    index("inventory_movements_created_at_idx").on(table.createdAt),
   ],
 );
 
@@ -85,7 +108,10 @@ export const orders = pgTable(
     customerId: uuid("customer_id").references(() => customers.id, { onDelete: "set null" }),
     total: integer("total").notNull(),
     totalCost: integer("total_cost").notNull(),
+    shippingCost: integer("shipping_cost").default(0).notNull(),
     paymentStatus: text("payment_status").default("pending").notNull(),
+    paymentProvider: text("payment_provider"),
+    paymentReference: text("payment_reference"),
     orderStatus: text("order_status").default("received").notNull(),
     shippingStatus: text("shipping_status").default("pending").notNull(),
     trackingNumber: text("tracking_number"),
