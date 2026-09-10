@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { and, eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 import { getDb, getSqlClient } from "@/db";
 import { customers, products, productVariants } from "@/db/schema";
 import { getSessionAccount } from "@/lib/session";
@@ -132,14 +132,14 @@ export async function POST(request: Request) {
   let customerId = account.customer?.id || null;
 
   if (!customerId) {
-    const [existingCustomer] = await db
+    const [existingGuest] = await db
       .select({ id: customers.id })
       .from(customers)
-      .where(eq(customers.email, email))
+      .where(and(eq(customers.email, email), isNull(customers.authUserId)))
       .limit(1);
 
-    if (existingCustomer) {
-      customerId = existingCustomer.id;
+    if (existingGuest) {
+      customerId = existingGuest.id;
     } else {
       const [createdCustomer] = await db
         .insert(customers)
