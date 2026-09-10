@@ -16,7 +16,7 @@ export function ProductPurchaseControls({
     () => product.variants.filter((variant) => variant.available && variant.stockQuantity > 0),
     [product.variants],
   );
-  const [size, setSize] = useState(available[0]?.size || "");
+  const [size, setSize] = useState("");
   const [added, setAdded] = useState(false);
   const { addItem } = useCart();
   const router = useRouter();
@@ -52,7 +52,8 @@ export function ProductPurchaseControls({
     <div className={compact ? "purchase-controls compact" : "purchase-controls"}>
       <label className="purchase-size-select">
         <span>TALLA EUR</span>
-        <select value={size} onChange={(event) => setSize(event.target.value)}>
+        <select value={size} onChange={(event) => setSize(event.target.value)} required>
+          <option value="" disabled>SELECCIONAR TALLA</option>
           {available.map((variant) => (
             <option key={variant.id} value={variant.size}>
               {variant.size}
@@ -61,12 +62,22 @@ export function ProductPurchaseControls({
         </select>
       </label>
       <div className="purchase-actions">
-        <button type="button" className="product-cart-button" onClick={() => add(false)}>
-          {added ? "AGREGADO" : "AGREGAR AL CARRITO"}
+        <button
+          type="button"
+          className="product-cart-button"
+          onClick={() => add(false)}
+          disabled={!selected}
+        >
+          {added ? "AGREGADO" : selected ? "AGREGAR AL CARRITO" : "ELIGE TU TALLA"}
         </button>
         {!compact ? (
-          <button type="button" className="primary-button" onClick={() => add(true)}>
-            COMPRAR
+          <button
+            type="button"
+            className="primary-button"
+            onClick={() => add(true)}
+            disabled={!selected}
+          >
+            {selected ? "COMPRAR" : "ELIGE TU TALLA"}
           </button>
         ) : null}
       </div>
