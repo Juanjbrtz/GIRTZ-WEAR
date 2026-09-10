@@ -6,16 +6,17 @@ export const dynamic = "force-dynamic";
 
 const adminNav = [
   { href: "/admin", label: "RESUMEN" },
-  { href: "/admin/orders", label: "PEDIDOS" },
+  { href: "/admin/products", label: "CATÁLOGO" },
+  { href: "/admin/inventory", label: "INVENTARIO" },
+  { href: "/admin/orders", label: "VENTAS" },
   { href: "/admin/customers", label: "CLIENTES" },
-  { href: "/admin/products", label: "PRODUCTOS" },
 ];
 
 export default async function AdminLayout({ children }: { children: ReactNode }) {
   const { session } = await requireAdmin();
 
   return (
-    <main className="admin-page">
+    <main className="admin-page admin-app-shell">
       <aside className="admin-sidebar">
         <div>
           <Link href="/" className="admin-brand">
@@ -26,9 +27,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
 
         <nav aria-label="Panel administrativo">
           {adminNav.map((item) => (
-            <Link key={item.href} href={item.href}>
-              {item.label}
-            </Link>
+            <Link key={item.href} href={item.href}>{item.label}</Link>
           ))}
         </nav>
 
@@ -39,6 +38,12 @@ export default async function AdminLayout({ children }: { children: ReactNode })
       </aside>
 
       <div className="admin-content">{children}</div>
+
+      <nav className="admin-mobile-nav" aria-label="Navegación de la aplicación">
+        {adminNav.slice(0, 4).map((item) => (
+          <Link key={item.href} href={item.href}>{item.label}</Link>
+        ))}
+      </nav>
     </main>
   );
 }
