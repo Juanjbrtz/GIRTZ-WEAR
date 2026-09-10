@@ -29,11 +29,11 @@ function cleanText(value: FormDataEntryValue | null, max = 500) {
 function getImageFile(formData: FormData, field: string, required: boolean) {
   const value = formData.get(field);
   if (!value || typeof value === "string" || value.size === 0) {
-    if (required) throw new Error("Debes seleccionar una imagen para el producto.");
+    if (required) throw new Error("Debes seleccionar una foto para el producto.");
     return null;
   }
-  if (!ALLOWED_IMAGE_TYPES.has(value.type)) throw new Error("La imagen debe ser JPG, PNG, WebP o AVIF.");
-  if (value.size > MAX_IMAGE_BYTES) throw new Error("La imagen supera el límite de 7 MB.");
+  if (!ALLOWED_IMAGE_TYPES.has(value.type)) throw new Error("La foto debe ser JPG, PNG, WebP o AVIF.");
+  if (value.size > MAX_IMAGE_BYTES) throw new Error("La foto supera el límite de 7 MB.");
   return value;
 }
 
@@ -100,7 +100,7 @@ export async function createProduct(formData: FormData) {
 
   if (!created) throw new Error("No fue posible crear el producto.");
   await saveProductImage(created.id, image);
-  await db.update(products).set({ imageUrl: `/api/product-image/${created.id}`, updatedAt: new Date() }).where(eq(products.id, created.id));
+  await db.update(products).set({ updatedAt: new Date() }).where(eq(products.id, created.id));
 
   revalidateStorefront(slug);
   redirect("/admin/products?created=1");
@@ -243,7 +243,6 @@ export async function updateProduct(formData: FormData) {
     description,
     price,
     cost,
-    imageUrl: `/api/product-image/${productId}`,
     featured,
     active,
     updatedAt: new Date(),
