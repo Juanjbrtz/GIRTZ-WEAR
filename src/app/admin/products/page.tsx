@@ -17,16 +17,17 @@ export default async function AdminProductsPage({ searchParams }: ProductsPagePr
         <div>
           <span>TIENDA</span>
           <h1>CATÁLOGO</h1>
+          <p>Sube la foto del producto directamente desde tu celular o computador. No necesitas pegar URLs.</p>
         </div>
         <div className="admin-count">{catalog.filter((item) => item.active).length} PUBLICADOS</div>
       </header>
 
-      {created === "1" ? <div className="admin-success">Producto agregado al catálogo.</div> : null}
+      {created === "1" ? <div className="admin-success">Producto agregado al catálogo con su foto.</div> : null}
 
       <section className="quick-product-card">
         <div className="admin-block-heading">
           <div>
-            <span>CARGA RÁPIDA</span>
+            <span>CARGA POR FOTO</span>
             <h2>NUEVO PRODUCTO</h2>
           </div>
         </div>
@@ -77,7 +78,7 @@ export default async function AdminProductsPage({ searchParams }: ProductsPagePr
             </label>
           </details>
 
-          <button className="admin-primary-action quick-publish-button" type="submit">AGREGAR AL CATÁLOGO</button>
+          <button className="admin-primary-action quick-publish-button" type="submit">SUBIR FOTO Y PUBLICAR</button>
         </form>
       </section>
 
@@ -116,7 +117,7 @@ export default async function AdminProductsPage({ searchParams }: ProductsPagePr
             ))}
           </div>
         ) : (
-          <div className="admin-empty">Aún no hay productos en el catálogo.</div>
+          <div className="admin-empty">Sube la primera foto para empezar a construir el catálogo.</div>
         )}
       </section>
     </section>
