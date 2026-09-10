@@ -92,7 +92,7 @@ export async function setOrderPaymentState({
           updated_at = now()
         WHERE id = ${orderId}::uuid
       `,
-    ], { isolationMode: "Serializable" });
+    ]);
     return;
   }
 
@@ -148,7 +148,7 @@ export async function setOrderPaymentState({
           updated_at = now()
         WHERE id = ${orderId}::uuid
       `,
-    ], { isolationMode: "Serializable" });
+    ]);
     return;
   }
 
