@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SiteFooter } from "@/components/site-footer";
@@ -6,16 +6,20 @@ import { SiteHeader } from "@/components/site-header";
 import { getDb } from "@/db";
 import { orderItems, orders } from "@/db/schema";
 import { formatCop } from "@/data/products";
-import { requireAccount } from "@/lib/session";
+import { getSessionAccount } from "@/lib/session";
+import { buildWompiCheckoutUrl } from "@/lib/wompi";
 
 const statusLabel: Record<string, string> = {
   pending: "Pendiente",
   received: "Recibido",
   confirmed: "Confirmado",
+  processing: "En preparación",
   preparing: "En preparación",
   shipped: "Enviado",
   delivered: "Entregado",
   paid: "Pagado",
+  failed: "Pago rechazado",
+  refunded: "Reembolsado",
   cancelled: "Cancelado",
 };
 
@@ -23,26 +27,39 @@ export const dynamic = "force-dynamic";
 
 export default async function OrderPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ key?: string }>;
 }) {
-  const { id } = await params;
-  const account = await requireAccount();
-  if (!account.customer) notFound();
+  const [{ id }, { key }, account] = await Promise.all([
+    params,
+    searchParams,
+    getSessionAccount(),
+  ]);
 
   const db = getDb();
-  const [order] = await db
-    .select()
-    .from(orders)
-    .where(and(eq(orders.id, id), eq(orders.customerId, account.customer.id)))
-    .limit(1);
-
+  const [order] = await db.select().from(orders).where(eq(orders.id, id)).limit(1);
   if (!order) notFound();
 
-  const items = await db
-    .select()
-    .from(orderItems)
-    .where(eq(orderItems.orderId, order.id));
+  const authorizedByAccount = Boolean(
+    account.isAdmin || (account.customer && order.customerId === account.customer.id),
+  );
+  const authorizedByToken = Boolean(key && order.accessToken && key === order.accessToken);
+  if (!authorizedByAccount && !authorizedByToken) notFound();
+
+  const items = await db.select().from(orderItems).where(eq(orderItems.orderId, order.id));
+  const paymentUrl = order.paymentStatus === "pending" && order.accessToken && order.paymentReference
+    ? buildWompiCheckoutUrl({
+        orderId: order.id,
+        accessToken: order.accessToken,
+        reference: order.paymentReference,
+        totalCop: order.total,
+        customerEmail: order.customerEmail,
+        customerName: order.customerName,
+        customerPhone: order.customerPhone,
+      })
+    : null;
 
   return (
     <main className="inner-page order-page">
@@ -50,10 +67,12 @@ export default async function OrderPage({
 
       <section className="order-shell">
         <div className="order-confirmation-head">
-          <span className="eyebrow">PEDIDO RECIBIDO</span>
-          <h1>GRACIAS.</h1>
+          <span className="eyebrow">PEDIDO #{order.id.slice(0, 8).toUpperCase()}</span>
+          <h1>{order.paymentStatus === "paid" ? "COMPRA CONFIRMADA." : "PEDIDO RECIBIDO."}</h1>
           <p>
-            Tu pedido ya quedó registrado. Confirmaremos disponibilidad de talla, valor del envío y forma de pago antes del despacho.
+            {order.paymentStatus === "paid"
+              ? "Tu pago está confirmado. Prepararemos el pedido para despacho."
+              : "Tu pedido quedó registrado y está pendiente de pago."}
           </p>
         </div>
 
@@ -65,18 +84,9 @@ export default async function OrderPage({
             </div>
 
             <div className="order-status-grid">
-              <div>
-                <span>PAGO</span>
-                <strong>{statusLabel[order.paymentStatus] || order.paymentStatus}</strong>
-              </div>
-              <div>
-                <span>PEDIDO</span>
-                <strong>{statusLabel[order.orderStatus] || order.orderStatus}</strong>
-              </div>
-              <div>
-                <span>ENVÍO</span>
-                <strong>{statusLabel[order.shippingStatus] || order.shippingStatus}</strong>
-              </div>
+              <div><span>PAGO</span><strong>{statusLabel[order.paymentStatus] || order.paymentStatus}</strong></div>
+              <div><span>PEDIDO</span><strong>{statusLabel[order.orderStatus] || order.orderStatus}</strong></div>
+              <div><span>ENVÍO</span><strong>{statusLabel[order.shippingStatus] || order.shippingStatus}</strong></div>
             </div>
 
             <div className="order-products">
@@ -84,9 +94,7 @@ export default async function OrderPage({
                 <div key={item.id} className="order-product-row">
                   <div>
                     <strong>{item.productName}</strong>
-                    <small>
-                      Talla {item.size} · Cantidad {item.quantity}
-                    </small>
+                    <small>Talla {item.size} · Cantidad {item.quantity}</small>
                   </div>
                   <span>{formatCop(item.unitPrice * item.quantity)}</span>
                 </div>
@@ -94,21 +102,27 @@ export default async function OrderPage({
             </div>
 
             <div className="order-total-row">
-              <span>TOTAL PRODUCTOS</span>
+              <span>TOTAL</span>
               <strong>{formatCop(order.total)}</strong>
             </div>
-            <small className="order-shipping-note">Envío pendiente de confirmar.</small>
+            <small className="order-shipping-note">
+              {order.shippingCost > 0 ? `Envío: ${formatCop(order.shippingCost)}` : "El envío se coordina antes del despacho."}
+            </small>
           </div>
 
           <aside className="order-next-steps">
-            <span className="eyebrow">¿QUÉ SIGUE?</span>
-            <ol>
-              <li>Confirmamos la talla solicitada.</li>
-              <li>Te indicamos disponibilidad y valor del envío.</li>
-              <li>Confirmamos el pago.</li>
-              <li>Despachamos y agregamos la guía al pedido.</li>
-            </ol>
-            <Link href="/account" className="primary-button">VER MIS PEDIDOS</Link>
+            <span className="eyebrow">ESTADO DE COMPRA</span>
+            {paymentUrl ? (
+              <>
+                <p>Completa el pago seguro para confirmar la compra.</p>
+                <a href={paymentUrl} className="primary-button">PAGAR AHORA</a>
+              </>
+            ) : order.paymentStatus === "pending" ? (
+              <p>El pago online todavía no está habilitado. Tu pedido permanece registrado como pendiente.</p>
+            ) : (
+              <p>Consulta aquí el avance de tu pedido hasta la entrega.</p>
+            )}
+            {account.session?.user ? <Link href="/account" className="secondary-button">MIS PEDIDOS</Link> : null}
             <Link href="/shop" className="secondary-button">VOLVER AL CATÁLOGO</Link>
           </aside>
         </div>
