@@ -37,7 +37,7 @@ export function CartPanel() {
             <article key={`${item.slug}-${item.size}`} className="cart-item cart-item-v3">
               <div className="cart-item-number">{String(index + 1).padStart(2, "0")}</div>
               <div className="cart-item-main">
-                <div className="cart-item-topline"><span>{item.brand.toUpperCase()}</span><span>TALLA {item.size}</span></div>
+                <div className="cart-item-topline"><span>{item.brand.toUpperCase()}</span><span>TALLA EUR {item.size}</span></div>
                 <h2>{item.name}</h2>
                 <strong>{formatCop(item.price)}</strong>
                 <div className="cart-item-controls">
@@ -49,7 +49,7 @@ export function CartPanel() {
                       <button type="button" onClick={() => updateQuantity(item.slug, item.size, item.quantity + 1)} aria-label="Aumentar cantidad">+</button>
                     </div>
                   </label>
-                  <small>Máximo disponible: {item.maxQuantity}</small>
+                  <small>Cantidad limitada al stock disponible.</small>
                 </div>
               </div>
               <div className="cart-item-side">
