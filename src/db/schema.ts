@@ -57,28 +57,6 @@ export const productVariants = pgTable(
   ],
 );
 
-export const inventoryMovements = pgTable(
-  "inventory_movements",
-  {
-    id: uuid("id").defaultRandom().primaryKey(),
-    productId: uuid("product_id").references(() => products.id, { onDelete: "set null" }),
-    variantId: uuid("variant_id").references(() => productVariants.id, { onDelete: "set null" }),
-    productName: text("product_name").notNull(),
-    size: text("size"),
-    movementType: text("movement_type").notNull(),
-    quantity: integer("quantity").notNull(),
-    unitCost: integer("unit_cost").default(0).notNull(),
-    unitPrice: integer("unit_price").default(0).notNull(),
-    supplier: text("supplier"),
-    note: text("note"),
-    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-  },
-  (table) => [
-    index("inventory_movements_product_idx").on(table.productId),
-    index("inventory_movements_created_at_idx").on(table.createdAt),
-  ],
-);
-
 export const customers = pgTable(
   "customers",
   {
@@ -106,6 +84,14 @@ export const orders = pgTable(
   {
     id: uuid("id").defaultRandom().primaryKey(),
     customerId: uuid("customer_id").references(() => customers.id, { onDelete: "set null" }),
+    customerName: text("customer_name"),
+    customerEmail: text("customer_email"),
+    customerPhone: text("customer_phone"),
+    shippingAddress: text("shipping_address"),
+    shippingCity: text("shipping_city"),
+    shippingDepartment: text("shipping_department"),
+    notes: text("notes"),
+    accessToken: text("access_token"),
     total: integer("total").notNull(),
     totalCost: integer("total_cost").notNull(),
     shippingCost: integer("shipping_cost").default(0).notNull(),
@@ -140,4 +126,28 @@ export const orderItems = pgTable(
     unitCost: integer("unit_cost").notNull(),
   },
   (table) => [index("order_items_order_idx").on(table.orderId)],
+);
+
+export const inventoryMovements = pgTable(
+  "inventory_movements",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    productId: uuid("product_id").references(() => products.id, { onDelete: "set null" }),
+    variantId: uuid("variant_id").references(() => productVariants.id, { onDelete: "set null" }),
+    orderId: uuid("order_id").references(() => orders.id, { onDelete: "set null" }),
+    productName: text("product_name").notNull(),
+    size: text("size"),
+    movementType: text("movement_type").notNull(),
+    quantity: integer("quantity").notNull(),
+    unitCost: integer("unit_cost").default(0).notNull(),
+    unitPrice: integer("unit_price").default(0).notNull(),
+    supplier: text("supplier"),
+    note: text("note"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    index("inventory_movements_product_idx").on(table.productId),
+    index("inventory_movements_order_idx").on(table.orderId),
+    index("inventory_movements_created_at_idx").on(table.createdAt),
+  ],
 );
