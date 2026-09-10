@@ -51,11 +51,11 @@ export function ProductPurchaseControls({
   return (
     <div className={compact ? "purchase-controls compact" : "purchase-controls"}>
       <label className="purchase-size-select">
-        <span>TALLA</span>
+        <span>TALLA EUR</span>
         <select value={size} onChange={(event) => setSize(event.target.value)}>
           {available.map((variant) => (
             <option key={variant.id} value={variant.size}>
-              {variant.size} · {variant.stockQuantity} disp.
+              {variant.size}
             </option>
           ))}
         </select>
