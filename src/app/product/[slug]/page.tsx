@@ -44,12 +44,11 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
           <div className="product-inventory-block">
             <div className="product-inventory-head">
-              <span>TALLAS DISPONIBLES</span>
-              <strong>{product.stockQuantity} unidades</strong>
+              <span>TALLAS EUR DISPONIBLES</span>
             </div>
             <div className="product-size-stock-grid">
-              {product.variants.filter((variant) => variant.available).map((variant) => (
-                <span key={variant.id}><b>{variant.size}</b><small>{variant.stockQuantity}</small></span>
+              {product.variants.filter((variant) => variant.available && variant.stockQuantity > 0).map((variant) => (
+                <span key={variant.id}><b>{variant.size}</b></span>
               ))}
               {!product.stockQuantity ? <span className="product-out-message">AGOTADO</span> : null}
             </div>
