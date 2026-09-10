@@ -8,9 +8,12 @@ const adminNav = [
   { href: "/admin", label: "RESUMEN" },
   { href: "/admin/products", label: "CATÁLOGO" },
   { href: "/admin/inventory", label: "INVENTARIO" },
-  { href: "/admin/orders", label: "VENTAS" },
+  { href: "/admin/sales", label: "VENTAS" },
+  { href: "/admin/orders", label: "PEDIDOS" },
   { href: "/admin/customers", label: "CLIENTES" },
 ];
+
+const mobileNav = adminNav.slice(0, 5);
 
 export default async function AdminLayout({ children }: { children: ReactNode }) {
   const { session } = await requireAdmin();
@@ -40,7 +43,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
       <div className="admin-content">{children}</div>
 
       <nav className="admin-mobile-nav" aria-label="Navegación de la aplicación">
-        {adminNav.slice(0, 4).map((item) => (
+        {mobileNav.map((item) => (
           <Link key={item.href} href={item.href}>{item.label}</Link>
         ))}
       </nav>
