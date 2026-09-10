@@ -12,11 +12,15 @@ import {
 
 export type CartItem = {
   slug: string;
+  variantId: string;
+  size: string;
   name: string;
   brand: string;
   audience: "Hombre" | "Mujer" | "Unisex";
   price: number;
+  image?: string;
   quantity: number;
+  maxQuantity: number;
 };
 
 type AddCartItem = Omit<CartItem, "quantity"> & { quantity?: number };
@@ -27,12 +31,12 @@ type CartContextValue = {
   subtotal: number;
   hydrated: boolean;
   addItem: (item: AddCartItem) => void;
-  removeItem: (slug: string) => void;
-  updateQuantity: (slug: string, quantity: number) => void;
+  removeItem: (slug: string, size: string) => void;
+  updateQuantity: (slug: string, size: string, quantity: number) => void;
   clearCart: () => void;
 };
 
-const STORAGE_KEY = "girtz-cart-v2";
+const STORAGE_KEY = "girtz-cart-v3";
 const CartContext = createContext<CartContextValue | null>(null);
 
 export function CartProvider({ children }: { children: ReactNode }) {
@@ -59,63 +63,52 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, [hydrated, items]);
 
   const addItem = useCallback((item: AddCartItem) => {
-    const quantity = Math.max(1, item.quantity || 1);
+    const maxQuantity = Math.max(1, item.maxQuantity || 1);
+    const quantity = Math.min(maxQuantity, Math.max(1, item.quantity || 1));
 
     setItems((current) => {
-      const index = current.findIndex((entry) => entry.slug === item.slug);
+      const index = current.findIndex(
+        (entry) => entry.slug === item.slug && entry.size === item.size,
+      );
 
-      if (index === -1) {
-        return [...current, { ...item, quantity }];
-      }
+      if (index === -1) return [...current, { ...item, maxQuantity, quantity }];
 
       return current.map((entry, entryIndex) =>
         entryIndex === index
-          ? { ...entry, quantity: entry.quantity + quantity }
+          ? { ...entry, quantity: Math.min(entry.maxQuantity, entry.quantity + quantity) }
           : entry,
       );
     });
   }, []);
 
-  const removeItem = useCallback((slug: string) => {
-    setItems((current) => current.filter((entry) => entry.slug !== slug));
+  const removeItem = useCallback((slug: string, size: string) => {
+    setItems((current) => current.filter((entry) => !(entry.slug === slug && entry.size === size)));
   }, []);
 
-  const updateQuantity = useCallback(
-    (slug: string, quantity: number) => {
-      if (quantity <= 0) {
-        removeItem(slug);
-        return;
-      }
-
-      setItems((current) =>
-        current.map((entry) =>
-          entry.slug === slug ? { ...entry, quantity: Math.min(20, quantity) } : entry,
-        ),
-      );
-    },
-    [removeItem],
-  );
+  const updateQuantity = useCallback((slug: string, size: string, quantity: number) => {
+    if (quantity <= 0) {
+      removeItem(slug, size);
+      return;
+    }
+    setItems((current) => current.map((entry) =>
+      entry.slug === slug && entry.size === size
+        ? { ...entry, quantity: Math.min(entry.maxQuantity, quantity) }
+        : entry,
+    ));
+  }, [removeItem]);
 
   const clearCart = useCallback(() => setItems([]), []);
 
-  const value = useMemo<CartContextValue>(() => {
-    const count = items.reduce((sum, item) => sum + item.quantity, 0);
-    const subtotal = items.reduce(
-      (sum, item) => sum + item.price * item.quantity,
-      0,
-    );
-
-    return {
-      items,
-      count,
-      subtotal,
-      hydrated,
-      addItem,
-      removeItem,
-      updateQuantity,
-      clearCart,
-    };
-  }, [items, hydrated, addItem, removeItem, updateQuantity, clearCart]);
+  const value = useMemo<CartContextValue>(() => ({
+    items,
+    count: items.reduce((sum, item) => sum + item.quantity, 0),
+    subtotal: items.reduce((sum, item) => sum + item.price * item.quantity, 0),
+    hydrated,
+    addItem,
+    removeItem,
+    updateQuantity,
+    clearCart,
+  }), [items, hydrated, addItem, removeItem, updateQuantity, clearCart]);
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }
