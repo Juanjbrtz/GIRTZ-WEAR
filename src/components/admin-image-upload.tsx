@@ -13,6 +13,7 @@ export function AdminImageUpload({
 }) {
   const [preview, setPreview] = useState<string | null>(currentImage || null);
   const [objectUrl, setObjectUrl] = useState<string | null>(null);
+  const [fileName, setFileName] = useState("");
 
   useEffect(() => {
     return () => {
@@ -24,6 +25,7 @@ export function AdminImageUpload({
     const file = event.target.files?.[0];
     if (!file) {
       setPreview(currentImage || null);
+      setFileName("");
       return;
     }
 
@@ -31,16 +33,18 @@ export function AdminImageUpload({
     const nextUrl = URL.createObjectURL(file);
     setObjectUrl(nextUrl);
     setPreview(nextUrl);
+    setFileName(file.name);
   }
 
   return (
     <div className="admin-image-field">
       <div className="admin-image-preview">
-        {preview ? <img src={preview} alt="Vista previa del producto" /> : <span>VISTA PREVIA</span>}
+        {preview ? <img src={preview} alt="Vista previa de la foto del producto" /> : <span>FOTO DEL PRODUCTO</span>}
       </div>
       <label className="admin-file-picker">
-        <span>{currentImage ? "CAMBIAR IMAGEN" : "CARGAR IMAGEN"}</span>
-        <small>JPG, PNG, WEBP o AVIF · máximo 7 MB</small>
+        <span>{currentImage ? "CAMBIAR FOTO" : "SUBIR FOTO"}</span>
+        <small>Desde cámara, galería o archivos · JPG, PNG, WEBP o AVIF · máximo 7 MB</small>
+        {fileName ? <strong>{fileName}</strong> : null}
         <input
           name={name}
           type="file"
