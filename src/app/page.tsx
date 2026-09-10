@@ -1,11 +1,10 @@
 import Link from "next/link";
+import { ProductPurchaseControls } from "@/components/product-purchase-controls";
 import { ProductVisual } from "@/components/product-visual";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
-import { WhatsappConsultButton } from "@/components/whatsapp-consult-button";
 import { formatCop } from "@/data/products";
 import { getFeaturedProduct } from "@/lib/catalog";
-import { getWhatsappNumber } from "@/lib/store-settings";
 
 export const dynamic = "force-dynamic";
 
@@ -31,10 +30,7 @@ const catalogRoutes = [
 ];
 
 export default async function Home() {
-  const [heroProduct, whatsappNumber] = await Promise.all([
-    getFeaturedProduct(),
-    getWhatsappNumber(),
-  ]);
+  const heroProduct = await getFeaturedProduct();
 
   return (
     <main className="home-page home-page-v3">
@@ -44,17 +40,11 @@ export default async function Home() {
         <div className="home-hero-copy-v3">
           <span className="eyebrow">GIRTZ WEAR / COLOMBIA</span>
           <h1>SNEAKERS QUE HABLAN POR TI.</h1>
-          <p>
-            Descubre nuestra selección multimarca y encuentra tu próximo par.
-          </p>
+          <p>Explora el catálogo, elige tu talla y compra tu próximo par.</p>
 
           <div className="home-hero-actions-v3">
-            <Link href="/shop" className="primary-button">
-              VER CATÁLOGO
-            </Link>
-            <Link href="/cart" className="secondary-button">
-              MI SELECCIÓN
-            </Link>
+            <Link href="/shop" className="primary-button">VER CATÁLOGO</Link>
+            <Link href="/cart" className="secondary-button">CARRITO</Link>
           </div>
         </div>
 
@@ -76,12 +66,7 @@ export default async function Home() {
                 </div>
                 <strong>{formatCop(heroProduct.price)}</strong>
               </div>
-              <WhatsappConsultButton
-                product={heroProduct}
-                whatsappNumber={whatsappNumber}
-                className="whatsapp-button home-whatsapp-v3"
-                label="CONSULTAR DISPONIBILIDAD"
-              />
+              <ProductPurchaseControls product={heroProduct} />
             </>
           ) : (
             <div className="home-featured-empty-v3">
