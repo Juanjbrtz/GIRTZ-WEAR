@@ -65,32 +65,52 @@ export async function getOrdersForCustomer(customerId: string) {
 
 export async function getAdminStats() {
   if (!isDatabaseConfigured()) {
-    return { customers: 0, orders: 0, products: 0, revenue: 0, grossProfit: 0, inventoryUnits: 0, inventoryValue: 0 };
+    return {
+      customers: 0,
+      orders: 0,
+      products: 0,
+      revenue: 0,
+      grossProfit: 0,
+      unitsSold: 0,
+      inventoryUnits: 0,
+      inventoryValue: 0,
+    };
   }
 
   const db = getDb();
-  const [[customerCount], [orderCount], [productCount], [totals], [inventory]] = await Promise.all([
+  const [[customerCount], [orderCount], [productCount], [sales], [inventory]] = await Promise.all([
     db.select({ value: sql<number>`count(*)::int` }).from(customers),
     db.select({ value: sql<number>`count(*)::int` }).from(orders),
     db.select({ value: sql<number>`count(*)::int` }).from(products).where(sql`${products.category} IS DISTINCT FROM '__asset'`),
     db.select({
-      revenue: sql<number>`coalesce(sum(${orders.total}), 0)::int`,
-      cost: sql<number>`coalesce(sum(${orders.totalCost}), 0)::int`,
-    }).from(orders),
+      revenue: sql<number>`coalesce(sum(case
+        when ${inventoryMovements.movementType} in ('sale','sale_manual') then ${inventoryMovements.quantity} * ${inventoryMovements.unitPrice}
+        when ${inventoryMovements.movementType} = 'return' then -${inventoryMovements.quantity} * ${inventoryMovements.unitPrice}
+        else 0 end), 0)::int`,
+      cost: sql<number>`coalesce(sum(case
+        when ${inventoryMovements.movementType} in ('sale','sale_manual') then ${inventoryMovements.quantity} * ${inventoryMovements.unitCost}
+        when ${inventoryMovements.movementType} = 'return' then -${inventoryMovements.quantity} * ${inventoryMovements.unitCost}
+        else 0 end), 0)::int`,
+      units: sql<number>`coalesce(sum(case
+        when ${inventoryMovements.movementType} in ('sale','sale_manual') then ${inventoryMovements.quantity}
+        when ${inventoryMovements.movementType} = 'return' then -${inventoryMovements.quantity}
+        else 0 end), 0)::int`,
+    }).from(inventoryMovements),
     db.select({
       units: sql<number>`coalesce(sum(${productVariants.stockQuantity}), 0)::int`,
       value: sql<number>`coalesce(sum(coalesce(${productVariants.stockQuantity},0) * ${products.cost}), 0)::int`,
     }).from(productVariants).leftJoin(products, eq(productVariants.productId, products.id)),
   ]);
 
-  const revenue = totals?.revenue || 0;
-  const cost = totals?.cost || 0;
+  const revenue = sales?.revenue || 0;
+  const cost = sales?.cost || 0;
   return {
     customers: customerCount?.value || 0,
     orders: orderCount?.value || 0,
     products: productCount?.value || 0,
     revenue,
     grossProfit: revenue - cost,
+    unitsSold: sales?.units || 0,
     inventoryUnits: inventory?.units || 0,
     inventoryValue: inventory?.value || 0,
   };
@@ -107,14 +127,19 @@ export async function getAdminOrders() {
   return db.select({
     id: orders.id,
     customerId: orders.customerId,
-    customerName: customers.name,
-    customerEmail: customers.email,
+    customerName: sql<string | null>`coalesce(${orders.customerName}, ${customers.name})`,
+    customerEmail: sql<string | null>`coalesce(${orders.customerEmail}, ${customers.email})`,
+    customerPhone: orders.customerPhone,
+    shippingAddress: orders.shippingAddress,
+    shippingCity: orders.shippingCity,
+    shippingDepartment: orders.shippingDepartment,
     total: orders.total,
     totalCost: orders.totalCost,
     shippingCost: orders.shippingCost,
     paymentStatus: orders.paymentStatus,
     paymentProvider: orders.paymentProvider,
     paymentReference: orders.paymentReference,
+    paymentTransactionId: orders.paymentTransactionId,
     orderStatus: orders.orderStatus,
     shippingStatus: orders.shippingStatus,
     trackingNumber: orders.trackingNumber,
@@ -148,7 +173,7 @@ export async function getInventoryDashboard() {
   const [catalog, variants, movements] = await Promise.all([
     db.select().from(products).where(sql`${products.category} IS DISTINCT FROM '__asset'`).orderBy(desc(products.updatedAt)),
     db.select().from(productVariants).orderBy(productVariants.size),
-    db.select().from(inventoryMovements).orderBy(desc(inventoryMovements.createdAt)).limit(80),
+    db.select().from(inventoryMovements).orderBy(desc(inventoryMovements.createdAt)).limit(100),
   ]);
 
   return {
@@ -159,6 +184,64 @@ export async function getInventoryDashboard() {
         .filter((variant) => variant.productId === product.id)
         .reduce((sum, variant) => sum + Math.max(0, variant.stockQuantity || 0), 0),
     })),
+    movements,
+  };
+}
+
+export async function getSalesDashboard() {
+  if (!isDatabaseConfigured()) {
+    return { revenue: 0, cost: 0, profit: 0, units: 0, products: [], movements: [] };
+  }
+
+  const db = getDb();
+  const saleWhere = sql`${inventoryMovements.movementType} in ('sale','sale_manual','return')`;
+  const [[summary], productRows, movements] = await Promise.all([
+    db.select({
+      revenue: sql<number>`coalesce(sum(case
+        when ${inventoryMovements.movementType} in ('sale','sale_manual') then ${inventoryMovements.quantity} * ${inventoryMovements.unitPrice}
+        when ${inventoryMovements.movementType} = 'return' then -${inventoryMovements.quantity} * ${inventoryMovements.unitPrice}
+        else 0 end), 0)::int`,
+      cost: sql<number>`coalesce(sum(case
+        when ${inventoryMovements.movementType} in ('sale','sale_manual') then ${inventoryMovements.quantity} * ${inventoryMovements.unitCost}
+        when ${inventoryMovements.movementType} = 'return' then -${inventoryMovements.quantity} * ${inventoryMovements.unitCost}
+        else 0 end), 0)::int`,
+      units: sql<number>`coalesce(sum(case
+        when ${inventoryMovements.movementType} in ('sale','sale_manual') then ${inventoryMovements.quantity}
+        when ${inventoryMovements.movementType} = 'return' then -${inventoryMovements.quantity}
+        else 0 end), 0)::int`,
+    }).from(inventoryMovements).where(saleWhere),
+    db.select({
+      productId: inventoryMovements.productId,
+      productName: sql<string>`coalesce(${products.name}, ${inventoryMovements.productName})`,
+      units: sql<number>`sum(case
+        when ${inventoryMovements.movementType} in ('sale','sale_manual') then ${inventoryMovements.quantity}
+        when ${inventoryMovements.movementType} = 'return' then -${inventoryMovements.quantity}
+        else 0 end)::int`,
+      revenue: sql<number>`sum(case
+        when ${inventoryMovements.movementType} in ('sale','sale_manual') then ${inventoryMovements.quantity} * ${inventoryMovements.unitPrice}
+        when ${inventoryMovements.movementType} = 'return' then -${inventoryMovements.quantity} * ${inventoryMovements.unitPrice}
+        else 0 end)::int`,
+      cost: sql<number>`sum(case
+        when ${inventoryMovements.movementType} in ('sale','sale_manual') then ${inventoryMovements.quantity} * ${inventoryMovements.unitCost}
+        when ${inventoryMovements.movementType} = 'return' then -${inventoryMovements.quantity} * ${inventoryMovements.unitCost}
+        else 0 end)::int`,
+    })
+      .from(inventoryMovements)
+      .leftJoin(products, eq(inventoryMovements.productId, products.id))
+      .where(saleWhere)
+      .groupBy(inventoryMovements.productId, products.name, inventoryMovements.productName)
+      .orderBy(sql`sum(case when ${inventoryMovements.movementType} in ('sale','sale_manual') then ${inventoryMovements.quantity} * ${inventoryMovements.unitPrice} when ${inventoryMovements.movementType} = 'return' then -${inventoryMovements.quantity} * ${inventoryMovements.unitPrice} else 0 end) desc`),
+    db.select().from(inventoryMovements).where(saleWhere).orderBy(desc(inventoryMovements.createdAt)).limit(100),
+  ]);
+
+  const revenue = summary?.revenue || 0;
+  const cost = summary?.cost || 0;
+  return {
+    revenue,
+    cost,
+    profit: revenue - cost,
+    units: summary?.units || 0,
+    products: productRows.map((row) => ({ ...row, profit: (row.revenue || 0) - (row.cost || 0) })),
     movements,
   };
 }
