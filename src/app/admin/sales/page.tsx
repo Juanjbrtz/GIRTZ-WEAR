@@ -6,6 +6,8 @@ type SalesPageProps = {
   searchParams: Promise<{ created?: string; product?: string }>;
 };
 
+const eurSizes = ["35", "35.5", "36", "36.5", "37", "37.5", "38", "38.5", "39", "39.5", "40", "40.5", "41", "41.5", "42", "42.5", "43", "43.5", "44", "44.5", "45"];
+
 function formatDate(date: Date) {
   return new Intl.DateTimeFormat("es-CO", {
     day: "2-digit",
@@ -63,8 +65,11 @@ export default async function SalesPage({ searchParams }: SalesPageProps) {
 
           <div className="admin-form-grid three">
             <label>
-              <span>TALLA</span>
-              <input name="size" placeholder="40" required />
+              <span>TALLA EUR</span>
+              <input name="size" list="eur-sale-size-options" inputMode="decimal" placeholder="40" required />
+              <datalist id="eur-sale-size-options">
+                {eurSizes.map((size) => <option key={size} value={size} />)}
+              </datalist>
             </label>
             <label>
               <span>CANTIDAD</span>
@@ -140,7 +145,7 @@ export default async function SalesPage({ searchParams }: SalesPageProps) {
               <div>
                 <span>{movement.movementType === "return" ? "DEVOLUCIÓN" : "VENTA"}</span>
                 <strong>{movement.productName}</strong>
-                <small>Talla {movement.size || "—"} · {movement.quantity} und. · {formatDate(movement.createdAt)}</small>
+                <small>Talla EUR {movement.size || "—"} · {movement.quantity} und. · {formatDate(movement.createdAt)}</small>
               </div>
               <div>
                 <strong>{formatCop(movement.unitPrice * movement.quantity)}</strong>
