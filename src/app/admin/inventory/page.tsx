@@ -6,6 +6,8 @@ type InventoryPageProps = {
   searchParams: Promise<{ added?: string; product?: string }>;
 };
 
+const eurSizes = ["35", "35.5", "36", "36.5", "37", "37.5", "38", "38.5", "39", "39.5", "40", "40.5", "41", "41.5", "42", "42.5", "43", "43.5", "44", "44.5", "45"];
+
 export default async function InventoryPage({ searchParams }: InventoryPageProps) {
   const [{ added, product: selectedProduct }, data] = await Promise.all([
     searchParams,
@@ -60,8 +62,11 @@ export default async function InventoryPage({ searchParams }: InventoryPageProps
 
           <div className="admin-form-grid three">
             <label>
-              <span>TALLA</span>
-              <input name="size" placeholder="40" required />
+              <span>TALLA EUR</span>
+              <input name="size" list="eur-size-options" inputMode="decimal" placeholder="40" required />
+              <datalist id="eur-size-options">
+                {eurSizes.map((size) => <option key={size} value={size} />)}
+              </datalist>
             </label>
             <label>
               <span>CANTIDAD</span>
@@ -107,7 +112,7 @@ export default async function InventoryPage({ searchParams }: InventoryPageProps
               <strong>{product.stockQuantity} unidades</strong>
               <div className="inventory-size-chips">
                 {product.variants.length ? product.variants.map((variant) => (
-                  <small key={variant.id}>{variant.size}: {Math.max(0, variant.stockQuantity || 0)}</small>
+                  <small key={variant.id}>EUR {variant.size}: {Math.max(0, variant.stockQuantity || 0)}</small>
                 )) : <small>SIN INVENTARIO</small>}
               </div>
               <a href={`/admin/inventory?product=${product.id}`}>AGREGAR STOCK</a>
@@ -130,7 +135,7 @@ export default async function InventoryPage({ searchParams }: InventoryPageProps
               <div>
                 <span>{movement.movementType.toUpperCase()}</span>
                 <strong>{movement.productName}</strong>
-                <small>Talla {movement.size || "—"} · {movement.quantity} unidad(es)</small>
+                <small>Talla EUR {movement.size || "—"} · {movement.quantity} unidad(es)</small>
               </div>
               <div>
                 <strong>{movement.unitCost ? formatCop(movement.unitCost) : "—"}</strong>
