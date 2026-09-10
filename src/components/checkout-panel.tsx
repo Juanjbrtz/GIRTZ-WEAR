@@ -30,6 +30,8 @@ export function CheckoutPanel() {
           phone: form.get("phone"),
           address: form.get("address"),
           city: form.get("city"),
+          department: form.get("department"),
+          notes: form.get("notes"),
           items: items.map((item) => ({
             slug: item.slug,
             variantId: item.variantId,
@@ -38,13 +40,29 @@ export function CheckoutPanel() {
           })),
         }),
       });
-      const result = (await response.json()) as { ok?: boolean; orderId?: string; error?: string };
-      if (!response.ok || !result.ok || !result.orderId) {
+
+      const result = (await response.json()) as {
+        ok?: boolean;
+        orderId?: string;
+        accessToken?: string;
+        paymentConfigured?: boolean;
+        paymentUrl?: string | null;
+        error?: string;
+      };
+
+      if (!response.ok || !result.ok || !result.orderId || !result.accessToken) {
         setError(result.error || "No pudimos crear el pedido.");
         return;
       }
+
       clearCart();
-      router.push(`/order/${result.orderId}`);
+
+      if (result.paymentConfigured && result.paymentUrl) {
+        window.location.assign(result.paymentUrl);
+        return;
+      }
+
+      router.push(`/order/${result.orderId}?key=${encodeURIComponent(result.accessToken)}`);
       router.refresh();
     } catch {
       setError("No pudimos conectar con la tienda. Intenta nuevamente.");
@@ -54,6 +72,7 @@ export function CheckoutPanel() {
   }
 
   if (!hydrated) return <div className="cart-loading">PREPARANDO CHECKOUT…</div>;
+
   if (!items.length) {
     return (
       <section className="cart-empty">
@@ -69,6 +88,7 @@ export function CheckoutPanel() {
       <div className="checkout-heading">
         <span className="eyebrow">FINALIZAR COMPRA</span>
         <h1>DATOS DE ENTREGA.</h1>
+        <p>Verificaremos nuevamente precio, talla y stock antes de crear el pedido.</p>
       </div>
 
       <div className="checkout-layout">
@@ -76,21 +96,30 @@ export function CheckoutPanel() {
           <label><span>NOMBRE COMPLETO</span><input name="name" required autoComplete="name" /></label>
           <label><span>CORREO</span><input name="email" type="email" required autoComplete="email" /></label>
           <label><span>TELÉFONO</span><input name="phone" required autoComplete="tel" /></label>
-          <label className="checkout-wide"><span>DIRECCIÓN</span><input name="address" required autoComplete="street-address" /></label>
+          <label><span>DEPARTAMENTO</span><input name="department" required autoComplete="address-level1" /></label>
           <label><span>CIUDAD / MUNICIPIO</span><input name="city" required autoComplete="address-level2" /></label>
+          <label className="checkout-wide"><span>DIRECCIÓN</span><input name="address" required autoComplete="street-address" /></label>
+          <label className="checkout-wide"><span>NOTAS <small>Opcional</small></span><input name="notes" placeholder="Apartamento, indicaciones de entrega, etc." /></label>
+
           {error ? <div className="checkout-error">{error}</div> : null}
+
           <button className="primary-button checkout-submit" type="submit" disabled={submitting}>
-            {submitting ? "CREANDO PEDIDO…" : "CONTINUAR AL PAGO"}
+            {submitting ? "VALIDANDO PEDIDO…" : "CONTINUAR AL PAGO"}
           </button>
-          <small className="checkout-payment-note">La pasarela de pago se conectará al siguiente paso del pedido.</small>
+          <small className="checkout-payment-note">
+            Si la pasarela todavía no está configurada, el pedido quedará creado como pendiente de pago.
+          </small>
         </form>
 
         <aside className="checkout-summary">
           <span className="eyebrow">TU PEDIDO</span>
           <div className="checkout-items">
             {items.map((item) => (
-              <div key={`${item.slug}-${item.size}`} className="checkout-item">
-                <div><strong>{item.name}</strong><small>Talla {item.size} · {item.quantity} und.</small></div>
+              <div key={`${item.variantId}-${item.size}`} className="checkout-item">
+                <div>
+                  <strong>{item.name}</strong>
+                  <small>Talla {item.size} · {item.quantity} und.</small>
+                </div>
                 <span>{formatCop(item.price * item.quantity)}</span>
               </div>
             ))}
