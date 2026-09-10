@@ -5,16 +5,12 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getDb, getSqlClient } from "@/db";
 import { orders, products } from "@/db/schema";
+import { setOrderPaymentState, type PaymentState } from "@/lib/order-lifecycle";
 import { requireAdmin } from "@/lib/session";
 import { isDatabaseConfigured } from "@/lib/store-data";
 
 const MAX_IMAGE_BYTES = 7 * 1024 * 1024;
-const ALLOWED_IMAGE_TYPES = new Set([
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-  "image/avif",
-]);
+const ALLOWED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/avif"]);
 
 function slugify(value: string) {
   return value
@@ -45,7 +41,6 @@ async function saveProductImage(productId: string, file: File) {
   const bytes = Buffer.from(await file.arrayBuffer());
   const encoded = bytes.toString("base64");
   const sql = getSqlClient();
-
   await sql`
     INSERT INTO product_images (product_id, filename, content_type, image_data, updated_at)
     VALUES (${productId}::uuid, ${file.name || "producto"}, ${file.type || "image/jpeg"}, decode(${encoded}, 'base64'), now())
@@ -62,6 +57,7 @@ function revalidateStorefront(slug?: string) {
   revalidatePath("/admin");
   revalidatePath("/admin/products");
   revalidatePath("/admin/inventory");
+  revalidatePath("/admin/sales");
   if (slug) revalidatePath(`/product/${slug}`);
 }
 
@@ -77,7 +73,6 @@ export async function createProduct(formData: FormData) {
   const cost = Math.max(0, Math.round(Number(formData.get("cost")) || 0));
   const image = getImageFile(formData, "image", true);
   const featured = formData.get("featured") === "on";
-  const active = formData.get("active") !== "off";
 
   if (!name || !price || !image) throw new Error("Completa foto, nombre y precio.");
   if (!["Hombre", "Mujer", "Unisex"].includes(audience)) throw new Error("Sección inválida.");
@@ -89,22 +84,19 @@ export async function createProduct(formData: FormData) {
 
   if (featured) await db.update(products).set({ featured: false, updatedAt: new Date() });
 
-  const [created] = await db
-    .insert(products)
-    .values({
-      name,
-      slug,
-      brand,
-      audience,
-      description: description || "",
-      price,
-      cost,
-      category: "Sneakers",
-      imageUrl: null,
-      featured,
-      active,
-    })
-    .returning({ id: products.id });
+  const [created] = await db.insert(products).values({
+    name,
+    slug,
+    brand,
+    audience,
+    description,
+    price,
+    cost,
+    category: "Sneakers",
+    imageUrl: null,
+    featured,
+    active: true,
+  }).returning({ id: products.id });
 
   if (!created) throw new Error("No fue posible crear el producto.");
   await saveProductImage(created.id, image);
@@ -132,32 +124,93 @@ export async function registerInventoryPurchase(formData: FormData) {
   if (!product) throw new Error("Producto no encontrado.");
 
   const sql = getSqlClient();
-  const rows = await sql`
-    INSERT INTO product_variants (product_id, size, stock_status, stock_quantity, created_at, updated_at)
-    VALUES (${productId}::uuid, ${size}, 'available', ${quantity}, now(), now())
-    ON CONFLICT (product_id, size)
-    DO UPDATE SET
-      stock_quantity = COALESCE(product_variants.stock_quantity, 0) + EXCLUDED.stock_quantity,
-      stock_status = 'available',
-      updated_at = now()
-    RETURNING id
+  const stockRows = await sql`
+    SELECT COALESCE(SUM(stock_quantity), 0)::int AS units
+    FROM product_variants
+    WHERE product_id = ${productId}::uuid
   `;
-  const variantId = String(rows[0]?.id || "");
+  const currentUnits = Number(stockRows[0]?.units || 0);
+  const weightedCost = unitCost > 0
+    ? Math.round(((Math.max(0, product.cost || 0) * currentUnits) + (unitCost * quantity)) / Math.max(1, currentUnits + quantity))
+    : Math.max(0, product.cost || 0);
 
-  if (unitCost > 0) {
-    await db.update(products).set({ cost: unitCost, updatedAt: new Date() }).where(eq(products.id, productId));
-  }
-
-  await sql`
-    INSERT INTO inventory_movements (
-      product_id, variant_id, product_name, size, movement_type, quantity, unit_cost, unit_price, supplier, note, created_at
-    ) VALUES (
-      ${productId}::uuid, ${variantId}::uuid, ${product.name}, ${size}, 'purchase', ${quantity}, ${unitCost}, ${product.price}, ${supplier || null}, ${note || null}, now()
-    )
-  `;
+  await sql.transaction((txn) => [
+    txn`
+      INSERT INTO product_variants (product_id, size, stock_status, stock_quantity, created_at, updated_at)
+      VALUES (${productId}::uuid, ${size}, 'available', ${quantity}, now(), now())
+      ON CONFLICT (product_id, size)
+      DO UPDATE SET
+        stock_quantity = COALESCE(product_variants.stock_quantity, 0) + EXCLUDED.stock_quantity,
+        stock_status = 'available',
+        updated_at = now()
+    `,
+    txn`
+      UPDATE products
+      SET cost = ${weightedCost}, updated_at = now()
+      WHERE id = ${productId}::uuid
+    `,
+    txn`
+      INSERT INTO inventory_movements (
+        product_id, variant_id, product_name, size, movement_type, quantity, unit_cost, unit_price, supplier, note, created_at
+      ) VALUES (
+        ${productId}::uuid,
+        (SELECT id FROM product_variants WHERE product_id = ${productId}::uuid AND size = ${size} LIMIT 1),
+        ${product.name}, ${size}, 'purchase', ${quantity}, ${unitCost}, ${product.price}, ${supplier || null}, ${note || null}, now()
+      )
+    `,
+  ], { isolationMode: "Serializable" });
 
   revalidateStorefront(product.slug);
   redirect(`/admin/inventory?added=1&product=${productId}`);
+}
+
+export async function registerManualSale(formData: FormData) {
+  await requireAdmin();
+  if (!isDatabaseConfigured()) throw new Error("DATABASE_URL is not configured");
+
+  const productId = cleanText(formData.get("productId"), 80);
+  const size = cleanText(formData.get("size"), 30);
+  const quantity = Math.max(0, Math.floor(Number(formData.get("quantity")) || 0));
+  const requestedPrice = Math.max(0, Math.round(Number(formData.get("unitPrice")) || 0));
+  const note = cleanText(formData.get("note"), 300);
+
+  if (!productId || !size || quantity < 1) throw new Error("Selecciona producto, talla y cantidad.");
+
+  const db = getDb();
+  const [product] = await db.select().from(products).where(eq(products.id, productId)).limit(1);
+  if (!product) throw new Error("Producto no encontrado.");
+  const unitPrice = requestedPrice || product.price;
+  const unitCost = Math.max(0, product.cost || 0);
+  const sql = getSqlClient();
+
+  await sql.transaction((txn) => [
+    txn`
+      WITH updated AS (
+        UPDATE product_variants
+        SET
+          stock_quantity = COALESCE(stock_quantity, 0) - ${quantity},
+          stock_status = CASE WHEN COALESCE(stock_quantity, 0) - ${quantity} > 0 THEN 'available' ELSE 'out_of_stock' END,
+          updated_at = now()
+        WHERE product_id = ${productId}::uuid
+          AND size = ${size}
+          AND COALESCE(stock_quantity, 0) >= ${quantity}
+        RETURNING id
+      )
+      SELECT 1 / (SELECT count(*)::int FROM updated) AS ok
+    `,
+    txn`
+      INSERT INTO inventory_movements (
+        product_id, variant_id, product_name, size, movement_type, quantity, unit_cost, unit_price, note, created_at
+      ) VALUES (
+        ${productId}::uuid,
+        (SELECT id FROM product_variants WHERE product_id = ${productId}::uuid AND size = ${size} LIMIT 1),
+        ${product.name}, ${size}, 'sale_manual', ${quantity}, ${unitCost}, ${unitPrice}, ${note || 'Venta registrada manualmente'}, now()
+      )
+    `,
+  ], { isolationMode: "Serializable" });
+
+  revalidateStorefront(product.slug);
+  redirect(`/admin/sales?created=1&product=${productId}`);
 }
 
 export async function updateProduct(formData: FormData) {
@@ -205,23 +258,39 @@ export async function updateOrderStatus(formData: FormData) {
   await requireAdmin();
   if (!isDatabaseConfigured()) throw new Error("DATABASE_URL is not configured");
 
-  const orderId = String(formData.get("orderId") || "");
-  const paymentStatus = String(formData.get("paymentStatus") || "pending");
-  const orderStatus = String(formData.get("orderStatus") || "received");
-  const shippingStatus = String(formData.get("shippingStatus") || "pending");
-  const trackingNumber = String(formData.get("trackingNumber") || "").trim() || null;
+  const orderId = cleanText(formData.get("orderId"), 80);
+  const paymentStatus = cleanText(formData.get("paymentStatus"), 30) as PaymentState;
+  const orderStatus = cleanText(formData.get("orderStatus"), 30);
+  const shippingStatus = cleanText(formData.get("shippingStatus"), 30);
+  const trackingNumber = cleanText(formData.get("trackingNumber"), 120) || null;
 
-  if (!orderId) throw new Error("Pedido inválido.");
+  const allowedPayment: PaymentState[] = ["pending", "paid", "failed", "refunded"];
+  const allowedOrder = ["received", "confirmed", "processing", "shipped", "delivered", "cancelled"];
+  const allowedShipping = ["pending", "preparing", "shipped", "delivered", "returned"];
+
+  if (!orderId || !allowedPayment.includes(paymentStatus) || !allowedOrder.includes(orderStatus) || !allowedShipping.includes(shippingStatus)) {
+    throw new Error("Estado de pedido inválido.");
+  }
+
+  await setOrderPaymentState({ orderId, paymentStatus });
+
   const db = getDb();
-  await db.update(orders).set({ paymentStatus, orderStatus, shippingStatus, trackingNumber, updatedAt: new Date() }).where(eq(orders.id, orderId));
+  await db.update(orders).set({ orderStatus, shippingStatus, trackingNumber, updatedAt: new Date() }).where(eq(orders.id, orderId));
+
+  revalidatePath("/admin");
   revalidatePath("/admin/orders");
+  revalidatePath("/admin/inventory");
+  revalidatePath("/admin/sales");
   revalidatePath("/account");
+  revalidatePath(`/order/${orderId}`);
+  revalidatePath("/shop");
 }
 
 export async function toggleProductActive(formData: FormData) {
   await requireAdmin();
-  const productId = String(formData.get("productId") || "");
-  const active = String(formData.get("active")) === "true";
+  const productId = cleanText(formData.get("productId"), 80);
+  const active = cleanText(formData.get("active"), 10) === "true";
+  if (!productId) return;
   const db = getDb();
   await db.update(products).set({ active, updatedAt: new Date() }).where(eq(products.id, productId));
   revalidateStorefront();
