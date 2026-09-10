@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { getDb, getSqlClient } from "@/db";
 import { orderItems, orders } from "@/db/schema";
 
@@ -25,7 +25,7 @@ export async function setOrderPaymentState({
   if (order.paymentStatus === paymentStatus) {
     await db.update(orders).set({
       paymentProvider: provider || order.paymentProvider,
-      paymentReference: transactionId || order.paymentReference,
+      paymentTransactionId: transactionId || order.paymentTransactionId,
       updatedAt: new Date(),
     }).where(eq(orders.id, orderId));
     return;
@@ -87,7 +87,7 @@ export async function setOrderPaymentState({
         SET
           payment_status = 'paid',
           payment_provider = COALESCE(${provider || null}, payment_provider),
-          payment_reference = COALESCE(${transactionId || null}, payment_reference),
+          payment_transaction_id = COALESCE(${transactionId || null}, payment_transaction_id),
           order_status = CASE WHEN order_status = 'received' THEN 'confirmed' ELSE order_status END,
           updated_at = now()
         WHERE id = ${orderId}::uuid
@@ -143,7 +143,7 @@ export async function setOrderPaymentState({
         SET
           payment_status = 'refunded',
           payment_provider = COALESCE(${provider || null}, payment_provider),
-          payment_reference = COALESCE(${transactionId || null}, payment_reference),
+          payment_transaction_id = COALESCE(${transactionId || null}, payment_transaction_id),
           order_status = 'cancelled',
           updated_at = now()
         WHERE id = ${orderId}::uuid
@@ -155,17 +155,13 @@ export async function setOrderPaymentState({
   await db.update(orders).set({
     paymentStatus,
     paymentProvider: provider || order.paymentProvider,
-    paymentReference: transactionId || order.paymentReference,
+    paymentTransactionId: transactionId || order.paymentTransactionId,
     updatedAt: new Date(),
   }).where(eq(orders.id, orderId));
 }
 
 export async function findOrderByPaymentReference(reference: string) {
   const db = getDb();
-  const [order] = await db
-    .select()
-    .from(orders)
-    .where(and(eq(orders.paymentReference, reference)))
-    .limit(1);
+  const [order] = await db.select().from(orders).where(eq(orders.paymentReference, reference)).limit(1);
   return order || null;
 }
