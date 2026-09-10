@@ -10,9 +10,7 @@ function normalizeAudience(value: string | null): Audience {
 }
 
 function imageFor(row: typeof productTable.$inferSelect) {
-  return row.imageUrl
-    ? `${row.imageUrl}${row.imageUrl.includes("?") ? "&" : "?"}v=${row.updatedAt.getTime()}`
-    : `/api/product-image/${row.id}?v=${row.updatedAt.getTime()}`;
+  return `/api/product-image/${row.id}?v=${row.updatedAt.getTime()}`;
 }
 
 function mapProduct(
