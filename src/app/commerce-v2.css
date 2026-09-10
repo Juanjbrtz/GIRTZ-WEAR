@@ -1,0 +1,124 @@
+/* GIRTZ Commerce + Admin App */
+.admin-mobile-nav { display: none; }
+
+.quick-product-card,
+.inventory-entry-card {
+  border: 1px solid var(--line);
+  background: var(--black-soft);
+  padding: 28px;
+  margin-bottom: 28px;
+}
+
+.quick-product-form { display: grid; gap: 22px; }
+.quick-product-fields { display: grid; grid-template-columns: 1.4fr .8fr; gap: 14px; }
+.quick-product-fields label,
+.product-advanced-fields label,
+.inventory-entry-form label { display: grid; gap: 8px; }
+.quick-product-fields span,
+.product-advanced-fields label > span,
+.inventory-entry-form label > span { color: var(--muted); font-size: 8px; font-weight: 700; letter-spacing: .12em; }
+.quick-product-fields input,
+.product-advanced-fields input,
+.product-advanced-fields select,
+.product-advanced-fields textarea,
+.inventory-entry-form input,
+.inventory-entry-form select {
+  min-height: 46px;
+  width: 100%;
+  border: 1px solid var(--line);
+  background: #0b0b0b;
+  color: var(--white);
+  padding: 0 13px;
+  font: inherit;
+  outline: none;
+}
+.product-advanced-fields textarea { padding: 13px; resize: vertical; }
+.product-advanced-fields { border-top: 1px solid var(--line); padding-top: 16px; }
+.product-advanced-fields summary { cursor: pointer; color: var(--muted-light); font-size: 9px; font-weight: 700; letter-spacing: .12em; margin-bottom: 18px; }
+.quick-publish-button { width: 100%; min-height: 52px; }
+
+.admin-catalog-carousel,
+.inventory-product-strip {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(230px, 270px);
+  gap: 14px;
+  overflow-x: auto;
+  padding: 4px 2px 18px;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-inline: contain;
+  scrollbar-width: thin;
+}
+.admin-catalog-card,
+.inventory-product-card {
+  scroll-snap-align: start;
+  border: 1px solid var(--line);
+  background: #0a0a0a;
+  min-width: 0;
+}
+.admin-catalog-image,
+.inventory-product-image { position: relative; display: block; aspect-ratio: 1 / 1; background: #f3f3f3; overflow: hidden; }
+.admin-catalog-image img,
+.inventory-product-image img { width: 100%; height: 100%; object-fit: contain; }
+.admin-catalog-image > span { position: absolute; top: 10px; left: 10px; background: #050505; color: #fff; padding: 7px 9px; font-size: 8px; letter-spacing: .1em; }
+.admin-catalog-copy { display: grid; gap: 7px; padding: 16px; }
+.admin-catalog-copy small { color: var(--muted); font-size: 8px; letter-spacing: .1em; }
+.admin-catalog-copy h3 { margin: 0; font-size: 17px; font-weight: 560; letter-spacing: -.02em; }
+.admin-catalog-copy strong { font-size: 13px; }
+.admin-catalog-copy > span { color: var(--muted-light); font-size: 10px; }
+.admin-catalog-actions { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--line); }
+.admin-catalog-actions a,
+.admin-catalog-actions button { min-height: 38px; display: grid; place-items: center; border: 0; border-right: 1px solid var(--line); background: transparent; color: var(--muted-light); font: inherit; font-size: 8px; font-weight: 700; letter-spacing: .08em; cursor: pointer; }
+.admin-catalog-actions form { grid-column: 1 / -1; border-top: 1px solid var(--line); }
+.admin-catalog-actions form button { width: 100%; border-right: 0; }
+
+.inventory-kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 26px; }
+.inventory-kpis article { border: 1px solid var(--line); background: var(--black-soft); padding: 22px; display: grid; gap: 10px; }
+.inventory-kpis span { color: var(--muted); font-size: 8px; font-weight: 700; letter-spacing: .12em; }
+.inventory-kpis strong { font-size: clamp(22px, 3vw, 36px); font-weight: 550; }
+.inventory-entry-form { display: grid; gap: 18px; }
+.inventory-product-card { padding-bottom: 16px; }
+.inventory-product-card > span,
+.inventory-product-card > h3,
+.inventory-product-card > strong,
+.inventory-product-card > a,
+.inventory-size-chips { margin-left: 14px; margin-right: 14px; }
+.inventory-product-card > span { display: block; margin-top: 14px; color: var(--muted); font-size: 8px; letter-spacing: .1em; }
+.inventory-product-card h3 { margin-top: 6px; margin-bottom: 7px; font-size: 16px; }
+.inventory-product-card > strong { display: block; font-size: 12px; }
+.inventory-size-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.inventory-size-chips small { border: 1px solid var(--line); padding: 6px 8px; font-size: 8px; color: var(--muted-light); }
+.inventory-product-card > a { display: block; margin-top: 14px; color: var(--white); font-size: 8px; font-weight: 700; letter-spacing: .1em; }
+.inventory-movement-list { border-top: 1px solid var(--line); }
+.inventory-movement-list article { display: flex; justify-content: space-between; gap: 20px; padding: 17px 0; border-bottom: 1px solid var(--line); }
+.inventory-movement-list article > div { display: grid; gap: 5px; }
+.inventory-movement-list span,
+.inventory-movement-list small { color: var(--muted); font-size: 8px; letter-spacing: .08em; }
+.inventory-movement-list strong { font-size: 11px; }
+
+@media (max-width: 780px) {
+  .admin-app-shell { padding-bottom: 68px; }
+  .admin-sidebar { display: none; }
+  .admin-content { width: 100%; margin: 0; padding: 18px 14px 86px; }
+  .admin-mobile-nav {
+    position: fixed;
+    z-index: 100;
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    border: 1px solid #2c2c2c;
+    background: rgba(8, 8, 8, .95);
+    backdrop-filter: blur(18px);
+  }
+  .admin-mobile-nav a { min-height: 54px; display: grid; place-items: center; border-right: 1px solid #252525; color: #bbb; font-size: 7px; font-weight: 700; letter-spacing: .08em; }
+  .admin-mobile-nav a:last-child { border-right: 0; }
+  .quick-product-card,
+  .inventory-entry-card { padding: 18px; }
+  .quick-product-fields,
+  .inventory-kpis { grid-template-columns: 1fr; }
+  .admin-catalog-carousel,
+  .inventory-product-strip { grid-auto-columns: minmax(78vw, 82vw); }
+  .inventory-movement-list article { flex-direction: column; }
+}
