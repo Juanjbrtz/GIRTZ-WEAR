@@ -25,10 +25,10 @@ export function ProductCard({ product }: { product: Product }) {
         </div>
 
         <div className="product-stock-line">
-          {product.stockQuantity > 0 ? `${product.stockQuantity} EN INVENTARIO` : "AGOTADO"}
+          {product.stockQuantity > 0 ? "DISPONIBLE" : "AGOTADO"}
         </div>
 
-        <div className="product-size-preview" aria-label={`Tallas disponibles de ${product.name}`}>
+        <div className="product-size-preview" aria-label={`Tallas EUR disponibles de ${product.name}`}>
           {product.sizes.length ? product.sizes.slice(0, 7).map((size) => <span key={size}>{size}</span>) : <span>—</span>}
         </div>
 
