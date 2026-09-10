@@ -1,18 +1,11 @@
 import Link from "next/link";
-import { AddToCartButton } from "@/components/add-to-cart-button";
+import { ProductPurchaseControls } from "@/components/product-purchase-controls";
 import { ProductVisual } from "@/components/product-visual";
-import { WhatsappConsultButton } from "@/components/whatsapp-consult-button";
 import { formatCop, type Product } from "@/data/products";
 
-export function ProductCard({
-  product,
-  whatsappNumber,
-}: {
-  product: Product;
-  whatsappNumber: string;
-}) {
+export function ProductCard({ product }: { product: Product }) {
   return (
-    <article className="product-card product-card-v3">
+    <article className="product-card product-card-v3 commerce-product-card">
       <Link href={`/product/${product.slug}`} className="product-media product-media-v3">
         <ProductVisual
           product={product}
@@ -31,23 +24,18 @@ export function ProductCard({
           <strong>{formatCop(product.price)}</strong>
         </div>
 
-        <div className="availability-line">
-          <span className="availability-dot" />
-          TALLAS · CONSULTAR DISPONIBILIDAD
+        <div className="product-stock-line">
+          {product.stockQuantity > 0 ? `${product.stockQuantity} EN INVENTARIO` : "AGOTADO"}
         </div>
 
-        <div className="product-card-actions-v3">
-          <AddToCartButton product={product} className="product-cart-button" />
-          <WhatsappConsultButton
-            product={product}
-            whatsappNumber={whatsappNumber}
-            className="product-whatsapp-button"
-            label="CONSULTAR POR WHATSAPP"
-          />
+        <div className="product-size-preview" aria-label={`Tallas disponibles de ${product.name}`}>
+          {product.sizes.length ? product.sizes.slice(0, 7).map((size) => <span key={size}>{size}</span>) : <span>—</span>}
         </div>
+
+        <ProductPurchaseControls product={product} compact />
 
         <Link href={`/product/${product.slug}`} className="product-detail-link-v3">
-          VER DETALLES DEL MODELO
+          VER PRODUCTO
         </Link>
       </div>
     </article>
