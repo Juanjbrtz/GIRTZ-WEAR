@@ -61,6 +61,8 @@ export default async function OrderPage({
       })
     : null;
 
+  const deliveryLocation = [order.shippingCity, order.shippingDepartment].filter(Boolean).join(", ");
+
   return (
     <main className="inner-page order-page">
       <SiteHeader />
@@ -94,11 +96,25 @@ export default async function OrderPage({
                 <div key={item.id} className="order-product-row">
                   <div>
                     <strong>{item.productName}</strong>
-                    <small>Talla {item.size} · Cantidad {item.quantity}</small>
+                    <small>Talla EUR {item.size} · Cantidad {item.quantity}</small>
                   </div>
                   <span>{formatCop(item.unitPrice * item.quantity)}</span>
                 </div>
               ))}
+            </div>
+
+            <div className="order-products">
+              <div className="order-product-row">
+                <div>
+                  <strong>ENTREGA</strong>
+                  <small>
+                    {order.customerName || "Cliente"}<br />
+                    {order.shippingAddress || "Dirección pendiente"}
+                    {deliveryLocation ? <><br />{deliveryLocation}</> : null}
+                    {order.customerPhone ? <><br />{order.customerPhone}</> : null}
+                  </small>
+                </div>
+              </div>
             </div>
 
             <div className="order-total-row">
@@ -106,7 +122,7 @@ export default async function OrderPage({
               <strong>{formatCop(order.total)}</strong>
             </div>
             <small className="order-shipping-note">
-              {order.shippingCost > 0 ? `Envío: ${formatCop(order.shippingCost)}` : "El envío se coordina antes del despacho."}
+              {order.shippingCost > 0 ? `Envío: ${formatCop(order.shippingCost)}` : "El valor del envío se definirá antes del despacho."}
             </small>
           </div>
 
