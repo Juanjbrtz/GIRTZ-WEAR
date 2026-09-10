@@ -229,7 +229,7 @@ export async function POST(request: Request) {
         ${item.unitCost}
       )
     `),
-  ], { isolationMode: "Serializable" });
+  ]);
 
   const paymentUrl = buildWompiCheckoutUrl({
     orderId,
