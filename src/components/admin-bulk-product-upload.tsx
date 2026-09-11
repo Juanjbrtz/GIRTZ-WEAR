@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, type ChangeEvent } from "react";
+import { useMemo, useState, type ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
 import { createProductFromBatch } from "@/app/admin/products/bulk-actions";
 
@@ -37,12 +37,6 @@ export function AdminBulkProductUpload() {
   const [items, setItems] = useState<BatchItem[]>([]);
   const [publishing, setPublishing] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
-
-  useEffect(() => {
-    return () => {
-      items.forEach((item) => URL.revokeObjectURL(item.preview));
-    };
-  }, [items]);
 
   const pendingCount = useMemo(
     () => items.filter((item) => item.status === "ready" || item.status === "error").length,
