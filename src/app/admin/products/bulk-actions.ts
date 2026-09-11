@@ -44,6 +44,14 @@ async function saveProductImage(productId: string, file: File) {
   `;
 }
 
+function revalidateCatalog() {
+  revalidatePath("/");
+  revalidatePath("/shop");
+  revalidatePath("/admin");
+  revalidatePath("/admin/products");
+  revalidatePath("/admin/inventory");
+}
+
 export async function createProductFromBatch(formData: FormData) {
   await requireAdmin();
   if (!isDatabaseConfigured()) throw new Error("DATABASE_URL is not configured");
@@ -56,37 +64,56 @@ export async function createProductFromBatch(formData: FormData) {
   const price = Math.max(0, Math.round(Number(formData.get("price")) || 0));
   const cost = Math.max(0, Math.round(Number(formData.get("cost")) || 0));
 
-  if (!name || !price) throw new Error("Cada foto necesita nombre y precio.");
+  if (!name || price < 100) throw new Error("Cada foto necesita nombre y un precio válido.");
   if (!["Hombre", "Mujer", "Unisex"].includes(audience)) throw new Error("Sección inválida.");
 
   const db = getDb();
-  const baseSlug = slugify(`${brand}-${name}`) || `producto-${Date.now()}`;
-  const [existing] = await db.select({ id: products.id }).from(products).where(eq(products.slug, baseSlug)).limit(1);
-  const slug = existing ? `${baseSlug}-${Date.now().toString(36)}` : baseSlug;
+  const slug = slugify(`${brand}-${name}`) || `producto-${Date.now()}`;
 
-  const [created] = await db.insert(products).values({
-    name,
-    slug,
-    brand,
-    audience,
-    description,
-    price,
-    cost,
-    category: "Sneakers",
-    imageUrl: null,
-    featured: false,
-    active: true,
-  }).returning({ id: products.id });
+  // Una referencia se identifica por marca + nombre. Si el mismo envío se repite,
+  // devolvemos el producto existente en vez de crear copias con slugs distintos.
+  const [existing] = await db.select({ id: products.id, name: products.name })
+    .from(products)
+    .where(eq(products.slug, slug))
+    .limit(1);
 
-  if (!created) throw new Error("No fue posible crear el producto.");
-  await saveProductImage(created.id, image);
-  await db.update(products).set({ updatedAt: new Date() }).where(eq(products.id, created.id));
+  if (existing) {
+    revalidateCatalog();
+    return { ok: true, id: existing.id, name: existing.name, duplicate: true };
+  }
 
-  revalidatePath("/");
-  revalidatePath("/shop");
-  revalidatePath("/admin");
-  revalidatePath("/admin/products");
-  revalidatePath("/admin/inventory");
+  try {
+    const [created] = await db.insert(products).values({
+      name,
+      slug,
+      brand,
+      audience,
+      description,
+      price,
+      cost,
+      category: "Sneakers",
+      imageUrl: null,
+      featured: false,
+      active: true,
+    }).returning({ id: products.id });
 
-  return { ok: true, id: created.id, name };
+    if (!created) throw new Error("No fue posible crear el producto.");
+    await saveProductImage(created.id, image);
+    await db.update(products).set({ updatedAt: new Date() }).where(eq(products.id, created.id));
+
+    revalidateCatalog();
+    return { ok: true, id: created.id, name, duplicate: false };
+  } catch (error) {
+    // La restricción única del slug actúa como segunda barrera si dos solicitudes
+    // idénticas llegan al servidor al mismo tiempo.
+    const [alreadyCreated] = await db.select({ id: products.id, name: products.name })
+      .from(products)
+      .where(eq(products.slug, slug))
+      .limit(1);
+    if (alreadyCreated) {
+      revalidateCatalog();
+      return { ok: true, id: alreadyCreated.id, name: alreadyCreated.name, duplicate: true };
+    }
+    throw error;
+  }
 }
