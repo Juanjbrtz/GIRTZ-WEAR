@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createProduct, toggleProductActive } from "@/app/admin/actions";
+import { AdminBulkProductUpload } from "@/components/admin-bulk-product-upload";
 import { AdminImageUpload } from "@/components/admin-image-upload";
 import { formatCop } from "@/data/products";
 import { getAdminProducts } from "@/lib/store-data";
@@ -17,17 +18,19 @@ export default async function AdminProductsPage({ searchParams }: ProductsPagePr
         <div>
           <span>TIENDA</span>
           <h1>CATÁLOGO</h1>
-          <p>Sube la foto del producto directamente desde tu celular o computador. No necesitas pegar URLs.</p>
+          <p>Sube una foto o selecciona varias desde tu celular o computador. No necesitas pegar URLs.</p>
         </div>
         <div className="admin-count">{catalog.filter((item) => item.active).length} PUBLICADOS</div>
       </header>
 
       {created === "1" ? <div className="admin-success">Producto agregado al catálogo con su foto.</div> : null}
 
+      <AdminBulkProductUpload />
+
       <section className="quick-product-card">
         <div className="admin-block-heading">
           <div>
-            <span>CARGA POR FOTO</span>
+            <span>CARGA INDIVIDUAL</span>
             <h2>NUEVO PRODUCTO</h2>
           </div>
         </div>
@@ -102,7 +105,7 @@ export default async function AdminProductsPage({ searchParams }: ProductsPagePr
                   <small>{product.brand || "GIRTZ"} · {product.audience || "Unisex"}</small>
                   <h3>{product.name}</h3>
                   <strong>{formatCop(product.price)}</strong>
-                  <span>{product.stockQuantity} en inventario</span>
+                  <span>Costo {formatCop(product.cost)} · {product.stockQuantity} en inventario</span>
                 </div>
                 <div className="admin-catalog-actions">
                   <Link href={`/admin/inventory?product=${product.id}`}>INVENTARIO</Link>
@@ -117,7 +120,7 @@ export default async function AdminProductsPage({ searchParams }: ProductsPagePr
             ))}
           </div>
         ) : (
-          <div className="admin-empty">Sube la primera foto para empezar a construir el catálogo.</div>
+          <div className="admin-empty">Sube las primeras fotos para empezar a construir el catálogo.</div>
         )}
       </section>
     </section>
