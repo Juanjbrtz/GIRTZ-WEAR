@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, type ChangeEvent } from "react";
+import { useMemo, useRef, useState, type ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
 import { createProductFromBatch } from "@/app/admin/products/bulk-actions";
 
@@ -36,8 +36,13 @@ function onlyDigits(value: string) {
   return value.replace(/\D/g, "").slice(0, 10);
 }
 
+function fileFingerprint(file: File) {
+  return `${file.name.toLowerCase()}-${file.size}-${file.lastModified}`;
+}
+
 export function AdminBulkProductUpload() {
   const router = useRouter();
+  const publishingLock = useRef(false);
   const [items, setItems] = useState<BatchItem[]>([]);
   const [publishing, setPublishing] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -49,13 +54,20 @@ export function AdminBulkProductUpload() {
 
   function handleFiles(event: ChangeEvent<HTMLInputElement>) {
     const selected = Array.from(event.target.files || []).slice(0, maxBatch);
-    const valid = selected.filter((file) => allowedTypes.has(file.type) && file.size <= maxBytes);
+    const seen = new Set<string>();
+    const valid = selected.filter((file) => {
+      if (!allowedTypes.has(file.type) || file.size > maxBytes) return false;
+      const fingerprint = fileFingerprint(file);
+      if (seen.has(fingerprint)) return false;
+      seen.add(fingerprint);
+      return true;
+    });
     const rejected = selected.length - valid.length;
 
     setItems((current) => {
       current.forEach((item) => URL.revokeObjectURL(item.preview));
-      return valid.map((file, index) => ({
-        id: `${file.name}-${file.lastModified}-${index}`,
+      return valid.map((file) => ({
+        id: fileFingerprint(file),
         file,
         preview: URL.createObjectURL(file),
         name: filenameToName(file.name),
@@ -70,10 +82,12 @@ export function AdminBulkProductUpload() {
     if (selected.length > maxBatch) {
       setMessage(`Puedes cargar hasta ${maxBatch} fotos por lote. Se tomaron las primeras ${maxBatch}.`);
     } else if (rejected > 0) {
-      setMessage(`${rejected} foto(s) no se cargaron por formato o por superar 7 MB.`);
+      setMessage(`${rejected} foto(s) fueron omitidas por estar repetidas, superar 7 MB o tener un formato no compatible.`);
     } else {
       setMessage(null);
     }
+
+    event.target.value = "";
   }
 
   function updateItem(id: string, patch: Partial<BatchItem>) {
@@ -89,43 +103,56 @@ export function AdminBulkProductUpload() {
   }
 
   async function publishBatch() {
-    if (!pendingCount || publishing) return;
+    if (!pendingCount || publishingLock.current) return;
     const invalid = items.find((item) => item.status !== "done" && (!item.name.trim() || Number(item.price) < 100));
     if (invalid) {
       setMessage("Cada foto debe tener nombre y un precio válido antes de publicar el lote.");
       return;
     }
 
+    publishingLock.current = true;
     setPublishing(true);
     setMessage(null);
     let published = 0;
+    let duplicates = 0;
     let failed = 0;
 
-    for (const item of items) {
-      if (item.status === "done") continue;
-      setItems((current) => current.map((entry) => entry.id === item.id ? { ...entry, status: "publishing", error: undefined } : entry));
+    try {
+      for (const item of items) {
+        if (item.status === "done") continue;
+        setItems((current) => current.map((entry) => entry.id === item.id ? { ...entry, status: "publishing", error: undefined } : entry));
 
-      const formData = new FormData();
-      formData.set("image", item.file);
-      formData.set("name", item.name.trim());
-      formData.set("brand", item.brand.trim());
-      formData.set("audience", item.audience);
-      formData.set("price", item.price);
-      formData.set("cost", item.cost || "0");
+        const formData = new FormData();
+        formData.set("image", item.file);
+        formData.set("name", item.name.trim());
+        formData.set("brand", item.brand.trim());
+        formData.set("audience", item.audience);
+        formData.set("price", item.price);
+        formData.set("cost", item.cost || "0");
 
-      try {
-        await createProductFromBatch(formData);
-        published += 1;
-        setItems((current) => current.map((entry) => entry.id === item.id ? { ...entry, status: "done", error: undefined } : entry));
-      } catch (error) {
-        failed += 1;
-        const errorMessage = error instanceof Error ? error.message : "No fue posible publicar esta foto.";
-        setItems((current) => current.map((entry) => entry.id === item.id ? { ...entry, status: "error", error: errorMessage } : entry));
+        try {
+          const result = await createProductFromBatch(formData);
+          if (result.duplicate) duplicates += 1;
+          else published += 1;
+          setItems((current) => current.map((entry) => entry.id === item.id ? { ...entry, status: "done", error: undefined } : entry));
+        } catch (error) {
+          failed += 1;
+          const errorMessage = error instanceof Error ? error.message : "No fue posible publicar esta foto.";
+          setItems((current) => current.map((entry) => entry.id === item.id ? { ...entry, status: "error", error: errorMessage } : entry));
+        }
       }
+    } finally {
+      publishingLock.current = false;
+      setPublishing(false);
     }
 
-    setPublishing(false);
-    setMessage(failed ? `${published} producto(s) publicados y ${failed} con error. Puedes corregirlos y reintentar.` : `${published} producto(s) publicados correctamente.`);
+    if (failed) {
+      setMessage(`${published} producto(s) publicados, ${duplicates} ya existían y ${failed} quedaron con error.`);
+    } else if (duplicates) {
+      setMessage(`${published} producto(s) publicados. ${duplicates} envío(s) repetidos fueron bloqueados automáticamente.`);
+    } else {
+      setMessage(`${published} producto(s) publicados correctamente.`);
+    }
     router.refresh();
   }
 
