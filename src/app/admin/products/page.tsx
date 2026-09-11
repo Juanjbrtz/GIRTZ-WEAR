@@ -45,7 +45,7 @@ export default async function AdminProductsPage({ searchParams }: ProductsPagePr
             </label>
             <label>
               <span>PRECIO</span>
-              <input name="price" type="number" min="1" step="100" placeholder="200000" required />
+              <input name="price" type="number" min="100" step="100" inputMode="numeric" placeholder="220000" required />
             </label>
           </div>
 
@@ -68,7 +68,7 @@ export default async function AdminProductsPage({ searchParams }: ProductsPagePr
             <div className="admin-form-grid two">
               <label>
                 <span>COSTO DE REFERENCIA</span>
-                <input name="cost" type="number" min="0" step="100" placeholder="150000" />
+                <input name="cost" type="number" min="0" step="100" inputMode="numeric" placeholder="150000" />
               </label>
               <label className="admin-check">
                 <input name="featured" type="checkbox" />
