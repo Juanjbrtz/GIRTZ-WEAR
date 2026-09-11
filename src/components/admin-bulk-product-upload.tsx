@@ -32,6 +32,10 @@ function filenameToName(filename: string) {
     .trim();
 }
 
+function onlyDigits(value: string) {
+  return value.replace(/\D/g, "").slice(0, 10);
+}
+
 export function AdminBulkProductUpload() {
   const router = useRouter();
   const [items, setItems] = useState<BatchItem[]>([]);
@@ -86,9 +90,9 @@ export function AdminBulkProductUpload() {
 
   async function publishBatch() {
     if (!pendingCount || publishing) return;
-    const invalid = items.find((item) => item.status !== "done" && (!item.name.trim() || Number(item.price) <= 0));
+    const invalid = items.find((item) => item.status !== "done" && (!item.name.trim() || Number(item.price) < 100));
     if (invalid) {
-      setMessage("Cada foto debe tener nombre y precio antes de publicar el lote.");
+      setMessage("Cada foto debe tener nombre y un precio válido antes de publicar el lote.");
       return;
     }
 
@@ -172,11 +176,11 @@ export function AdminBulkProductUpload() {
                   </label>
                   <label>
                     <span>PRECIO *</span>
-                    <input type="number" min="1" step="100" value={item.price} onChange={(event) => updateItem(item.id, { price: event.target.value })} placeholder="200000" disabled={item.status === "done"} />
+                    <input type="text" inputMode="numeric" pattern="[0-9]*" value={item.price} onChange={(event) => updateItem(item.id, { price: onlyDigits(event.target.value) })} placeholder="220000" disabled={item.status === "done"} />
                   </label>
                   <label>
                     <span>COSTO</span>
-                    <input type="number" min="0" step="100" value={item.cost} onChange={(event) => updateItem(item.id, { cost: event.target.value })} placeholder="150000" disabled={item.status === "done"} />
+                    <input type="text" inputMode="numeric" pattern="[0-9]*" value={item.cost} onChange={(event) => updateItem(item.id, { cost: onlyDigits(event.target.value) })} placeholder="150000" disabled={item.status === "done"} />
                   </label>
                 </div>
 
