@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { createProduct, toggleProductActive } from "@/app/admin/actions";
+import { toggleProductActive } from "@/app/admin/actions";
+import { createProductSafe } from "@/app/admin/products/create-action";
 import { AdminBulkProductUpload } from "@/components/admin-bulk-product-upload";
 import { AdminImageUpload } from "@/components/admin-image-upload";
 import { formatCop } from "@/data/products";
@@ -35,7 +36,7 @@ export default async function AdminProductsPage({ searchParams }: ProductsPagePr
           </div>
         </div>
 
-        <form action={createProduct} className="quick-product-form">
+        <form action={createProductSafe} className="quick-product-form">
           <AdminImageUpload required />
 
           <div className="quick-product-fields">
