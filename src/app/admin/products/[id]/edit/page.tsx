@@ -50,11 +50,11 @@ export default async function EditProductPage({ params, searchParams }: EditProd
                 <option>Hombre</option><option>Mujer</option><option>Unisex</option>
               </select>
             </label>
-            <label><span>PRECIO DE VENTA</span><input name="price" type="number" min="1" step="100" defaultValue={product.price} required /></label>
+            <label><span>PRECIO DE VENTA</span><input name="price" type="number" min="100" step="100" inputMode="numeric" defaultValue={product.price} required /></label>
           </div>
 
           <div className="admin-form-grid two">
-            <label><span>COSTO DE REFERENCIA</span><input name="cost" type="number" min="0" step="100" defaultValue={product.cost} /></label>
+            <label><span>COSTO DE REFERENCIA</span><input name="cost" type="number" min="0" step="100" inputMode="numeric" defaultValue={product.cost} /></label>
             <div className="admin-product-note compact">
               <strong>MARGEN DE REFERENCIA</strong>
               <span>{formatCop(Math.max(0, product.price - product.cost))} por unidad</span>
