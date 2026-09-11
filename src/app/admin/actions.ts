@@ -4,13 +4,21 @@ import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getDb, getSqlClient } from "@/db";
-import { orders, products } from "@/db/schema";
+import { orders, productExpenses, products } from "@/db/schema";
 import { setOrderPaymentState, type PaymentState } from "@/lib/order-lifecycle";
 import { requireAdmin } from "@/lib/session";
 import { isDatabaseConfigured } from "@/lib/store-data";
 
 const MAX_IMAGE_BYTES = 7 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/avif"]);
+const ALLOWED_EXPENSE_CATEGORIES = new Set([
+  "Transporte proveedor",
+  "Empaque",
+  "Envío cliente",
+  "Comisión de pago",
+  "Publicidad",
+  "Otro",
+]);
 
 function slugify(value: string) {
   return value
@@ -114,6 +122,7 @@ export async function registerInventoryPurchase(formData: FormData) {
   const size = cleanText(formData.get("size"), 30);
   const quantity = Math.max(0, Math.floor(Number(formData.get("quantity")) || 0));
   const unitCost = Math.max(0, Math.round(Number(formData.get("unitCost")) || 0));
+  const purchaseExpense = Math.max(0, Math.round(Number(formData.get("purchaseExpense")) || 0));
   const supplier = cleanText(formData.get("supplier"), 120);
   const note = cleanText(formData.get("note"), 300);
 
@@ -160,6 +169,15 @@ export async function registerInventoryPurchase(formData: FormData) {
     `,
   ]);
 
+  if (purchaseExpense > 0) {
+    await db.insert(productExpenses).values({
+      productId,
+      category: "Transporte proveedor",
+      amount: purchaseExpense,
+      note: note || `Gasto asociado a compra de ${quantity} unidad(es), talla EUR ${size}`,
+    });
+  }
+
   revalidateStorefront(product.slug);
   redirect(`/admin/inventory?added=1&product=${productId}`);
 }
@@ -172,6 +190,7 @@ export async function registerManualSale(formData: FormData) {
   const size = cleanText(formData.get("size"), 30);
   const quantity = Math.max(0, Math.floor(Number(formData.get("quantity")) || 0));
   const requestedPrice = Math.max(0, Math.round(Number(formData.get("unitPrice")) || 0));
+  const saleExpense = Math.max(0, Math.round(Number(formData.get("saleExpense")) || 0));
   const note = cleanText(formData.get("note"), 300);
 
   if (!productId || !size || quantity < 1) throw new Error("Selecciona producto, talla y cantidad.");
@@ -200,17 +219,46 @@ export async function registerManualSale(formData: FormData) {
     `,
     txn`
       INSERT INTO inventory_movements (
-        product_id, variant_id, product_name, size, movement_type, quantity, unit_cost, unit_price, note, created_at
+        product_id, variant_id, product_name, size, movement_type, quantity, unit_cost, unit_price, expense_amount, note, created_at
       ) VALUES (
         ${productId}::uuid,
         (SELECT id FROM product_variants WHERE product_id = ${productId}::uuid AND size = ${size} LIMIT 1),
-        ${product.name}, ${size}, 'sale_manual', ${quantity}, ${unitCost}, ${unitPrice}, ${note || 'Venta registrada manualmente'}, now()
+        ${product.name}, ${size}, 'sale_manual', ${quantity}, ${unitCost}, ${unitPrice}, ${saleExpense}, ${note || 'Venta registrada manualmente'}, now()
       )
     `,
   ]);
 
   revalidateStorefront(product.slug);
   redirect(`/admin/sales?created=1&product=${productId}`);
+}
+
+export async function registerProductExpense(formData: FormData) {
+  await requireAdmin();
+  if (!isDatabaseConfigured()) throw new Error("DATABASE_URL is not configured");
+
+  const productId = cleanText(formData.get("productId"), 80);
+  const category = cleanText(formData.get("category"), 80);
+  const amount = Math.max(0, Math.round(Number(formData.get("amount")) || 0));
+  const note = cleanText(formData.get("note"), 300);
+
+  if (!productId || !amount) throw new Error("Selecciona producto e ingresa el valor del gasto.");
+  if (!ALLOWED_EXPENSE_CATEGORIES.has(category)) throw new Error("Categoría de gasto inválida.");
+
+  const db = getDb();
+  const [product] = await db.select({ id: products.id }).from(products).where(eq(products.id, productId)).limit(1);
+  if (!product) throw new Error("Producto no encontrado.");
+
+  await db.insert(productExpenses).values({
+    productId,
+    category,
+    amount,
+    note: note || null,
+  });
+
+  revalidatePath("/admin");
+  revalidatePath("/admin/inventory");
+  revalidatePath("/admin/sales");
+  redirect(`/admin/sales?expense=1&product=${productId}`);
 }
 
 export async function updateProduct(formData: FormData) {
