@@ -4,6 +4,7 @@ import {
   customers,
   inventoryMovements,
   orders,
+  productExpenses,
   products,
   productVariants,
 } from "@/db/schema";
@@ -71,6 +72,8 @@ export async function getAdminStats() {
       products: 0,
       revenue: 0,
       grossProfit: 0,
+      totalExpenses: 0,
+      netProfit: 0,
       unitsSold: 0,
       inventoryUnits: 0,
       inventoryValue: 0,
@@ -78,7 +81,7 @@ export async function getAdminStats() {
   }
 
   const db = getDb();
-  const [[customerCount], [orderCount], [productCount], [sales], [inventory]] = await Promise.all([
+  const [[customerCount], [orderCount], [productCount], [sales], [expenseSummary], [inventory]] = await Promise.all([
     db.select({ value: sql<number>`count(*)::int` }).from(customers),
     db.select({ value: sql<number>`count(*)::int` }).from(orders),
     db.select({ value: sql<number>`count(*)::int` }).from(products).where(sql`${products.category} IS DISTINCT FROM '__asset'`),
@@ -91,11 +94,15 @@ export async function getAdminStats() {
         when ${inventoryMovements.movementType} in ('sale','sale_manual') then ${inventoryMovements.quantity} * ${inventoryMovements.unitCost}
         when ${inventoryMovements.movementType} = 'return' then -${inventoryMovements.quantity} * ${inventoryMovements.unitCost}
         else 0 end), 0)::int`,
+      saleExpenses: sql<number>`coalesce(sum(case
+        when ${inventoryMovements.movementType} in ('sale','sale_manual') then ${inventoryMovements.expenseAmount}
+        else 0 end), 0)::int`,
       units: sql<number>`coalesce(sum(case
         when ${inventoryMovements.movementType} in ('sale','sale_manual') then ${inventoryMovements.quantity}
         when ${inventoryMovements.movementType} = 'return' then -${inventoryMovements.quantity}
         else 0 end), 0)::int`,
     }).from(inventoryMovements),
+    db.select({ value: sql<number>`coalesce(sum(${productExpenses.amount}), 0)::int` }).from(productExpenses),
     db.select({
       units: sql<number>`coalesce(sum(${productVariants.stockQuantity}), 0)::int`,
       value: sql<number>`coalesce(sum(coalesce(${productVariants.stockQuantity},0) * ${products.cost}), 0)::int`,
@@ -104,12 +111,16 @@ export async function getAdminStats() {
 
   const revenue = sales?.revenue || 0;
   const cost = sales?.cost || 0;
+  const grossProfit = revenue - cost;
+  const totalExpenses = (sales?.saleExpenses || 0) + (expenseSummary?.value || 0);
   return {
     customers: customerCount?.value || 0,
     orders: orderCount?.value || 0,
     products: productCount?.value || 0,
     revenue,
-    grossProfit: revenue - cost,
+    grossProfit,
+    totalExpenses,
+    netProfit: grossProfit - totalExpenses,
     unitsSold: sales?.units || 0,
     inventoryUnits: inventory?.units || 0,
     inventoryValue: inventory?.value || 0,
@@ -170,32 +181,54 @@ export async function getAdminProducts() {
 export async function getInventoryDashboard() {
   if (!isDatabaseConfigured()) return { products: [], movements: [] };
   const db = getDb();
-  const [catalog, variants, movements] = await Promise.all([
+  const [catalog, variants, movements, expenses] = await Promise.all([
     db.select().from(products).where(sql`${products.category} IS DISTINCT FROM '__asset'`).orderBy(desc(products.updatedAt)),
     db.select().from(productVariants).orderBy(productVariants.size),
     db.select().from(inventoryMovements).orderBy(desc(inventoryMovements.createdAt)).limit(100),
+    db.select({
+      productId: productExpenses.productId,
+      amount: sql<number>`coalesce(sum(${productExpenses.amount}), 0)::int`,
+    }).from(productExpenses).groupBy(productExpenses.productId),
   ]);
 
   return {
-    products: catalog.map((product) => ({
-      ...product,
-      variants: variants.filter((variant) => variant.productId === product.id),
-      stockQuantity: variants
-        .filter((variant) => variant.productId === product.id)
-        .reduce((sum, variant) => sum + Math.max(0, variant.stockQuantity || 0), 0),
-    })),
+    products: catalog.map((product) => {
+      const productVariantRows = variants.filter((variant) => variant.productId === product.id);
+      const stockQuantity = productVariantRows.reduce((sum, variant) => sum + Math.max(0, variant.stockQuantity || 0), 0);
+      const expenseTotal = expenses.find((expense) => expense.productId === product.id)?.amount || 0;
+      return {
+        ...product,
+        variants: productVariantRows,
+        stockQuantity,
+        expenseTotal,
+        inventoryValue: stockQuantity * Math.max(0, product.cost || 0),
+        projectedGrossProfitPerUnit: Math.max(0, product.price - Math.max(0, product.cost || 0)),
+      };
+    }),
     movements,
   };
 }
 
 export async function getSalesDashboard() {
   if (!isDatabaseConfigured()) {
-    return { revenue: 0, cost: 0, profit: 0, units: 0, products: [], movements: [] };
+    return {
+      revenue: 0,
+      cost: 0,
+      grossProfit: 0,
+      saleExpenses: 0,
+      otherExpenses: 0,
+      totalExpenses: 0,
+      netProfit: 0,
+      units: 0,
+      products: [],
+      movements: [],
+      expenses: [],
+    };
   }
 
   const db = getDb();
   const saleWhere = sql`${inventoryMovements.movementType} in ('sale','sale_manual','return')`;
-  const [[summary], productRows, movements] = await Promise.all([
+  const [[summary], productRows, expenseRows, movements, expenseHistory] = await Promise.all([
     db.select({
       revenue: sql<number>`coalesce(sum(case
         when ${inventoryMovements.movementType} in ('sale','sale_manual') then ${inventoryMovements.quantity} * ${inventoryMovements.unitPrice}
@@ -204,6 +237,9 @@ export async function getSalesDashboard() {
       cost: sql<number>`coalesce(sum(case
         when ${inventoryMovements.movementType} in ('sale','sale_manual') then ${inventoryMovements.quantity} * ${inventoryMovements.unitCost}
         when ${inventoryMovements.movementType} = 'return' then -${inventoryMovements.quantity} * ${inventoryMovements.unitCost}
+        else 0 end), 0)::int`,
+      saleExpenses: sql<number>`coalesce(sum(case
+        when ${inventoryMovements.movementType} in ('sale','sale_manual') then ${inventoryMovements.expenseAmount}
         else 0 end), 0)::int`,
       units: sql<number>`coalesce(sum(case
         when ${inventoryMovements.movementType} in ('sale','sale_manual') then ${inventoryMovements.quantity}
@@ -225,23 +261,98 @@ export async function getSalesDashboard() {
         when ${inventoryMovements.movementType} in ('sale','sale_manual') then ${inventoryMovements.quantity} * ${inventoryMovements.unitCost}
         when ${inventoryMovements.movementType} = 'return' then -${inventoryMovements.quantity} * ${inventoryMovements.unitCost}
         else 0 end)::int`,
+      saleExpenses: sql<number>`sum(case
+        when ${inventoryMovements.movementType} in ('sale','sale_manual') then ${inventoryMovements.expenseAmount}
+        else 0 end)::int`,
     })
       .from(inventoryMovements)
       .leftJoin(products, eq(inventoryMovements.productId, products.id))
       .where(saleWhere)
       .groupBy(inventoryMovements.productId, products.name, inventoryMovements.productName)
       .orderBy(sql`sum(case when ${inventoryMovements.movementType} in ('sale','sale_manual') then ${inventoryMovements.quantity} * ${inventoryMovements.unitPrice} when ${inventoryMovements.movementType} = 'return' then -${inventoryMovements.quantity} * ${inventoryMovements.unitPrice} else 0 end) desc`),
+    db.select({
+      productId: productExpenses.productId,
+      productName: sql<string>`coalesce(${products.name}, 'Producto eliminado')`,
+      amount: sql<number>`coalesce(sum(${productExpenses.amount}), 0)::int`,
+    }).from(productExpenses)
+      .leftJoin(products, eq(productExpenses.productId, products.id))
+      .groupBy(productExpenses.productId, products.name),
     db.select().from(inventoryMovements).where(saleWhere).orderBy(desc(inventoryMovements.createdAt)).limit(100),
+    db.select({
+      id: productExpenses.id,
+      productId: productExpenses.productId,
+      productName: sql<string>`coalesce(${products.name}, 'Producto eliminado')`,
+      category: productExpenses.category,
+      amount: productExpenses.amount,
+      note: productExpenses.note,
+      createdAt: productExpenses.createdAt,
+    }).from(productExpenses)
+      .leftJoin(products, eq(productExpenses.productId, products.id))
+      .orderBy(desc(productExpenses.createdAt))
+      .limit(100),
   ]);
 
   const revenue = summary?.revenue || 0;
   const cost = summary?.cost || 0;
+  const saleExpenses = summary?.saleExpenses || 0;
+  const otherExpenses = expenseRows.reduce((sum, expense) => sum + (expense.amount || 0), 0);
+  const grossProfit = revenue - cost;
+  const totalExpenses = saleExpenses + otherExpenses;
+
+  const productMap = new Map<string, {
+    productId: string | null;
+    productName: string;
+    units: number;
+    revenue: number;
+    cost: number;
+    saleExpenses: number;
+    otherExpenses: number;
+  }>();
+
+  for (const row of productRows) {
+    const key = row.productId || `deleted:${row.productName}`;
+    productMap.set(key, {
+      productId: row.productId,
+      productName: row.productName,
+      units: row.units || 0,
+      revenue: row.revenue || 0,
+      cost: row.cost || 0,
+      saleExpenses: row.saleExpenses || 0,
+      otherExpenses: 0,
+    });
+  }
+
+  for (const expense of expenseRows) {
+    const key = expense.productId || `deleted:${expense.productName}`;
+    const current = productMap.get(key) || {
+      productId: expense.productId,
+      productName: expense.productName,
+      units: 0,
+      revenue: 0,
+      cost: 0,
+      saleExpenses: 0,
+      otherExpenses: 0,
+    };
+    current.otherExpenses += expense.amount || 0;
+    productMap.set(key, current);
+  }
+
   return {
     revenue,
     cost,
-    profit: revenue - cost,
+    grossProfit,
+    saleExpenses,
+    otherExpenses,
+    totalExpenses,
+    netProfit: grossProfit - totalExpenses,
     units: summary?.units || 0,
-    products: productRows.map((row) => ({ ...row, profit: (row.revenue || 0) - (row.cost || 0) })),
+    products: Array.from(productMap.values()).map((row) => ({
+      ...row,
+      grossProfit: row.revenue - row.cost,
+      totalExpenses: row.saleExpenses + row.otherExpenses,
+      netProfit: row.revenue - row.cost - row.saleExpenses - row.otherExpenses,
+    })),
     movements,
+    expenses: expenseHistory,
   };
 }
