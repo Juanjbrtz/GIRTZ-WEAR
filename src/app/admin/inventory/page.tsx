@@ -15,10 +15,8 @@ export default async function InventoryPage({ searchParams }: InventoryPageProps
   ]);
 
   const totalUnits = data.products.reduce((sum, product) => sum + product.stockQuantity, 0);
-  const inventoryValue = data.products.reduce(
-    (sum, product) => sum + product.stockQuantity * Math.max(0, product.cost || 0),
-    0,
-  );
+  const inventoryValue = data.products.reduce((sum, product) => sum + product.inventoryValue, 0);
+  const accumulatedExpenses = data.products.reduce((sum, product) => sum + product.expenseTotal, 0);
 
   return (
     <section className="admin-section inventory-app">
@@ -30,13 +28,14 @@ export default async function InventoryPage({ searchParams }: InventoryPageProps
       </header>
 
       {added === "1" ? (
-        <div className="admin-success">Entrada registrada y stock actualizado.</div>
+        <div className="admin-success">Entrada registrada, costo actualizado e inventario aumentado.</div>
       ) : null}
 
       <div className="inventory-kpis">
         <article><span>UNIDADES</span><strong>{totalUnits}</strong></article>
         <article><span>REFERENCIAS</span><strong>{data.products.length}</strong></article>
-        <article><span>VALOR AL COSTO</span><strong>{formatCop(inventoryValue)}</strong></article>
+        <article><span>INVENTARIO AL COSTO</span><strong>{formatCop(inventoryValue)}</strong></article>
+        <article><span>GASTOS ACUMULADOS</span><strong>{formatCop(accumulatedExpenses)}</strong></article>
       </div>
 
       <section className="admin-panel-block inventory-entry-card">
@@ -54,7 +53,7 @@ export default async function InventoryPage({ searchParams }: InventoryPageProps
               <option value="" disabled>Seleccionar referencia</option>
               {data.products.map((product) => (
                 <option key={product.id} value={product.id}>
-                  {product.name} · {formatCop(product.price)}
+                  {product.name} · venta {formatCop(product.price)}
                 </option>
               ))}
             </select>
@@ -78,7 +77,11 @@ export default async function InventoryPage({ searchParams }: InventoryPageProps
             </label>
           </div>
 
-          <div className="admin-form-grid two">
+          <div className="admin-form-grid three">
+            <label>
+              <span>GASTOS DEL LOTE</span>
+              <input name="purchaseExpense" type="number" min="0" step="100" placeholder="Transporte u otro" />
+            </label>
             <label>
               <span>PROVEEDOR</span>
               <input name="supplier" placeholder="Proveedor" />
@@ -96,7 +99,7 @@ export default async function InventoryPage({ searchParams }: InventoryPageProps
       <section className="admin-panel-block">
         <div className="admin-block-heading">
           <div>
-            <span>EXISTENCIAS</span>
+            <span>EXISTENCIAS Y RENTABILIDAD</span>
             <h2>STOCK POR REFERENCIA</h2>
           </div>
         </div>
@@ -114,6 +117,13 @@ export default async function InventoryPage({ searchParams }: InventoryPageProps
                 {product.variants.length ? product.variants.map((variant) => (
                   <small key={variant.id}>EUR {variant.size}: {Math.max(0, variant.stockQuantity || 0)}</small>
                 )) : <small>SIN INVENTARIO</small>}
+              </div>
+              <div className="admin-product-note compact">
+                <span>Costo unitario: <strong>{formatCop(product.cost)}</strong></span>
+                <span>Precio venta: <strong>{formatCop(product.price)}</strong></span>
+                <span>Utilidad bruta estimada/unidad: <strong>{formatCop(product.projectedGrossProfitPerUnit)}</strong></span>
+                <span>Valor inventario: <strong>{formatCop(product.inventoryValue)}</strong></span>
+                <span>Gastos acumulados: <strong>{formatCop(product.expenseTotal)}</strong></span>
               </div>
               <a href={`/admin/inventory?product=${product.id}`}>AGREGAR STOCK</a>
             </article>
