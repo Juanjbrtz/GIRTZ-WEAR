@@ -142,6 +142,7 @@ export const inventoryMovements = pgTable(
     quantity: integer("quantity").notNull(),
     unitCost: integer("unit_cost").default(0).notNull(),
     unitPrice: integer("unit_price").default(0).notNull(),
+    expenseAmount: integer("expense_amount").default(0).notNull(),
     supplier: text("supplier"),
     note: text("note"),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
@@ -150,5 +151,23 @@ export const inventoryMovements = pgTable(
     index("inventory_movements_product_idx").on(table.productId),
     index("inventory_movements_order_idx").on(table.orderId),
     index("inventory_movements_created_at_idx").on(table.createdAt),
+  ],
+);
+
+export const productExpenses = pgTable(
+  "product_expenses",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    productId: uuid("product_id").references(() => products.id, { onDelete: "set null" }),
+    orderId: uuid("order_id").references(() => orders.id, { onDelete: "set null" }),
+    category: text("category").notNull(),
+    amount: integer("amount").notNull(),
+    note: text("note"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    index("product_expenses_product_idx").on(table.productId),
+    index("product_expenses_order_idx").on(table.orderId),
+    index("product_expenses_created_at_idx").on(table.createdAt),
   ],
 );
