@@ -13,6 +13,7 @@ function formatDate(date: Date) {
 export default async function AdminDashboardPage() {
   const [stats, orders] = await Promise.all([getAdminStats(), getAdminOrders()]);
   const recentOrders = orders.slice(0, 6);
+  const costSold = stats.revenue - stats.grossProfit;
 
   return (
     <section className="admin-section dashboard-v2">
@@ -26,7 +27,10 @@ export default async function AdminDashboardPage() {
 
       <div className="admin-metric-grid commerce-metrics">
         <article><span>VENTAS</span><strong>{formatCop(stats.revenue)}</strong></article>
+        <article><span>COSTO VENDIDO</span><strong>{formatCop(costSold)}</strong></article>
         <article><span>UTILIDAD BRUTA</span><strong>{formatCop(stats.grossProfit)}</strong></article>
+        <article><span>GASTOS</span><strong>{formatCop(stats.totalExpenses)}</strong></article>
+        <article><span>UTILIDAD NETA</span><strong>{formatCop(stats.netProfit)}</strong></article>
         <article><span>UNIDADES VENDIDAS</span><strong>{stats.unitsSold}</strong></article>
         <article><span>UNIDADES EN STOCK</span><strong>{stats.inventoryUnits}</strong></article>
         <article><span>INVENTARIO AL COSTO</span><strong>{formatCop(stats.inventoryValue)}</strong></article>
@@ -35,8 +39,8 @@ export default async function AdminDashboardPage() {
 
       <div className="admin-dashboard-shortcuts">
         <Link href="/admin/products"><span>CATÁLOGO</span><strong>Publicar producto →</strong></Link>
-        <Link href="/admin/inventory"><span>INVENTARIO</span><strong>Registrar compra →</strong></Link>
-        <Link href="/admin/sales"><span>VENTAS</span><strong>Ver utilidad →</strong></Link>
+        <Link href="/admin/inventory"><span>INVENTARIO</span><strong>Costos y stock →</strong></Link>
+        <Link href="/admin/sales"><span>VENTAS</span><strong>Utilidad y gastos →</strong></Link>
       </div>
 
       <div className="admin-panel-block">
