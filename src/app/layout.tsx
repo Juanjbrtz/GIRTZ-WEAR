@@ -11,6 +11,7 @@ import "./storefront-v3.css";
 import "./admin-v2.css";
 import "./commerce-v2.css";
 import "./commerce-v2-extra.css";
+import "./storefront-v4.css";
 
 const instrumentSans = Instrument_Sans({
   variable: "--font-brand",
