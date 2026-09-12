@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { AccountMenu } from "@/components/account-menu";
 import { CartLink } from "@/components/cart-link";
+import { getSessionAccount } from "@/lib/session";
 
 const navItems = [
   { href: "/shop", label: "CATÁLOGO" },
@@ -8,27 +10,26 @@ const navItems = [
   { href: "/shop?categoria=unisex", label: "UNISEX" },
 ];
 
-export function SiteHeader() {
+export async function SiteHeader() {
+  const account = await getSessionAccount();
+  const signedIn = Boolean(account.session?.user);
+  const displayName = account.customer?.name || account.session?.user?.name || account.session?.user?.email || null;
+
   return (
-    <header className="site-header site-header-v3">
-      <Link href="/" className="brand-mark" aria-label="GIRTZ WEAR, inicio">
+    <header className="site-header site-header-v3 site-header-final">
+      <Link href="/" className="brand-mark brand-mark-final" aria-label="GIRTZ WEAR, inicio">
         <span>GIRTZ</span>
-        <small>WEAR</small>
       </Link>
 
       <nav className="main-nav main-nav-v3" aria-label="Navegación principal">
         {navItems.map((item) => (
-          <Link key={item.href} href={item.href}>
-            {item.label}
-          </Link>
+          <Link key={item.href} href={item.href}>{item.label}</Link>
         ))}
       </nav>
 
-      <div className="header-actions header-actions-v3">
+      <div className="header-actions header-actions-v3 header-actions-final">
         <CartLink compact />
-        <Link href="/account" className="header-cta">
-          CUENTA
-        </Link>
+        <AccountMenu signedIn={signedIn} isAdmin={account.isAdmin} name={displayName} />
       </div>
     </header>
   );
