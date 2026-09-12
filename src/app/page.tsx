@@ -8,9 +8,9 @@ import { getFeaturedProduct } from "@/lib/catalog";
 export const dynamic = "force-dynamic";
 
 const sections = [
-  { href: "/shop?categoria=hombre", number: "01", title: "Hombre", note: "Selección diaria" },
-  { href: "/shop?categoria=mujer", number: "02", title: "Mujer", note: "Selección diaria" },
-  { href: "/shop?categoria=unisex", number: "03", title: "Unisex", note: "Sin etiquetas" },
+  { href: "/shop?categoria=hombre", number: "01", title: "Hombre", note: "Modelos para hombre" },
+  { href: "/shop?categoria=mujer", number: "02", title: "Mujer", note: "Modelos para mujer" },
+  { href: "/shop?categoria=unisex", number: "03", title: "Unisex", note: "Modelos unisex" },
 ];
 
 export default async function Home() {
@@ -22,15 +22,15 @@ export default async function Home() {
 
       <section className="editorial-hero">
         <div className="editorial-hero-rail">
-          <span>GIRTZ / EDIT 001</span>
-          <span>MEDELLÍN · CO</span>
+          <span>GIRTZ / CATÁLOGO 2026</span>
+          <span>COLOMBIA</span>
         </div>
 
         <div className="editorial-hero-copy">
-          <p>CURATED SNEAKERS / 2026</p>
-          <h1>NO SIGAS<br/>EL PAR.<br/><i>ENCUÉNTRALO.</i></h1>
+          <p>SNEAKERS MULTIMARCA</p>
+          <h1>ENCUENTRA<br/>TU PRÓXIMO<br/><i>PAR.</i></h1>
           <div className="editorial-hero-actions">
-            <Link href="/shop">VER SELECCIÓN</Link>
+            <Link href="/shop">VER CATÁLOGO</Link>
             <Link href="/cart">MI CARRITO</Link>
           </div>
         </div>
@@ -46,7 +46,7 @@ export default async function Home() {
           <div className="editorial-product-meta">
             <div>
               <span>{heroProduct?.brand?.toUpperCase() || "GIRTZ"}</span>
-              <h2>{heroProduct?.name || "NUEVA SELECCIÓN"}</h2>
+              <h2>{heroProduct?.name || "NUEVAS REFERENCIAS"}</h2>
             </div>
             <div className="editorial-product-price">
               <span>{heroProduct?.audience?.toUpperCase() || "UNISEX"}</span>
@@ -60,8 +60,8 @@ export default async function Home() {
 
       <section className="editorial-index">
         <header>
-          <span>SHOP INDEX</span>
-          <h2>TRES FORMAS<br/>DE ENTRAR.</h2>
+          <span>CATÁLOGO</span>
+          <h2>EXPLORA POR<br/>SECCIÓN.</h2>
         </header>
 
         <div className="editorial-index-list">
@@ -78,8 +78,8 @@ export default async function Home() {
 
       <section className="editorial-manifesto">
         <span>GIRTZ WEAR</span>
-        <p>No vendemos una pared llena de referencias. Seleccionamos pares que valen la pena mirar dos veces.</p>
-        <Link href="/shop">ENTRAR AL CATÁLOGO ↗</Link>
+        <p>Sneakers multimarca para hombre, mujer y unisex. Explora el catálogo, arma tu selección y confirma disponibilidad antes de comprar.</p>
+        <Link href="/shop">VER CATÁLOGO ↗</Link>
       </section>
 
       <SiteFooter />
