@@ -40,17 +40,23 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
+    let restoredItems: CartItem[] = [];
     try {
       const raw = window.localStorage.getItem(STORAGE_KEY);
       if (raw) {
         const parsed = JSON.parse(raw) as CartItem[];
-        if (Array.isArray(parsed)) setItems(parsed);
+        if (Array.isArray(parsed)) restoredItems = parsed;
       }
     } catch {
       // Si localStorage está corrupto, se inicia un carrito limpio.
-    } finally {
-      setHydrated(true);
     }
+
+    const frame = window.requestAnimationFrame(() => {
+      setItems(restoredItems);
+      setHydrated(true);
+    });
+
+    return () => window.cancelAnimationFrame(frame);
   }, []);
 
   useEffect(() => {
