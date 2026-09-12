@@ -9,10 +9,10 @@ export function ProductCard({ product, index = 0 }: { product: Product; whatsapp
   return (
     <article className="product-card product-card-v3 product-card-v4 product-card-final editorial-product-card">
       <Link href={`/product/${product.slug}`} className="product-media product-media-v3 product-media-v4 editorial-card-media">
-        <ProductVisual product={product} sizes="(max-width: 720px) 100vw, (max-width: 1100px) 46vw, 32vw" />
+        <ProductVisual product={product} sizes="(max-width: 900px) 50vw, 50vw" />
         <span className="editorial-card-sequence">{sequence}</span>
         <span className="product-audience product-audience-v4">{product.audience}</span>
-        {product.featured ? <span className="product-featured-badge product-featured-badge-v4">GIRTZ PICK</span> : null}
+        {product.featured ? <span className="product-featured-badge product-featured-badge-v4">DESTACADO</span> : null}
       </Link>
 
       <div className="product-info product-info-v3 product-info-v4 editorial-card-info">
@@ -25,8 +25,8 @@ export function ProductCard({ product, index = 0 }: { product: Product; whatsapp
         </div>
 
         <div className="editorial-card-rule">
-          <span>DISPONIBILIDAD POR CONFIRMAR</span>
-          <Link href={`/product/${product.slug}`}>VER PAR ↗</Link>
+          <span>CONSULTAR DISPONIBILIDAD</span>
+          <Link href={`/product/${product.slug}`}>VER MODELO ↗</Link>
         </div>
 
         <div className="product-card-actions-final editorial-card-actions">
