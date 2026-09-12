@@ -7,91 +7,79 @@ import { getFeaturedProduct } from "@/lib/catalog";
 
 export const dynamic = "force-dynamic";
 
-const catalogRoutes = [
-  {
-    href: "/shop?categoria=hombre",
-    index: "01",
-    title: "HOMBRE",
-    description: "Sneakers seleccionados para hombre.",
-  },
-  {
-    href: "/shop?categoria=mujer",
-    index: "02",
-    title: "MUJER",
-    description: "Una selección pensada para mujer.",
-  },
-  {
-    href: "/shop?categoria=unisex",
-    index: "03",
-    title: "UNISEX",
-    description: "Modelos versátiles para todos los estilos.",
-  },
+const sections = [
+  { href: "/shop?categoria=hombre", number: "01", title: "Hombre", note: "Selección diaria" },
+  { href: "/shop?categoria=mujer", number: "02", title: "Mujer", note: "Selección diaria" },
+  { href: "/shop?categoria=unisex", number: "03", title: "Unisex", note: "Sin etiquetas" },
 ];
 
 export default async function Home() {
   const heroProduct = await getFeaturedProduct();
 
   return (
-    <main className="home-page home-page-v3 home-page-v4">
+    <main className="home-page editorial-home">
       <SiteHeader />
 
-      <section className={`home-hero-v4 ${heroProduct ? "has-featured" : ""}`}>
-        {heroProduct ? (
-          <Link href={`/product/${heroProduct.slug}`} className="home-hero-art-v4" aria-label={`Ver ${heroProduct.name}`}>
-            <ProductVisual product={heroProduct} priority sizes="100vw" />
-            <span className="home-hero-shade-v4" />
-          </Link>
-        ) : null}
+      <section className="editorial-hero">
+        <div className="editorial-hero-rail">
+          <span>GIRTZ / EDIT 001</span>
+          <span>MEDELLÍN · CO</span>
+        </div>
 
-        <div className="home-hero-copy-v4">
-          <span className="eyebrow">GIRTZ WEAR / COLOMBIA</span>
-          <h1>SNEAKERS<br />QUE HABLAN<br />POR TI.</h1>
-          <p>Una selección multimarca pensada para encontrar tu próximo par sin complicaciones.</p>
-          <div className="home-hero-actions-v4">
-            <Link href="/shop" className="primary-button">VER CATÁLOGO</Link>
-            <Link href="/cart" className="secondary-button">MI SELECCIÓN</Link>
+        <div className="editorial-hero-copy">
+          <p>CURATED SNEAKERS / 2026</p>
+          <h1>NO SIGAS<br/>EL PAR.<br/><i>ENCUÉNTRALO.</i></h1>
+          <div className="editorial-hero-actions">
+            <Link href="/shop">VER SELECCIÓN</Link>
+            <Link href="/cart">MI CARRITO</Link>
           </div>
         </div>
 
-        {heroProduct ? (
-          <div className="home-hero-product-v4">
-            <span>DESTACADO</span>
-            <div className="home-hero-product-line-v4">
-              <div>
-                <small>{heroProduct.brand.toUpperCase()} / {heroProduct.audience.toUpperCase()}</small>
-                <h2>{heroProduct.name}</h2>
-              </div>
-              <strong>{formatCop(heroProduct.price)}</strong>
+        <div className="editorial-hero-product">
+          {heroProduct ? (
+            <Link href={`/product/${heroProduct.slug}`} className="editorial-product-shot" aria-label={`Ver ${heroProduct.name}`}>
+              <ProductVisual product={heroProduct} priority sizes="(max-width: 800px) 92vw, 56vw" />
+              <span className="editorial-shot-index">01</span>
+            </Link>
+          ) : <div className="editorial-product-shot empty" />}
+
+          <div className="editorial-product-meta">
+            <div>
+              <span>{heroProduct?.brand?.toUpperCase() || "GIRTZ"}</span>
+              <h2>{heroProduct?.name || "NUEVA SELECCIÓN"}</h2>
             </div>
-            <Link href={`/product/${heroProduct.slug}`}>VER MODELO →</Link>
+            <div className="editorial-product-price">
+              <span>{heroProduct?.audience?.toUpperCase() || "UNISEX"}</span>
+              <strong>{heroProduct ? formatCop(heroProduct.price) : "PRÓXIMAMENTE"}</strong>
+            </div>
           </div>
-        ) : (
-          <div className="home-hero-product-v4 empty">
-            <span>GIRTZ WEAR</span>
-            <h2>NUEVA SELECCIÓN.</h2>
-            <Link href="/shop">EXPLORAR →</Link>
-          </div>
-        )}
+        </div>
+
+        <div className="editorial-scroll-note">DESLIZA PARA EXPLORAR <span>↓</span></div>
       </section>
 
-      <section className="home-discovery-v3 home-discovery-v4">
-        <div className="home-discovery-head-v3 home-discovery-head-v4">
-          <span className="eyebrow">EXPLORA</span>
-          <h2>ENCUENTRA TU ESTILO.</h2>
-        </div>
+      <section className="editorial-index">
+        <header>
+          <span>SHOP INDEX</span>
+          <h2>TRES FORMAS<br/>DE ENTRAR.</h2>
+        </header>
 
-        <div className="home-category-grid-v3 home-category-grid-v4">
-          {catalogRoutes.map((item) => (
-            <Link key={item.href} href={item.href} className="home-category-card-v3 home-category-card-v4">
-              <span>{item.index}</span>
-              <div>
-                <h3>{item.title}</h3>
-                <p>{item.description}</p>
-              </div>
-              <strong>EXPLORAR →</strong>
+        <div className="editorial-index-list">
+          {sections.map((section) => (
+            <Link href={section.href} key={section.href} className="editorial-index-row">
+              <span className="index-number">{section.number}</span>
+              <strong>{section.title}</strong>
+              <small>{section.note}</small>
+              <span className="index-arrow">↗</span>
             </Link>
           ))}
         </div>
+      </section>
+
+      <section className="editorial-manifesto">
+        <span>GIRTZ WEAR</span>
+        <p>No vendemos una pared llena de referencias. Seleccionamos pares que valen la pena mirar dos veces.</p>
+        <Link href="/shop">ENTRAR AL CATÁLOGO ↗</Link>
       </section>
 
       <SiteFooter />
