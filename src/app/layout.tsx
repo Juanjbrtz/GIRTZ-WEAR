@@ -8,6 +8,7 @@ import "./admin-overrides.css";
 import "./storefront-commerce.css";
 import "./storefront-v3.css";
 import "./storefront-v4.css";
+import "./cart-feedback.css";
 import "./admin-v2.css";
 
 const instrumentSans = Instrument_Sans({
