@@ -28,18 +28,18 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
   const visibleProducts = activeBrand ? categoryProducts.filter((product) => product.brand === activeBrand) : categoryProducts;
 
   return (
-    <main className="inner-page catalog-page editorial-shop">
+    <main className="inner-page catalog-page editorial-shop refined-shop">
       <SiteHeader />
 
-      <section className="editorial-shop-head">
-        <div className="editorial-shop-title">
+      <section className="refined-shop-head">
+        <div>
           <span>CATÁLOGO / {String(visibleProducts.length).padStart(2, "0")}</span>
-          <h1>SNEAKERS<br/>MULTIMARCA.</h1>
+          <h1>Catálogo</h1>
         </div>
-        <p>Explora modelos para hombre, mujer y unisex. Agrega tus favoritos al carrito y confirma talla, disponibilidad y envío por WhatsApp.</p>
+        <p>Explora por categoría o marca. Agrega tus modelos favoritos y confirma talla, disponibilidad y envío por WhatsApp.</p>
       </section>
 
-      <section className="editorial-filter-bar">
+      <section className="editorial-filter-bar refined-filter-bar">
         <nav aria-label="Filtrar catálogo por sección">
           {filters.map((filter) => (
             <Link key={filter.value} href={filter.href} className={activeCategory === filter.value ? "active" : undefined}>{filter.label}</Link>
@@ -55,18 +55,18 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
         ) : null}
       </section>
 
-      <section className="editorial-catalog-meta">
+      <section className="editorial-catalog-meta refined-catalog-meta">
         <span>{activeCategory === "todos" ? "Todos los modelos" : categoryMap[activeCategory]}</span>
         <span>{activeBrand || "Todas las marcas"}</span>
         <span>{visibleProducts.length} {visibleProducts.length === 1 ? "referencia" : "referencias"}</span>
       </section>
 
       {visibleProducts.length ? (
-        <section className="editorial-product-grid">
+        <section className="editorial-product-grid refined-product-grid">
           {visibleProducts.map((product, index) => <ProductCard key={product.slug} product={product} index={index} />)}
         </section>
       ) : (
-        <section className="editorial-empty"><span>CATÁLOGO</span><h2>SIN RESULTADOS<br/>POR AHORA.</h2><Link href="/shop">VER TODO EL CATÁLOGO ↗</Link></section>
+        <section className="editorial-empty refined-empty"><span>CATÁLOGO</span><h2>Sin resultados por ahora.</h2><Link href="/shop">VER TODO EL CATÁLOGO ↗</Link></section>
       )}
 
       <SiteFooter />
