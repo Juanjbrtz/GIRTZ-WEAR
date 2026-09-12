@@ -15,6 +15,7 @@ import "./ios-ui-preview.css";
 import "./editorial-preview.css";
 import "./product-editorial-preview.css";
 import "./catalog-refinement.css";
+import "./dark-refined-preview.css";
 
 const instrumentSans = Instrument_Sans({ variable: "--font-brand", subsets: ["latin"] });
 
