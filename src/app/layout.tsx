@@ -13,6 +13,7 @@ import "./admin-v2.css";
 import "./release-polish.css";
 import "./ios-ui-preview.css";
 import "./editorial-preview.css";
+import "./product-editorial-preview.css";
 
 const instrumentSans = Instrument_Sans({ variable: "--font-brand", subsets: ["latin"] });
 
