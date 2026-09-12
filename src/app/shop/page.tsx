@@ -7,7 +7,7 @@ import type { Audience } from "@/data/products";
 import { getCatalogProducts } from "@/lib/catalog";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "Catálogo", description: "Explora GIRTZ WEAR, arma tu selección y confirma disponibilidad por WhatsApp." };
+export const metadata: Metadata = { title: "Catálogo", description: "Explora sneakers multimarca en GIRTZ WEAR y confirma disponibilidad por WhatsApp." };
 type ShopPageProps = { searchParams: Promise<{ categoria?: string; marca?: string }> };
 const filters = [
   { label: "Todo", value: "todos", href: "/shop" },
@@ -34,9 +34,9 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
       <section className="editorial-shop-head">
         <div className="editorial-shop-title">
           <span>CATÁLOGO / {String(visibleProducts.length).padStart(2, "0")}</span>
-          <h1>ELIGE<br/>TU PAR.</h1>
+          <h1>SNEAKERS<br/>MULTIMARCA.</h1>
         </div>
-        <p>No llenamos la pantalla de opciones. Aquí entra solo lo que queremos poner a circular.</p>
+        <p>Explora modelos para hombre, mujer y unisex. Agrega tus favoritos al carrito y confirma talla, disponibilidad y envío por WhatsApp.</p>
       </section>
 
       <section className="editorial-filter-bar">
@@ -56,7 +56,7 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
       </section>
 
       <section className="editorial-catalog-meta">
-        <span>{activeCategory === "todos" ? "Todos los pares" : categoryMap[activeCategory]}</span>
+        <span>{activeCategory === "todos" ? "Todos los modelos" : categoryMap[activeCategory]}</span>
         <span>{activeBrand || "Todas las marcas"}</span>
         <span>{visibleProducts.length} {visibleProducts.length === 1 ? "referencia" : "referencias"}</span>
       </section>
@@ -66,7 +66,7 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
           {visibleProducts.map((product, index) => <ProductCard key={product.slug} product={product} index={index} />)}
         </section>
       ) : (
-        <section className="editorial-empty"><span>GIRTZ / 000</span><h2>NADA AQUÍ<br/>TODAVÍA.</h2><Link href="/shop">VOLVER AL ÍNDICE ↗</Link></section>
+        <section className="editorial-empty"><span>CATÁLOGO</span><h2>SIN RESULTADOS<br/>POR AHORA.</h2><Link href="/shop">VER TODO EL CATÁLOGO ↗</Link></section>
       )}
 
       <SiteFooter />
