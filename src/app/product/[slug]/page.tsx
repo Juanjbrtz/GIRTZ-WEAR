@@ -28,7 +28,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
       <section className="editorial-detail">
         <div className="editorial-detail-image">
           <ProductVisual product={product} priority sizes="(max-width: 900px) 100vw, 62vw" />
-          <span className="editorial-detail-code">GIRTZ / {product.featured ? "PICK" : "SELECT"}</span>
+          <span className="editorial-detail-code">{product.featured ? "MODELO DESTACADO" : "CATÁLOGO"}</span>
           <span className="editorial-detail-audience">{product.audience}</span>
         </div>
 
@@ -44,15 +44,15 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
           <div className="editorial-detail-availability">
             <span>01</span>
-            <div><strong>DISPONIBILIDAD</strong><p>La talla se confirma por WhatsApp antes de cerrar la compra.</p></div>
+            <div><strong>DISPONIBILIDAD</strong><p>Confirmamos la talla disponible por WhatsApp antes de cerrar la compra.</p></div>
           </div>
           <div className="editorial-detail-availability">
             <span>02</span>
-            <div><strong>SELECCIÓN</strong><p>Agrega este par y combina varios modelos en un solo carrito.</p></div>
+            <div><strong>CARRITO</strong><p>Agrega uno o varios modelos y revisa tu selección antes de consultar.</p></div>
           </div>
           <div className="editorial-detail-availability">
             <span>03</span>
-            <div><strong>CIERRE</strong><p>Enviamos tu selección completa a WhatsApp con cantidades y total.</p></div>
+            <div><strong>COMPRA</strong><p>Envía tu carrito por WhatsApp para coordinar disponibilidad, pago y envío.</p></div>
           </div>
 
           <div className="editorial-detail-actions">
