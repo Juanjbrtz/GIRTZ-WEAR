@@ -19,6 +19,7 @@ import "./product-editorial-preview.css";
 import "./catalog-refinement.css";
 import "./dark-refined-preview.css";
 import "./cart-drawer-refined.css";
+import "./cart-drawer-polish.css";
 
 const instrumentSans = Instrument_Sans({ variable: "--font-brand", subsets: ["latin"] });
 
