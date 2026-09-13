@@ -35,7 +35,7 @@ export function getLoginError(error: unknown): FriendlyLoginError {
     value.includes("credential")
   ) {
     return {
-      message: "Correo o contraseña incorrectos.",
+      message: "El correo o la contraseña no son correctos.",
       suggestion: "Verifica que el correo esté bien escrito y vuelve a ingresar tu contraseña.",
     };
   }
@@ -70,21 +70,43 @@ export function getLoginError(error: unknown): FriendlyLoginError {
 export function getSignupError(error: unknown) {
   const value = normalized(error);
 
-  if (value.includes("already") || value.includes("exists") || value.includes("duplicate") || value.includes("registered")) {
+  if (
+    value.includes("already") ||
+    value.includes("exists") ||
+    value.includes("duplicate") ||
+    value.includes("registered") ||
+    value.includes("email taken")
+  ) {
     return "Ya existe una cuenta con este correo.";
   }
+
   if (value.includes("invalid origin") || value.includes("origin is not allowed") || value.includes("untrusted origin")) {
     return "No pudimos crear la cuenta desde esta dirección.";
   }
-  if (value.includes("password") && (value.includes("weak") || value.includes("short") || value.includes("length"))) {
-    return "La contraseña no cumple los requisitos de seguridad.";
+
+  if (
+    value.includes("password") &&
+    (value.includes("weak") || value.includes("short") || value.includes("length") || value.includes("common") || value.includes("compromised") || value.includes("pwned"))
+  ) {
+    return "Usa una contraseña más segura de mínimo 8 caracteres.";
   }
-  if (value.includes("email") && value.includes("invalid")) {
+
+  if (value.includes("password") && value.includes("long")) {
+    return "La contraseña es demasiado larga.";
+  }
+
+  if (value.includes("email") && (value.includes("invalid") || value.includes("format"))) {
     return "Ingresa un correo válido.";
   }
+
+  if (value.includes("too many") || value.includes("rate limit")) {
+    return "Se hicieron demasiados intentos. Espera unos minutos.";
+  }
+
   if (value.includes("network") || value.includes("fetch") || value.includes("connection")) {
     return "No pudimos conectar con el servicio de registro.";
   }
+
   return "No fue posible crear la cuenta.";
 }
 
