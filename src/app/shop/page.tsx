@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { CartAutoOpen } from "@/components/cart-auto-open";
 import { ProductCard } from "@/components/product-card";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
@@ -8,7 +9,7 @@ import { getCatalogProducts } from "@/lib/catalog";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Catálogo", description: "Explora sneakers multimarca en GIRTZ WEAR y confirma disponibilidad por WhatsApp." };
-type ShopPageProps = { searchParams: Promise<{ categoria?: string; marca?: string }> };
+type ShopPageProps = { searchParams: Promise<{ categoria?: string; marca?: string; carrito?: string }> };
 const filters = [
   { label: "Todo", value: "todos", href: "/shop" },
   { label: "Hombre", value: "hombre", href: "/shop?categoria=hombre" },
@@ -19,7 +20,7 @@ const categoryMap: Record<string, Audience> = { hombre: "Hombre", mujer: "Mujer"
 function brandHref(category: string, brand?: string) { const params = new URLSearchParams(); if (category !== "todos") params.set("categoria", category); if (brand) params.set("marca", brand); const query = params.toString(); return query ? `/shop?${query}` : "/shop"; }
 
 export default async function ShopPage({ searchParams }: ShopPageProps) {
-  const [{ categoria, marca }, catalogProducts] = await Promise.all([searchParams, getCatalogProducts()]);
+  const [{ categoria, marca, carrito }, catalogProducts] = await Promise.all([searchParams, getCatalogProducts()]);
   const activeCategory = categoria && categoryMap[categoria] ? categoria : "todos";
   const audience = categoryMap[activeCategory];
   const categoryProducts = audience ? catalogProducts.filter((product) => product.audience === audience) : catalogProducts;
@@ -29,6 +30,7 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
 
   return (
     <main className="inner-page catalog-page editorial-shop refined-shop">
+      {carrito === "1" ? <CartAutoOpen /> : null}
       <SiteHeader />
 
       <section className="refined-shop-head">
