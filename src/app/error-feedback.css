@@ -1,0 +1,36 @@
+.auth-error-card {
+  display: grid;
+  gap: 7px;
+  margin: 4px 0 2px;
+  padding: 14px 16px;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 16px;
+  background: rgba(255,255,255,.035);
+  color: #f1f0eb;
+}
+.auth-error-card strong {
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.4;
+}
+.auth-error-card span {
+  color: #9b9b95;
+  font-size: 11px;
+  line-height: 1.5;
+}
+.account-notice.error,
+.admin-error,
+.bulk-error {
+  border-color: rgba(255,255,255,.12) !important;
+  background: rgba(255,255,255,.035) !important;
+  color: #d9d8d2 !important;
+}
+
+@media (max-width: 900px) {
+  .auth-error-card {
+    padding: 13px 14px;
+    border-radius: 14px;
+  }
+  .auth-error-card strong { font-size: 11px; }
+  .auth-error-card span { font-size: 10.5px; }
+}
