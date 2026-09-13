@@ -1,0 +1,128 @@
+/* GIRTZ WEAR — refinamiento de catálogo: dos columnas consistentes y copy más sobrio */
+
+.editorial-product-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+
+.editorial-product-card,
+.editorial-product-card:nth-child(4n+1),
+.editorial-product-card:nth-child(4n+2),
+.editorial-product-card:nth-child(4n+3),
+.editorial-product-card:nth-child(4n+4) {
+  grid-column: auto !important;
+}
+
+@media (max-width: 900px) {
+  .editorial-product-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 1px !important;
+    background: #222 !important;
+  }
+
+  .editorial-product-card,
+  .editorial-product-card:nth-child(4n+1),
+  .editorial-product-card:nth-child(4n+2),
+  .editorial-product-card:nth-child(4n+3),
+  .editorial-product-card:nth-child(4n+4) {
+    width: auto !important;
+    min-width: 0;
+    grid-column: auto !important;
+    border-bottom: 0 !important;
+  }
+
+  .editorial-card-media {
+    aspect-ratio: 4 / 5 !important;
+  }
+
+  .editorial-card-info {
+    min-width: 0;
+    padding: 13px 12px 16px !important;
+  }
+
+  .editorial-card-titleline {
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+  }
+
+  .editorial-card-titleline h3 {
+    margin-top: 4px !important;
+    font-size: clamp(17px, 4.7vw, 24px) !important;
+    line-height: .98 !important;
+    overflow-wrap: anywhere;
+  }
+
+  .editorial-card-titleline > strong {
+    font-size: 11px !important;
+  }
+
+  .editorial-card-rule {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 7px !important;
+    margin-top: 13px !important;
+    padding-top: 10px !important;
+  }
+
+  .editorial-card-rule span {
+    font-size: 6px;
+    line-height: 1.4;
+  }
+
+  .editorial-card-rule a {
+    font-size: 7px;
+  }
+
+  .editorial-card-actions {
+    margin-top: 12px !important;
+  }
+
+  .editorial-card-actions .product-cart-button,
+  .editorial-card-actions .add-to-cart-added {
+    min-height: 36px !important;
+    font-size: 7px !important;
+    line-height: 1.2;
+  }
+
+  .editorial-card-actions .add-to-cart-confirmed {
+    gap: 8px !important;
+  }
+
+  .editorial-card-actions .inline-quantity-control {
+    min-height: 34px;
+  }
+
+  .editorial-card-actions .inline-quantity-control button {
+    min-width: 32px;
+  }
+}
+
+@media (max-width: 480px) {
+  .editorial-card-info {
+    padding: 11px 9px 14px !important;
+  }
+
+  .editorial-card-titleline h3 {
+    font-size: 17px !important;
+  }
+
+  .editorial-card-titleline > strong {
+    font-size: 10px !important;
+  }
+
+  .editorial-card-sequence {
+    left: 9px !important;
+    bottom: 9px !important;
+    font-size: 7px !important;
+  }
+
+  .editorial-card-rule span {
+    display: none;
+  }
+
+  .product-audience-v4,
+  .product-featured-badge-v4 {
+    transform: scale(.82);
+    transform-origin: top right;
+  }
+}

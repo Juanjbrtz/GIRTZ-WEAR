@@ -1,6 +1,8 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Instrument_Sans } from "next/font/google";
+import { CartDrawer } from "@/components/cart-drawer";
 import { CartProvider } from "@/components/cart-provider";
+import { getWhatsappNumber } from "@/lib/store-settings";
 import "./globals.css";
 import "./info.css";
 import "./account-admin.css";
@@ -11,6 +13,15 @@ import "./storefront-v4.css";
 import "./cart-feedback.css";
 import "./admin-v2.css";
 import "./release-polish.css";
+import "./ios-ui-preview.css";
+import "./editorial-preview.css";
+import "./product-editorial-preview.css";
+import "./catalog-refinement.css";
+import "./dark-refined-preview.css";
+import "./cart-drawer-refined.css";
+import "./cart-drawer-polish.css";
+import "./premium-flow-v2.css";
+import "./nav-legibility-polish.css";
 
 const instrumentSans = Instrument_Sans({ variable: "--font-brand", subsets: ["latin"] });
 
@@ -19,6 +30,24 @@ export const metadata: Metadata = {
   description: "Sneakers multimarca. Arma tu selección y confirma disponibilidad y compra directamente por WhatsApp.",
 };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="es" className={instrumentSans.variable}><body><CartProvider>{children}</CartProvider></body></html>;
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#050505",
+};
+
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const whatsappNumber = await getWhatsappNumber();
+
+  return (
+    <html lang="es" className={instrumentSans.variable}>
+      <body>
+        <CartProvider>
+          {children}
+          <CartDrawer whatsappNumber={whatsappNumber} />
+        </CartProvider>
+      </body>
+    </html>
+  );
 }
