@@ -20,18 +20,18 @@ function IconUser() {
 }
 
 export function MobileDock() {
-  const { count, hydrated } = useCart();
+  const { count, hydrated, openCart } = useCart();
   const visibleCount = hydrated ? count : 0;
 
   return (
     <nav className="girtz-mobile-dock" aria-label="Navegación móvil">
       <Link href="/" aria-label="Inicio"><IconHome/><span>Inicio</span></Link>
       <Link href="/shop" aria-label="Catálogo"><IconGrid/><span>Catálogo</span></Link>
-      <Link href="/cart" aria-label={`Carrito, ${visibleCount} productos`} className="dock-cart">
+      <button type="button" aria-label={`Carrito, ${visibleCount} productos`} className="dock-cart" onClick={openCart}>
         <IconBag/>
         {visibleCount > 0 ? <b>{visibleCount}</b> : null}
         <span>Carrito</span>
-      </Link>
+      </button>
       <Link href="/account" aria-label="Cuenta"><IconUser/><span>Cuenta</span></Link>
     </nav>
   );
