@@ -13,6 +13,23 @@ function isValidEmail(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
 
+function isWeakPassword(value: string) {
+  const hasLetter = /[A-Za-zÁÉÍÓÚÜÑáéíóúüñ]/.test(value);
+  const hasNumber = /\d/.test(value);
+  const repeatedCharacter = /^(.)\1+$/.test(value);
+  const commonPasswords = new Set([
+    "password1",
+    "password123",
+    "contraseña1",
+    "contrasena1",
+    "qwerty123",
+    "12345678a",
+    "abcdefg1",
+  ]);
+
+  return !hasLetter || !hasNumber || repeatedCharacter || commonPasswords.has(value.toLowerCase());
+}
+
 export async function signInWithEmail(
   _previousState: AuthActionState | null,
   formData: FormData,
@@ -95,6 +112,10 @@ export async function signUpWithEmail(
 
   if (password.length > 128) {
     return { error: "La contraseña es demasiado larga." };
+  }
+
+  if (isWeakPassword(password)) {
+    return { error: "Usa una contraseña más segura: combina letras y números." };
   }
 
   try {
