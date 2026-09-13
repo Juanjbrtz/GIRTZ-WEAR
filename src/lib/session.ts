@@ -34,36 +34,50 @@ function readAuthRole(user: unknown) {
   return { available: true, isAdmin: false };
 }
 
+function signedOutAccount(configured: boolean) {
+  return {
+    configured,
+    session: null,
+    customer: null,
+    isAdmin: false,
+  } as const;
+}
+
 export async function getSessionAccount() {
   if (!isAuthConfigured()) {
-    return {
-      configured: false as const,
-      session: null,
-      customer: null,
-      isAdmin: false,
-    };
+    return signedOutAccount(false);
   }
 
-  const { data: session } = await auth.getSession();
+  let session = null;
+
+  try {
+    const response = await auth.getSession();
+    session = response.data;
+  } catch {
+    // Una falla temporal del proveedor de autenticación no debe tumbar las páginas públicas.
+    return signedOutAccount(true);
+  }
 
   if (!session?.user) {
-    return {
-      configured: true as const,
-      session: null,
-      customer: null,
-      isAdmin: false,
-    };
+    return signedOutAccount(true);
   }
 
   const authRole = readAuthRole(session.user);
-  const customer = isDatabaseConfigured()
-    ? await ensureCustomerForUser({
+  let customer = null;
+
+  if (isDatabaseConfigured()) {
+    try {
+      customer = await ensureCustomerForUser({
         id: session.user.id,
         name: session.user.name,
         email: session.user.email,
         role: authRole.available ? (authRole.isAdmin ? "admin" : "customer") : undefined,
-      })
-    : null;
+      });
+    } catch {
+      // El catálogo y la navegación siguen disponibles aunque falle temporalmente la sincronización del perfil.
+      customer = null;
+    }
+  }
 
   const isAdmin = authRole.available
     ? authRole.isAdmin
