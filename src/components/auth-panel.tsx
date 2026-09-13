@@ -35,19 +35,6 @@ export function AuthPanel({ mode }: AuthPanelProps) {
   useEffect(() => {
     if (!state) return;
 
-    setEditedFields({});
-    if (typeof state.values?.name === "string") setName(state.values.name);
-    if (typeof state.values?.email === "string") setEmail(state.values.email);
-
-    // Solo limpiamos el dato sensible que necesita corregirse.
-    // Si la contraseña base es inválida, también se limpia su confirmación.
-    if (state.errorField === "password") {
-      setPassword("");
-      setConfirmPassword("");
-    } else if (state.errorField === "confirmPassword") {
-      setConfirmPassword("");
-    }
-
     const refs: Record<AuthField, React.RefObject<HTMLInputElement | null>> = {
       name: nameRef,
       email: emailRef,
@@ -55,12 +42,24 @@ export function AuthPanel({ mode }: AuthPanelProps) {
       confirmPassword: confirmPasswordRef,
     };
     const target = state.errorField ? refs[state.errorField]?.current : null;
-    if (target) {
-      requestAnimationFrame(() => {
+
+    const frame = requestAnimationFrame(() => {
+      // Solo limpiamos el dato sensible que necesita corregirse.
+      // Si la contraseña base es inválida, también se limpia su confirmación.
+      if (state.errorField === "password") {
+        setPassword("");
+        setConfirmPassword("");
+      } else if (state.errorField === "confirmPassword") {
+        setConfirmPassword("");
+      }
+
+      if (target) {
         target.focus({ preventScroll: true });
         target.scrollIntoView({ behavior: "smooth", block: "center" });
-      });
-    }
+      }
+    });
+
+    return () => cancelAnimationFrame(frame);
   }, [state]);
 
   function markEdited(field: AuthField) {
@@ -90,7 +89,12 @@ export function AuthPanel({ mode }: AuthPanelProps) {
       </div>
 
       <div className="auth-form-wrap">
-        <form action={formAction} className="auth-form" noValidate>
+        <form
+          action={formAction}
+          className="auth-form"
+          noValidate
+          onSubmit={() => setEditedFields({})}
+        >
           {!isSignIn ? (
             <label className={`auth-field${nameError ? " auth-field-invalid" : ""}`}>
               <span>NOMBRE</span>
