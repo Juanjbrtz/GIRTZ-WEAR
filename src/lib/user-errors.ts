@@ -3,6 +3,13 @@ export type FriendlyLoginError = {
   suggestion?: string;
 };
 
+export type SignupErrorField = "email" | "password";
+
+export type FriendlySignupError = {
+  message: string;
+  field?: SignupErrorField;
+};
+
 function messageOf(error: unknown) {
   if (typeof error === "string") return error;
   if (error instanceof Error) return error.message;
@@ -67,7 +74,7 @@ export function getLoginError(error: unknown): FriendlyLoginError {
   };
 }
 
-export function getSignupError(error: unknown) {
+export function getSignupError(error: unknown): FriendlySignupError {
   const value = normalized(error);
 
   if (
@@ -77,37 +84,37 @@ export function getSignupError(error: unknown) {
     value.includes("registered") ||
     value.includes("email taken")
   ) {
-    return "Ya existe una cuenta con este correo.";
+    return { message: "Ya existe una cuenta con este correo.", field: "email" };
   }
 
   if (value.includes("invalid origin") || value.includes("origin is not allowed") || value.includes("untrusted origin")) {
-    return "No pudimos crear la cuenta desde esta dirección.";
+    return { message: "No pudimos crear la cuenta desde esta dirección." };
   }
 
   if (
     value.includes("password") &&
     (value.includes("weak") || value.includes("short") || value.includes("length") || value.includes("common") || value.includes("compromised") || value.includes("pwned"))
   ) {
-    return "Usa una contraseña más segura de mínimo 8 caracteres.";
+    return { message: "Usa una contraseña más segura: combina letras y números.", field: "password" };
   }
 
   if (value.includes("password") && value.includes("long")) {
-    return "La contraseña es demasiado larga.";
+    return { message: "La contraseña es demasiado larga.", field: "password" };
   }
 
   if (value.includes("email") && (value.includes("invalid") || value.includes("format"))) {
-    return "Ingresa un correo válido.";
+    return { message: "Ingresa un correo válido.", field: "email" };
   }
 
   if (value.includes("too many") || value.includes("rate limit")) {
-    return "Se hicieron demasiados intentos. Espera unos minutos.";
+    return { message: "Se hicieron demasiados intentos. Espera unos minutos." };
   }
 
   if (value.includes("network") || value.includes("fetch") || value.includes("connection")) {
-    return "No pudimos conectar con el servicio de registro.";
+    return { message: "No pudimos conectar con el servicio de registro." };
   }
 
-  return "No fue posible crear la cuenta.";
+  return { message: "No fue posible crear la cuenta." };
 }
 
 export function getShortUserError(error: unknown, fallback = "No fue posible completar la acción.") {
