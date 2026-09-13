@@ -9,6 +9,10 @@ export type AuthActionState = {
   suggestion?: string;
 };
 
+function isValidEmail(value: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
+
 export async function signInWithEmail(
   _previousState: AuthActionState | null,
   formData: FormData,
@@ -23,10 +27,24 @@ export async function signInWithEmail(
   const email = String(formData.get("email") || "").trim();
   const password = String(formData.get("password") || "");
 
-  if (!email || !password) {
+  if (!email) {
     return {
-      error: "Ingresa correo y contraseña.",
-      suggestion: "Revisa que ambos campos estén completos antes de continuar.",
+      error: "Ingresa tu correo.",
+      suggestion: "Escribe el correo con el que registraste tu cuenta.",
+    };
+  }
+
+  if (!isValidEmail(email)) {
+    return {
+      error: "El correo no tiene un formato válido.",
+      suggestion: "Revisa que esté escrito completo, por ejemplo nombre@correo.com.",
+    };
+  }
+
+  if (!password) {
+    return {
+      error: "Ingresa tu contraseña.",
+      suggestion: "Escribe la contraseña de tu cuenta e inténtalo de nuevo.",
     };
   }
 
@@ -55,12 +73,28 @@ export async function signUpWithEmail(
   const email = String(formData.get("email") || "").trim();
   const password = String(formData.get("password") || "");
 
-  if (!name || !email || !password) {
-    return { error: "Completa nombre, correo y contraseña." };
+  if (!name) {
+    return { error: "Ingresa tu nombre." };
+  }
+
+  if (!email) {
+    return { error: "Ingresa tu correo." };
+  }
+
+  if (!isValidEmail(email)) {
+    return { error: "Ingresa un correo válido." };
+  }
+
+  if (!password) {
+    return { error: "Crea una contraseña." };
   }
 
   if (password.length < 8) {
     return { error: "La contraseña debe tener mínimo 8 caracteres." };
+  }
+
+  if (password.length > 128) {
+    return { error: "La contraseña es demasiado larga." };
   }
 
   try {
