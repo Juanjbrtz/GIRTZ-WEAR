@@ -28,9 +28,8 @@ export default async function Home() {
       <SiteHeader />
 
       <section className="editorial-hero refined-hero">
-        <div className="editorial-hero-rail">
+        <div className="editorial-hero-rail editorial-hero-rail-clean">
           <span>GIRTZ / CATÁLOGO 2026</span>
-          <span>COLOMBIA</span>
         </div>
 
         <div className="editorial-hero-copy refined-hero-copy">
