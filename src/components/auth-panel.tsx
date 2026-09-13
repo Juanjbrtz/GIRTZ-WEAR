@@ -53,8 +53,11 @@ export function AuthPanel({ mode }: AuthPanelProps) {
               type="password"
               autoComplete={isSignIn ? "current-password" : "new-password"}
               minLength={8}
+              maxLength={128}
+              aria-describedby={!isSignIn ? "password-requirements" : undefined}
               required
             />
+            {!isSignIn ? <small id="password-requirements" className="auth-field-hint">Mínimo 8 caracteres.</small> : null}
           </label>
 
           {state?.error ? (
