@@ -60,39 +60,39 @@ export function CartDrawer({ whatsappNumber }: { whatsappNumber: string }) {
         ) : items.length ? (
           <>
             <div className="cart-drawer-items">
-              {items.map((item) => (
-                <article className="cart-drawer-item" key={item.slug}>
-                  <div className="cart-drawer-thumb">
-                    {item.image ? (
+              {items.map((item) => {
+                const imageSrc = item.image || `/api/cart-product-image/${encodeURIComponent(item.slug)}`;
+
+                return (
+                  <article className="cart-drawer-item" key={item.slug}>
+                    <div className="cart-drawer-thumb">
                       <Image
-                        src={item.image}
+                        src={imageSrc}
                         alt={item.imageAlt || item.name}
                         fill
                         sizes="88px"
                         unoptimized
                       />
-                    ) : (
-                      <div className="cart-drawer-thumb-fallback">G</div>
-                    )}
-                  </div>
-
-                  <div className="cart-drawer-item-copy">
-                    <span>{item.brand}</span>
-                    <h3>{item.name}</h3>
-                    <strong>{formatCop(item.price)}</strong>
-                    <small>Talla por confirmar en WhatsApp</small>
-                  </div>
-
-                  <div className="cart-drawer-item-actions">
-                    <div className="cart-drawer-quantity" aria-label={`Cantidad de ${item.name}`}>
-                      <button type="button" onClick={() => updateQuantity(item.slug, item.quantity - 1)} aria-label="Disminuir cantidad">−</button>
-                      <b>{item.quantity}</b>
-                      <button type="button" onClick={() => updateQuantity(item.slug, item.quantity + 1)} aria-label="Aumentar cantidad">+</button>
                     </div>
-                    <button type="button" className="cart-drawer-remove" onClick={() => removeItem(item.slug)}>Eliminar</button>
-                  </div>
-                </article>
-              ))}
+
+                    <div className="cart-drawer-item-copy">
+                      <span>{item.brand}</span>
+                      <h3>{item.name}</h3>
+                      <strong>{formatCop(item.price)}</strong>
+                      <small>Talla por confirmar en WhatsApp</small>
+                    </div>
+
+                    <div className="cart-drawer-item-actions">
+                      <div className="cart-drawer-quantity" aria-label={`Cantidad de ${item.name}`}>
+                        <button type="button" onClick={() => updateQuantity(item.slug, item.quantity - 1)} aria-label="Disminuir cantidad">−</button>
+                        <b>{item.quantity}</b>
+                        <button type="button" onClick={() => updateQuantity(item.slug, item.quantity + 1)} aria-label="Aumentar cantidad">+</button>
+                      </div>
+                      <button type="button" className="cart-drawer-remove" onClick={() => removeItem(item.slug)}>Eliminar</button>
+                    </div>
+                  </article>
+                );
+              })}
             </div>
 
             <footer className="cart-drawer-summary">
