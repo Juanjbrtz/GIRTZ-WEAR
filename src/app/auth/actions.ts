@@ -2,9 +2,11 @@
 
 import { redirect } from "next/navigation";
 import { auth, isAuthConfigured } from "@/lib/auth/server";
+import { getLoginError, getSignupError } from "@/lib/user-errors";
 
 export type AuthActionState = {
   error?: string;
+  suggestion?: string;
 };
 
 export async function signInWithEmail(
@@ -12,20 +14,30 @@ export async function signInWithEmail(
   formData: FormData,
 ): Promise<AuthActionState | null> {
   if (!isAuthConfigured()) {
-    return { error: "La autenticación todavía no está configurada en producción." };
+    return {
+      error: "El acceso a cuentas no está disponible en este momento.",
+      suggestion: "Vuelve a intentarlo desde la página principal más tarde.",
+    };
   }
 
   const email = String(formData.get("email") || "").trim();
   const password = String(formData.get("password") || "");
 
   if (!email || !password) {
-    return { error: "Ingresa correo y contraseña." };
+    return {
+      error: "Ingresa correo y contraseña.",
+      suggestion: "Revisa que ambos campos estén completos antes de continuar.",
+    };
   }
 
-  const { error } = await auth.signIn.email({ email, password });
+  try {
+    const { error } = await auth.signIn.email({ email, password });
 
-  if (error) {
-    return { error: error.message || "No fue posible iniciar sesión." };
+    if (error) {
+      return getLoginError(error);
+    }
+  } catch (error) {
+    return getLoginError(error);
   }
 
   redirect("/account");
@@ -36,7 +48,7 @@ export async function signUpWithEmail(
   formData: FormData,
 ): Promise<AuthActionState | null> {
   if (!isAuthConfigured()) {
-    return { error: "La autenticación todavía no está configurada en producción." };
+    return { error: "El registro de cuentas no está disponible en este momento." };
   }
 
   const name = String(formData.get("name") || "").trim();
@@ -51,10 +63,14 @@ export async function signUpWithEmail(
     return { error: "La contraseña debe tener mínimo 8 caracteres." };
   }
 
-  const { error } = await auth.signUp.email({ name, email, password });
+  try {
+    const { error } = await auth.signUp.email({ name, email, password });
 
-  if (error) {
-    return { error: error.message || "No fue posible crear la cuenta." };
+    if (error) {
+      return { error: getSignupError(error) };
+    }
+  } catch (error) {
+    return { error: getSignupError(error) };
   }
 
   redirect("/account");
@@ -62,7 +78,11 @@ export async function signUpWithEmail(
 
 export async function signOutAccount() {
   if (isAuthConfigured()) {
-    await auth.signOut();
+    try {
+      await auth.signOut();
+    } catch {
+      // El cierre local de la sesión continúa aunque el servicio remoto falle.
+    }
   }
 
   redirect("/");
