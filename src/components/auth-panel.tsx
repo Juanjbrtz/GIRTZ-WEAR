@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import {
   signInWithEmail,
   signUpWithEmail,
   type AuthActionState,
+  type AuthField,
 } from "@/app/auth/actions";
 
 type AuthPanelProps = {
@@ -19,6 +20,40 @@ export function AuthPanel({ mode }: AuthPanelProps) {
     null,
   );
   const isSignIn = mode === "sign-in";
+
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const nameRef = useRef<HTMLInputElement>(null);
+  const emailRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!state) return;
+
+    if (typeof state.values?.name === "string") setName(state.values.name);
+    if (typeof state.values?.email === "string") setEmail(state.values.email);
+
+    // Nunca repoblamos una contraseña después de un intento fallido.
+    setPassword("");
+
+    const refs: Record<AuthField, React.RefObject<HTMLInputElement | null>> = {
+      name: nameRef,
+      email: emailRef,
+      password: passwordRef,
+    };
+    const target = state.errorField ? refs[state.errorField]?.current : null;
+    if (target) {
+      requestAnimationFrame(() => {
+        target.focus({ preventScroll: true });
+        target.scrollIntoView({ behavior: "smooth", block: "center" });
+      });
+    }
+  }, [state]);
+
+  const nameError = !isSignIn ? state?.fieldErrors?.name : undefined;
+  const emailError = !isSignIn ? state?.fieldErrors?.email : undefined;
+  const passwordError = !isSignIn ? state?.fieldErrors?.password : undefined;
 
   return (
     <section className="auth-shell">
@@ -35,27 +70,58 @@ export function AuthPanel({ mode }: AuthPanelProps) {
       <div className="auth-form-wrap">
         <form action={formAction} className="auth-form" noValidate>
           {!isSignIn ? (
-            <label>
+            <label className={`auth-field${nameError ? " auth-field-invalid" : ""}`}>
               <span>NOMBRE</span>
-              <input name="name" type="text" autoComplete="name" />
+              <input
+                ref={nameRef}
+                name="name"
+                type="text"
+                autoComplete="name"
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+                aria-invalid={Boolean(nameError)}
+                aria-describedby={nameError ? "name-error" : undefined}
+              />
+              {nameError ? <small id="name-error" className="auth-inline-error">{nameError}</small> : null}
             </label>
           ) : null}
 
-          <label>
+          <label className={`auth-field${emailError ? " auth-field-invalid" : ""}`}>
             <span>CORREO</span>
-            <input name="email" type="email" autoComplete="email" />
+            <input
+              ref={emailRef}
+              name="email"
+              type="email"
+              autoComplete="email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              aria-invalid={Boolean(emailError)}
+              aria-describedby={emailError ? "email-error" : undefined}
+            />
+            {emailError ? <small id="email-error" className="auth-inline-error">{emailError}</small> : null}
           </label>
 
-          <label>
+          <label className={`auth-field${passwordError ? " auth-field-invalid" : ""}`}>
             <span>CONTRASEÑA</span>
             <input
+              ref={passwordRef}
               name="password"
               type="password"
               autoComplete={isSignIn ? "current-password" : "new-password"}
-              maxLength={128}
-              aria-describedby={!isSignIn ? "password-requirements" : undefined}
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              aria-invalid={Boolean(passwordError)}
+              aria-describedby={
+                passwordError
+                  ? "password-error"
+                  : !isSignIn
+                    ? "password-requirements"
+                    : undefined
+              }
             />
-            {!isSignIn ? (
+            {passwordError ? (
+              <small id="password-error" className="auth-inline-error">{passwordError}</small>
+            ) : !isSignIn ? (
               <small id="password-requirements" className="auth-field-hint">
                 Mínimo 8 caracteres; combina letras y números.
               </small>
