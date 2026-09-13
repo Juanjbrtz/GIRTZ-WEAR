@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CartOpenButton } from "@/components/cart-open-button";
 import { ProductVisual } from "@/components/product-visual";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
@@ -38,7 +39,7 @@ export default async function Home() {
           <span className="refined-hero-description">Explora el catálogo, agrega tus favoritos y confirma disponibilidad por WhatsApp.</span>
           <div className="editorial-hero-actions">
             <Link href="/shop">VER CATÁLOGO</Link>
-            <Link href="/cart">MI CARRITO</Link>
+            <CartOpenButton>MI CARRITO</CartOpenButton>
           </div>
         </div>
 
