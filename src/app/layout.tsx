@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Instrument_Sans } from "next/font/google";
+import { CartDrawer } from "@/components/cart-drawer";
 import { CartProvider } from "@/components/cart-provider";
+import { getWhatsappNumber } from "@/lib/store-settings";
 import "./globals.css";
 import "./info.css";
 import "./account-admin.css";
@@ -16,6 +18,7 @@ import "./editorial-preview.css";
 import "./product-editorial-preview.css";
 import "./catalog-refinement.css";
 import "./dark-refined-preview.css";
+import "./cart-drawer-refined.css";
 
 const instrumentSans = Instrument_Sans({ variable: "--font-brand", subsets: ["latin"] });
 
@@ -31,6 +34,17 @@ export const viewport: Viewport = {
   themeColor: "#050505",
 };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="es" className={instrumentSans.variable}><body><CartProvider>{children}</CartProvider></body></html>;
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const whatsappNumber = await getWhatsappNumber();
+
+  return (
+    <html lang="es" className={instrumentSans.variable}>
+      <body>
+        <CartProvider>
+          {children}
+          <CartDrawer whatsappNumber={whatsappNumber} />
+        </CartProvider>
+      </body>
+    </html>
+  );
 }
