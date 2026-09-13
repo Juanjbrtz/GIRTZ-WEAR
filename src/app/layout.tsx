@@ -22,6 +22,7 @@ import "./cart-drawer-refined.css";
 import "./cart-drawer-polish.css";
 import "./premium-flow-v2.css";
 import "./nav-legibility-polish.css";
+import "./error-feedback.css";
 
 const instrumentSans = Instrument_Sans({ variable: "--font-brand", subsets: ["latin"] });
 
