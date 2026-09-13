@@ -1,0 +1,42 @@
+/* Ajustes finales del carrito flotante */
+
+.editorial-hero-actions button {
+  min-height: 45px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 18px;
+  border: 1px solid rgba(255,255,255,.23);
+  background: transparent;
+  color: #eae9e3;
+  font: inherit;
+  font-size: 8px;
+  font-weight: 760;
+  letter-spacing: .12em;
+  cursor: pointer;
+}
+
+.editorial-detail-actions > button:last-child {
+  background: transparent !important;
+  color: #e4e3dd !important;
+  border-color: #303030 !important;
+}
+
+.cart-drawer-thumb {
+  grid-row: 1 / span 2;
+}
+.cart-drawer-item-actions {
+  grid-column: 2;
+  margin-top: 8px;
+  padding-top: 0;
+}
+
+@media (max-width: 900px) {
+  .editorial-hero-actions button {
+    min-height: 42px;
+    padding: 0 13px;
+    font-size: 8px;
+  }
+  .cart-drawer-item-actions {
+    margin-top: 6px;
+  }
+}
