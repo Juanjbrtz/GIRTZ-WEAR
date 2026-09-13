@@ -24,23 +24,35 @@ export function AuthPanel({ mode }: AuthPanelProps) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [editedFields, setEditedFields] = useState<Partial<Record<AuthField, boolean>>>({});
+
   const nameRef = useRef<HTMLInputElement>(null);
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
+  const confirmPasswordRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!state) return;
 
+    setEditedFields({});
     if (typeof state.values?.name === "string") setName(state.values.name);
     if (typeof state.values?.email === "string") setEmail(state.values.email);
 
-    // Nunca repoblamos una contraseña después de un intento fallido.
-    setPassword("");
+    // Solo limpiamos el dato sensible que necesita corregirse.
+    // Si la contraseña base es inválida, también se limpia su confirmación.
+    if (state.errorField === "password") {
+      setPassword("");
+      setConfirmPassword("");
+    } else if (state.errorField === "confirmPassword") {
+      setConfirmPassword("");
+    }
 
     const refs: Record<AuthField, React.RefObject<HTMLInputElement | null>> = {
       name: nameRef,
       email: emailRef,
       password: passwordRef,
+      confirmPassword: confirmPasswordRef,
     };
     const target = state.errorField ? refs[state.errorField]?.current : null;
     if (target) {
@@ -51,9 +63,19 @@ export function AuthPanel({ mode }: AuthPanelProps) {
     }
   }, [state]);
 
-  const nameError = !isSignIn ? state?.fieldErrors?.name : undefined;
-  const emailError = !isSignIn ? state?.fieldErrors?.email : undefined;
-  const passwordError = !isSignIn ? state?.fieldErrors?.password : undefined;
+  function markEdited(field: AuthField) {
+    setEditedFields((current) => ({ ...current, [field]: true }));
+  }
+
+  function visibleFieldError(field: AuthField) {
+    if (editedFields[field]) return undefined;
+    return state?.fieldErrors?.[field];
+  }
+
+  const nameError = !isSignIn ? visibleFieldError("name") : undefined;
+  const emailError = !isSignIn ? visibleFieldError("email") : undefined;
+  const passwordError = !isSignIn ? visibleFieldError("password") : undefined;
+  const confirmPasswordError = !isSignIn ? visibleFieldError("confirmPassword") : undefined;
 
   return (
     <section className="auth-shell">
@@ -78,7 +100,10 @@ export function AuthPanel({ mode }: AuthPanelProps) {
                 type="text"
                 autoComplete="name"
                 value={name}
-                onChange={(event) => setName(event.target.value)}
+                onChange={(event) => {
+                  setName(event.target.value);
+                  markEdited("name");
+                }}
                 aria-invalid={Boolean(nameError)}
                 aria-describedby={nameError ? "name-error" : undefined}
               />
@@ -94,7 +119,10 @@ export function AuthPanel({ mode }: AuthPanelProps) {
               type="email"
               autoComplete="email"
               value={email}
-              onChange={(event) => setEmail(event.target.value)}
+              onChange={(event) => {
+                setEmail(event.target.value);
+                markEdited("email");
+              }}
               aria-invalid={Boolean(emailError)}
               aria-describedby={emailError ? "email-error" : undefined}
             />
@@ -109,7 +137,10 @@ export function AuthPanel({ mode }: AuthPanelProps) {
               type="password"
               autoComplete={isSignIn ? "current-password" : "new-password"}
               value={password}
-              onChange={(event) => setPassword(event.target.value)}
+              onChange={(event) => {
+                setPassword(event.target.value);
+                markEdited("password");
+              }}
               aria-invalid={Boolean(passwordError)}
               aria-describedby={
                 passwordError
@@ -127,6 +158,32 @@ export function AuthPanel({ mode }: AuthPanelProps) {
               </small>
             ) : null}
           </label>
+
+          {!isSignIn ? (
+            <label className={`auth-field${confirmPasswordError ? " auth-field-invalid" : ""}`}>
+              <span>CONFIRMAR CONTRASEÑA</span>
+              <input
+                ref={confirmPasswordRef}
+                name="confirmPassword"
+                type="password"
+                autoComplete="new-password"
+                value={confirmPassword}
+                onChange={(event) => {
+                  setConfirmPassword(event.target.value);
+                  markEdited("confirmPassword");
+                }}
+                aria-invalid={Boolean(confirmPasswordError)}
+                aria-describedby={confirmPasswordError ? "confirm-password-error" : "confirm-password-hint"}
+              />
+              {confirmPasswordError ? (
+                <small id="confirm-password-error" className="auth-inline-error">{confirmPasswordError}</small>
+              ) : (
+                <small id="confirm-password-hint" className="auth-field-hint">
+                  Repite exactamente la contraseña anterior.
+                </small>
+              )}
+            </label>
+          ) : null}
 
           {state?.error ? (
             <div className="auth-error-card" role="alert" aria-live="polite">
