@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { auth, isAuthConfigured } from "@/lib/auth/server";
 import { getLoginError, getSignupError } from "@/lib/user-errors";
 
-export type AuthField = "name" | "email" | "password";
+export type AuthField = "name" | "email" | "password" | "confirmPassword";
 
 export type AuthActionState = {
   error?: string;
@@ -112,6 +112,7 @@ export async function signUpWithEmail(
   const name = String(formData.get("name") || "").trim();
   const email = String(formData.get("email") || "").trim();
   const password = String(formData.get("password") || "");
+  const confirmPassword = String(formData.get("confirmPassword") || "");
   const values = { name, email };
 
   if (!isAuthConfigured()) {
@@ -132,6 +133,14 @@ export async function signUpWithEmail(
 
   if (!password) {
     return signupFieldError("password", "Crea una contraseña.", values);
+  }
+
+  if (!confirmPassword) {
+    return signupFieldError("confirmPassword", "Confirma tu contraseña.", values);
+  }
+
+  if (password !== confirmPassword) {
+    return signupFieldError("confirmPassword", "Las contraseñas no coinciden.", values);
   }
 
   if (password.length < 8) {
