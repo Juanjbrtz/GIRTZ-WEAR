@@ -6,6 +6,7 @@ import { getDb, getSqlClient } from "@/db";
 import { products } from "@/db/schema";
 import { requireAdmin } from "@/lib/session";
 import { isDatabaseConfigured } from "@/lib/store-data";
+import { getShortUserError } from "@/lib/user-errors";
 
 const MAX_IMAGE_BYTES = 7 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/avif"]);
@@ -45,7 +46,7 @@ function revalidateCatalog() {
 
 export async function createProductFromBatch(formData: FormData) {
   await requireAdmin();
-  if (!isDatabaseConfigured()) throw new Error("DATABASE_URL is not configured");
+  if (!isDatabaseConfigured()) throw new Error("El servicio de productos no está disponible en este momento.");
 
   const image = getImage(formData);
   const name = cleanText(formData.get("name"), 140);
@@ -75,6 +76,6 @@ export async function createProductFromBatch(formData: FormData) {
   } catch (error) {
     const [alreadyCreated] = await db.select({ id: products.id, name: products.name }).from(products).where(eq(products.slug, slug)).limit(1);
     if (alreadyCreated) return { ok: true, id: alreadyCreated.id, name: alreadyCreated.name, duplicate: true };
-    throw error;
+    throw new Error(getShortUserError(error, "No fue posible publicar este producto."));
   }
 }
