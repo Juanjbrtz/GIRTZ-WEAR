@@ -4,9 +4,17 @@ import { redirect } from "next/navigation";
 import { auth, isAuthConfigured } from "@/lib/auth/server";
 import { getLoginError, getSignupError } from "@/lib/user-errors";
 
+export type AuthField = "name" | "email" | "password";
+
 export type AuthActionState = {
   error?: string;
   suggestion?: string;
+  fieldErrors?: Partial<Record<AuthField, string>>;
+  errorField?: AuthField;
+  values?: {
+    name?: string;
+    email?: string;
+  };
 };
 
 function isValidEmail(value: string) {
@@ -30,24 +38,39 @@ function isWeakPassword(value: string) {
   return !hasLetter || !hasNumber || repeatedCharacter || commonPasswords.has(value.toLowerCase());
 }
 
+function signupFieldError(
+  field: AuthField,
+  message: string,
+  values: { name: string; email: string },
+): AuthActionState {
+  return {
+    fieldErrors: { [field]: message },
+    errorField: field,
+    values,
+  };
+}
+
 export async function signInWithEmail(
   _previousState: AuthActionState | null,
   formData: FormData,
 ): Promise<AuthActionState | null> {
+  const email = String(formData.get("email") || "").trim();
+  const password = String(formData.get("password") || "");
+  const values = { email };
+
   if (!isAuthConfigured()) {
     return {
       error: "El acceso a cuentas no está disponible en este momento.",
       suggestion: "Vuelve a intentarlo desde la página principal más tarde.",
+      values,
     };
   }
-
-  const email = String(formData.get("email") || "").trim();
-  const password = String(formData.get("password") || "");
 
   if (!email) {
     return {
       error: "Ingresa tu correo.",
       suggestion: "Escribe el correo con el que registraste tu cuenta.",
+      values,
     };
   }
 
@@ -55,6 +78,7 @@ export async function signInWithEmail(
     return {
       error: "El correo no tiene un formato válido.",
       suggestion: "Revisa que esté escrito completo, por ejemplo nombre@correo.com.",
+      values,
     };
   }
 
@@ -62,6 +86,7 @@ export async function signInWithEmail(
     return {
       error: "Ingresa tu contraseña.",
       suggestion: "Escribe la contraseña de tu cuenta e inténtalo de nuevo.",
+      values,
     };
   }
 
@@ -69,10 +94,12 @@ export async function signInWithEmail(
     const { error } = await auth.signIn.email({ email, password });
 
     if (error) {
-      return getLoginError(error);
+      const friendly = getLoginError(error);
+      return { error: friendly.message, suggestion: friendly.suggestion, values };
     }
   } catch (error) {
-    return getLoginError(error);
+    const friendly = getLoginError(error);
+    return { error: friendly.message, suggestion: friendly.suggestion, values };
   }
 
   redirect("/account");
@@ -82,50 +109,59 @@ export async function signUpWithEmail(
   _previousState: AuthActionState | null,
   formData: FormData,
 ): Promise<AuthActionState | null> {
-  if (!isAuthConfigured()) {
-    return { error: "El registro de cuentas no está disponible en este momento." };
-  }
-
   const name = String(formData.get("name") || "").trim();
   const email = String(formData.get("email") || "").trim();
   const password = String(formData.get("password") || "");
+  const values = { name, email };
+
+  if (!isAuthConfigured()) {
+    return { error: "El registro de cuentas no está disponible en este momento.", values };
+  }
 
   if (!name) {
-    return { error: "Ingresa tu nombre." };
+    return signupFieldError("name", "Ingresa tu nombre.", values);
   }
 
   if (!email) {
-    return { error: "Ingresa tu correo." };
+    return signupFieldError("email", "Ingresa tu correo.", values);
   }
 
   if (!isValidEmail(email)) {
-    return { error: "Ingresa un correo válido." };
+    return signupFieldError("email", "Ingresa un correo válido.", values);
   }
 
   if (!password) {
-    return { error: "Crea una contraseña." };
+    return signupFieldError("password", "Crea una contraseña.", values);
   }
 
   if (password.length < 8) {
-    return { error: "La contraseña debe tener mínimo 8 caracteres." };
+    return signupFieldError("password", "La contraseña debe tener mínimo 8 caracteres.", values);
   }
 
   if (password.length > 128) {
-    return { error: "La contraseña es demasiado larga." };
+    return signupFieldError("password", "La contraseña es demasiado larga.", values);
   }
 
   if (isWeakPassword(password)) {
-    return { error: "Usa una contraseña más segura: combina letras y números." };
+    return signupFieldError("password", "Usa una contraseña más segura: combina letras y números.", values);
   }
 
   try {
     const { error } = await auth.signUp.email({ name, email, password });
 
     if (error) {
-      return { error: getSignupError(error) };
+      const friendly = getSignupError(error);
+      if (friendly.field) {
+        return signupFieldError(friendly.field, friendly.message, values);
+      }
+      return { error: friendly.message, values };
     }
   } catch (error) {
-    return { error: getSignupError(error) };
+    const friendly = getSignupError(error);
+    if (friendly.field) {
+      return signupFieldError(friendly.field, friendly.message, values);
+    }
+    return { error: friendly.message, values };
   }
 
   redirect("/account");
