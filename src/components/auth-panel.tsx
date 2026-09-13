@@ -33,17 +33,17 @@ export function AuthPanel({ mode }: AuthPanelProps) {
       </div>
 
       <div className="auth-form-wrap">
-        <form action={formAction} className="auth-form">
+        <form action={formAction} className="auth-form" noValidate>
           {!isSignIn ? (
             <label>
               <span>NOMBRE</span>
-              <input name="name" type="text" autoComplete="name" required />
+              <input name="name" type="text" autoComplete="name" />
             </label>
           ) : null}
 
           <label>
             <span>CORREO</span>
-            <input name="email" type="email" autoComplete="email" required />
+            <input name="email" type="email" autoComplete="email" />
           </label>
 
           <label>
@@ -52,12 +52,14 @@ export function AuthPanel({ mode }: AuthPanelProps) {
               name="password"
               type="password"
               autoComplete={isSignIn ? "current-password" : "new-password"}
-              minLength={8}
               maxLength={128}
               aria-describedby={!isSignIn ? "password-requirements" : undefined}
-              required
             />
-            {!isSignIn ? <small id="password-requirements" className="auth-field-hint">Mínimo 8 caracteres.</small> : null}
+            {!isSignIn ? (
+              <small id="password-requirements" className="auth-field-hint">
+                Mínimo 8 caracteres; combina letras y números.
+              </small>
+            ) : null}
           </label>
 
           {state?.error ? (
