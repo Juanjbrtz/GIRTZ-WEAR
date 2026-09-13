@@ -24,11 +24,19 @@ function statusLabel(value: string) {
   return labels[value] || value;
 }
 
-export default async function AccountPage({ searchParams }: { searchParams: Promise<{ profile?: string }> }) {
-  const [{ profile }, account] = await Promise.all([searchParams, requireAccount()]);
+function profileErrorLabel(value?: string) {
+  if (value === "name") return "Ingresa un nombre válido.";
+  if (value === "profile") return "No pudimos cargar tu perfil.";
+  if (value === "save") return "No pudimos guardar los cambios.";
+  return null;
+}
+
+export default async function AccountPage({ searchParams }: { searchParams: Promise<{ profile?: string; profileError?: string }> }) {
+  const [{ profile, profileError }, account] = await Promise.all([searchParams, requireAccount()]);
   const { session, customer, isAdmin } = account;
   const orderHistory = customer ? await getOrdersForCustomer(customer.id) : [];
   const name = customer?.name || session.user.name || "Cliente GIRTZ";
+  const profileErrorMessage = profileErrorLabel(profileError);
 
   return (
     <main className="inner-page account-page account-page-final">
@@ -82,6 +90,7 @@ export default async function AccountPage({ searchParams }: { searchParams: Prom
             <div><span className="eyebrow">CONFIGURACIÓN</span><h2>MIS DATOS</h2></div>
           </div>
           {profile === "1" ? <div className="account-notice success">Datos actualizados correctamente.</div> : null}
+          {profileErrorMessage ? <div className="account-notice error" role="alert">{profileErrorMessage}</div> : null}
           {customer ? (
             <form action={updateAccountProfile} className="account-profile-form">
               <label><span>NOMBRE</span><input name="name" defaultValue={customer.name} required /></label>
@@ -91,7 +100,7 @@ export default async function AccountPage({ searchParams }: { searchParams: Prom
               <label className="wide"><span>DIRECCIÓN</span><input name="address" defaultValue={customer.address || ""} placeholder="Dirección de referencia" /></label>
               <button type="submit" className="primary-button">GUARDAR CAMBIOS</button>
             </form>
-          ) : <div className="account-notice">No fue posible cargar la información del perfil.</div>}
+          ) : <div className="account-notice error">No fue posible cargar la información del perfil.</div>}
         </section>
 
         <section className="account-signout" id="cerrar-sesion">
