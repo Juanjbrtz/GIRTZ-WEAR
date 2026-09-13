@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { useCart } from "@/components/cart-provider";
 
 export function CartOpenButton({
@@ -7,7 +8,7 @@ export function CartOpenButton({
   children,
 }: {
   className?: string;
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   const { openCart } = useCart();
 
