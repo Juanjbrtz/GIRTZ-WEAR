@@ -22,6 +22,8 @@ export function AddToCartButton({
       brand: product.brand,
       audience: product.audience,
       price: product.price,
+      image: product.image,
+      imageAlt: product.imageAlt,
     });
   }
 

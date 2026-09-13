@@ -1,22 +1,9 @@
-import { CartPanel } from "@/components/cart-panel";
-import { SiteFooter } from "@/components/site-footer";
-import { SiteHeader } from "@/components/site-header";
-import { getWhatsappNumber } from "@/lib/store-settings";
+import { redirect } from "next/navigation";
 
 export const metadata = {
-  title: "Carrito de consulta",
+  title: "Carrito",
 };
 
-export const dynamic = "force-dynamic";
-
-export default async function CartPage() {
-  const whatsappNumber = await getWhatsappNumber();
-
-  return (
-    <main className="inner-page cart-page cart-page-v3">
-      <SiteHeader />
-      <CartPanel whatsappNumber={whatsappNumber} />
-      <SiteFooter />
-    </main>
-  );
+export default function CartPage() {
+  redirect("/shop?carrito=1");
 }

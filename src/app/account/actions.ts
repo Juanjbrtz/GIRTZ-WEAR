@@ -13,22 +13,26 @@ function clean(value: FormDataEntryValue | null, max = 180) {
 
 export async function updateAccountProfile(formData: FormData) {
   const { customer } = await requireAccount();
-  if (!customer) throw new Error("No fue posible conectar tu perfil con la base de datos.");
+  if (!customer) redirect("/account?profileError=profile#configuracion");
 
   const name = clean(formData.get("name"), 120);
   const phone = clean(formData.get("phone"), 40);
   const address = clean(formData.get("address"), 180);
   const city = clean(formData.get("city"), 100);
 
-  if (!name) throw new Error("Ingresa tu nombre.");
+  if (!name) redirect("/account?profileError=name#configuracion");
 
-  await getDb().update(customers).set({
-    name,
-    phone: phone || null,
-    address: address || null,
-    city: city || null,
-    updatedAt: new Date(),
-  }).where(eq(customers.id, customer.id));
+  try {
+    await getDb().update(customers).set({
+      name,
+      phone: phone || null,
+      address: address || null,
+      city: city || null,
+      updatedAt: new Date(),
+    }).where(eq(customers.id, customer.id));
+  } catch {
+    redirect("/account?profileError=save#configuracion");
+  }
 
   revalidatePath("/account");
   redirect("/account?profile=1#configuracion");

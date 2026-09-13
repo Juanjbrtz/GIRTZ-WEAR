@@ -3,6 +3,7 @@
 import { useMemo, useRef, useState, type ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
 import { createProductFromBatch } from "@/app/admin/products/bulk-actions";
+import { getShortUserError } from "@/lib/user-errors";
 
 type Audience = "Hombre" | "Mujer" | "Unisex";
 type UploadStatus = "ready" | "publishing" | "done" | "error";
@@ -77,7 +78,7 @@ export function AdminBulkProductUpload() {
           setItems((current) => current.map((entry) => entry.id === item.id ? { ...entry, status: "done", error: undefined } : entry));
         } catch (error) {
           failed++;
-          const errorMessage = error instanceof Error ? error.message : "No fue posible publicar esta foto.";
+          const errorMessage = getShortUserError(error, "No fue posible publicar este producto.");
           setItems((current) => current.map((entry) => entry.id === item.id ? { ...entry, status: "error", error: errorMessage } : entry));
         }
       }

@@ -17,6 +17,8 @@ export type CartItem = {
   audience: "Hombre" | "Mujer" | "Unisex";
   price: number;
   quantity: number;
+  image?: string;
+  imageAlt?: string;
 };
 
 type AddCartItem = Omit<CartItem, "quantity"> & { quantity?: number };
@@ -26,6 +28,9 @@ type CartContextValue = {
   count: number;
   subtotal: number;
   hydrated: boolean;
+  isOpen: boolean;
+  openCart: () => void;
+  closeCart: () => void;
   addItem: (item: AddCartItem) => void;
   removeItem: (slug: string) => void;
   updateQuantity: (slug: string, quantity: number) => void;
@@ -38,6 +43,7 @@ const CartContext = createContext<CartContextValue | null>(null);
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [hydrated, setHydrated] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     let restoredItems: CartItem[] = [];
@@ -64,6 +70,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
   }, [hydrated, items]);
 
+  const openCart = useCallback(() => setIsOpen(true), []);
+  const closeCart = useCallback(() => setIsOpen(false), []);
+
   const addItem = useCallback((item: AddCartItem) => {
     const quantity = Math.max(1, item.quantity || 1);
 
@@ -76,7 +85,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
       return current.map((entry, entryIndex) =>
         entryIndex === index
-          ? { ...entry, quantity: entry.quantity + quantity }
+          ? {
+              ...entry,
+              ...item,
+              quantity: entry.quantity + quantity,
+            }
           : entry,
       );
     });
@@ -116,12 +129,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
       count,
       subtotal,
       hydrated,
+      isOpen,
+      openCart,
+      closeCart,
       addItem,
       removeItem,
       updateQuantity,
       clearCart,
     };
-  }, [items, hydrated, addItem, removeItem, updateQuantity, clearCart]);
+  }, [items, hydrated, isOpen, openCart, closeCart, addItem, removeItem, updateQuantity, clearCart]);
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }
