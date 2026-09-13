@@ -18,6 +18,13 @@
   font-size: 11px;
   line-height: 1.5;
 }
+.auth-field-hint {
+  display: block;
+  margin-top: 7px;
+  color: #85857f;
+  font-size: 10px;
+  line-height: 1.4;
+}
 .account-notice.error,
 .admin-error,
 .bulk-error {
@@ -68,6 +75,7 @@
   }
   .auth-error-card strong { font-size: 11px; }
   .auth-error-card span { font-size: 10.5px; }
+  .auth-field-hint { font-size: 9.5px; }
   .friendly-error-page section {
     padding: 22px;
     border-radius: 20px;
