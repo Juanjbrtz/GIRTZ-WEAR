@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AddToCartButton } from "@/components/add-to-cart-button";
+import { CartOpenButton } from "@/components/cart-open-button";
 import { ProductVisual } from "@/components/product-visual";
 import { SiteHeader } from "@/components/site-header";
 import { formatCop } from "@/data/products";
@@ -57,7 +58,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
           <div className="editorial-detail-actions">
             <AddToCartButton product={product} />
-            <Link href="/cart">VER CARRITO ↗</Link>
+            <CartOpenButton>VER CARRITO ↗</CartOpenButton>
           </div>
         </aside>
       </section>
