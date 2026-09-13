@@ -57,7 +57,12 @@ export function AuthPanel({ mode }: AuthPanelProps) {
             />
           </label>
 
-          {state?.error ? <p className="form-error">{state.error}</p> : null}
+          {state?.error ? (
+            <div className="auth-error-card" role="alert" aria-live="polite">
+              <strong>{state.error}</strong>
+              {isSignIn && state.suggestion ? <span>{state.suggestion}</span> : null}
+            </div>
+          ) : null}
 
           <button className="primary-button auth-submit" type="submit" disabled={pending}>
             {pending
