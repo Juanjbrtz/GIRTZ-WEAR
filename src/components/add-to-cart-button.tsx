@@ -21,6 +21,7 @@ export function AddToCartButton({
   const quantity = cartItem?.quantity || 0;
   const sizeOptions = getProductSizeOptions(product.sizes);
   const currentSize = cartItem?.size || selectedSize;
+  const flowClassName = `add-to-cart-flow${showSizeSelector ? " with-size-picker" : ""}`;
 
   function handleSizeChange(size: string) {
     setSizeError(false);
@@ -77,7 +78,7 @@ export function AddToCartButton({
 
   if (quantity > 0) {
     return (
-      <div className="add-to-cart-flow">
+      <div className={flowClassName}>
         {sizePicker}
         <div className="add-to-cart-confirmed" aria-live="polite">
           <div className={`${className} add-to-cart-added`} aria-label={`${product.name} agregado al carrito`}>
@@ -107,7 +108,7 @@ export function AddToCartButton({
   }
 
   return (
-    <div className="add-to-cart-flow">
+    <div className={flowClassName}>
       {sizePicker}
       <button type="button" className={className} onClick={handleAdd}>
         AGREGAR AL CARRITO
