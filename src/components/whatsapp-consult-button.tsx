@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { useCart, type CartItem } from "@/components/cart-provider";
 import { formatCop, type Product } from "@/data/products";
 
-type ConsultItem = Pick<CartItem, "slug" | "name" | "brand" | "price" | "quantity">;
+type ConsultItem = Pick<CartItem, "slug" | "name" | "brand" | "price" | "quantity" | "size">;
 
 function mergeItems(cart: CartItem[], current?: Product): ConsultItem[] {
   const bySlug = new Map<string, ConsultItem>();
@@ -16,6 +16,7 @@ function mergeItems(cart: CartItem[], current?: Product): ConsultItem[] {
       brand: item.brand,
       price: item.price,
       quantity: item.quantity,
+      size: item.size,
     });
   }
 
@@ -41,7 +42,7 @@ function mergeItems(cart: CartItem[], current?: Product): ConsultItem[] {
 
 function createMessage(items: ConsultItem[]) {
   const lines = items.map((item, index) =>
-    `${index + 1}. ${item.brand} ${item.name} — ${formatCop(item.price)} — Cantidad: ${item.quantity}`,
+    `${index + 1}. ${item.brand} ${item.name} — ${formatCop(item.price)} — Talla EUR: ${item.size || "por definir"} — Cantidad: ${item.quantity}`,
   );
 
   return [
@@ -49,7 +50,7 @@ function createMessage(items: ConsultItem[]) {
     "",
     ...lines,
     "",
-    "¿Qué tallas tienen disponibles para estos modelos?",
+    "¿Me confirman disponibilidad de estas tallas?",
     "También quisiera confirmar el valor del envío.",
   ].join("\n");
 }
@@ -59,33 +60,37 @@ export function WhatsappConsultButton({
   product,
   className = "whatsapp-button",
   label = "CONSULTAR DISPONIBILIDAD",
+  requireSizes = false,
 }: {
   whatsappNumber: string;
   product?: Product;
   className?: string;
   label?: string;
+  requireSizes?: boolean;
 }) {
   const { items } = useCart();
 
+  const consultationItems = useMemo(() => mergeItems(items, product), [items, product]);
+  const hasMissingSizes = consultationItems.some((item) => !item.size);
+
   const href = useMemo(() => {
     const number = whatsappNumber.replace(/\D/g, "");
-    const consultationItems = mergeItems(items, product);
-    if (!number || !consultationItems.length) return null;
+    if (!number || !consultationItems.length || (requireSizes && hasMissingSizes)) return null;
 
     return `https://wa.me/${number}?text=${encodeURIComponent(createMessage(consultationItems))}`;
-  }, [items, product, whatsappNumber]);
+  }, [consultationItems, hasMissingSizes, requireSizes, whatsappNumber]);
 
   if (!href) {
+    let title = "Agrega productos para consultar disponibilidad.";
+    if (!whatsappNumber) title = "El número de WhatsApp se configurará desde el panel administrativo.";
+    else if (requireSizes && hasMissingSizes) title = "Selecciona la talla EUR de cada producto para continuar.";
+
     return (
       <button
         type="button"
         className={`${className} is-disabled`.trim()}
         disabled
-        title={
-          whatsappNumber
-            ? "Agrega productos para consultar disponibilidad."
-            : "El número de WhatsApp se configurará desde el panel administrativo."
-        }
+        title={title}
       >
         {label}
       </button>
