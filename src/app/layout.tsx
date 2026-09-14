@@ -29,6 +29,7 @@ import "./admin-mobile-polish.css";
 import "./experience-states.css";
 import "./size-flow.css";
 import "./admin-mobile-app.css";
+import "./password-security.css";
 
 const instrumentSans = Instrument_Sans({ variable: "--font-brand", subsets: ["latin"] });
 
