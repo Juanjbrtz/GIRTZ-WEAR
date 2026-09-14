@@ -4,7 +4,7 @@ import { getCatalogProducts } from "@/lib/catalog";
 export const dynamic = "force-dynamic";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://girtz-wear.vercel.app";
+  const baseUrl = "https://girtzwear.com";
   const products = await getCatalogProducts();
   const now = new Date();
 
