@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Instrument_Sans } from "next/font/google";
 import { CartDrawer } from "@/components/cart-drawer";
 import { CartProvider } from "@/components/cart-provider";
+import { PwaRegister } from "@/components/pwa-register";
 import { getWhatsappNumber } from "@/lib/store-settings";
 import "./globals.css";
 import "./info.css";
@@ -29,8 +30,25 @@ import "./admin-mobile-polish.css";
 const instrumentSans = Instrument_Sans({ variable: "--font-brand", subsets: ["latin"] });
 
 export const metadata: Metadata = {
+  applicationName: "GIRTZ Wear",
   title: { default: "GIRTZ WEAR — Sneakers multimarca", template: "%s | GIRTZ WEAR" },
   description: "Sneakers multimarca. Arma tu selección y confirma disponibilidad y compra directamente por WhatsApp.",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "GIRTZ Wear",
+  },
+  icons: {
+    icon: [
+      { url: "/pwa/icon/192", sizes: "192x192", type: "image/png" },
+      { url: "/pwa/icon/512", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [{ url: "/pwa/icon/180", sizes: "180x180", type: "image/png" }],
+  },
+  formatDetection: {
+    telephone: false,
+  },
 };
 
 export const viewport: Viewport = {
@@ -46,6 +64,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   return (
     <html lang="es" className={instrumentSans.variable}>
       <body>
+        <PwaRegister />
         <CartProvider>
           {children}
           <CartDrawer whatsappNumber={whatsappNumber} />
