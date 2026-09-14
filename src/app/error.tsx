@@ -2,15 +2,20 @@
 
 import { getShortUserError } from "@/lib/user-errors";
 
-export default function AppError({ error }: { error: Error & { digest?: string } }) {
-  const message = getShortUserError(error, "No pudimos completar esta solicitud.");
+export default function AppError({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
+  const message = getShortUserError(error, "Ocurrió un problema temporal al cargar la información.");
 
   return (
-    <main className="friendly-error-page" role="alert">
-      <section>
-        <span>GIRTZ WEAR</span>
-        <h1>No se pudo completar.</h1>
-        <p>{message}</p>
+    <main className="girtz-state-shell" role="alert">
+      <section className="girtz-state-card">
+        <div className="girtz-state-brand">GIRTZ</div>
+        <span className="girtz-state-eyebrow">NO PUDIMOS CARGAR ESTA PANTALLA</span>
+        <h1 className="girtz-state-title">INTÉNTALO DE NUEVO.</h1>
+        <p className="girtz-state-copy">{message}</p>
+        <div className="girtz-state-actions">
+          <button type="button" className="girtz-state-button" onClick={() => reset()}>REINTENTAR</button>
+          <a className="girtz-state-button secondary" href="/">IR AL INICIO</a>
+        </div>
       </section>
     </main>
   );
