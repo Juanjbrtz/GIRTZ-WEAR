@@ -1,0 +1,81 @@
+/* GIRTZ Wear — PWA + estados sin contenido */
+
+html,
+body {
+  min-height: 100%;
+  background: #050505;
+}
+
+@media (display-mode: standalone) {
+  html {
+    background: #050505;
+  }
+
+  body {
+    min-height: 100svh;
+    overscroll-behavior-y: none;
+  }
+
+  .site-header-final {
+    margin-top: max(12px, env(safe-area-inset-top)) !important;
+  }
+
+  .girtz-mobile-dock {
+    padding-bottom: max(10px, env(safe-area-inset-bottom)) !important;
+  }
+}
+
+.refined-hero.refined-hero--empty {
+  grid-template-columns: minmax(0, 1fr) !important;
+  grid-template-rows: auto !important;
+  min-height: auto !important;
+  padding-bottom: 56px !important;
+}
+
+.refined-hero.refined-hero--empty .refined-hero-copy {
+  width: min(760px, 100%);
+  padding-top: clamp(84px, 11vw, 148px) !important;
+  padding-bottom: clamp(54px, 8vw, 92px) !important;
+}
+
+.refined-hero.refined-hero--empty .refined-hero-copy h1 {
+  max-width: 620px !important;
+}
+
+.refined-empty-catalog-note {
+  width: min(620px, 100%);
+  margin-top: 34px;
+  padding: 18px 20px;
+  border: 1px solid rgba(255,255,255,.09);
+  border-radius: 18px;
+  background: rgba(255,255,255,.025);
+  color: #999993;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.refined-empty-catalog-note strong {
+  display: block;
+  margin-bottom: 5px;
+  color: #e9e8e2;
+  font-size: 10px;
+  letter-spacing: .11em;
+}
+
+@media (max-width: 900px) {
+  .refined-hero.refined-hero--empty {
+    padding-bottom: 26px !important;
+  }
+
+  .refined-hero.refined-hero--empty .refined-hero-copy {
+    padding-top: 54px !important;
+    padding-bottom: 38px !important;
+  }
+
+  .refined-empty-catalog-note {
+    margin-top: 24px;
+    padding: 16px;
+    border-radius: 16px;
+    font-size: 11px;
+  }
+}
