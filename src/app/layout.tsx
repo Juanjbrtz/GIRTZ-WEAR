@@ -24,6 +24,7 @@ import "./premium-flow-v2.css";
 import "./nav-legibility-polish.css";
 import "./error-feedback.css";
 import "./admin-product-danger.css";
+import "./admin-mobile-polish.css";
 
 const instrumentSans = Instrument_Sans({ variable: "--font-brand", subsets: ["latin"] });
 
