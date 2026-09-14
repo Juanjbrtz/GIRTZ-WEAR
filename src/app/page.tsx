@@ -27,7 +27,7 @@ export default async function Home() {
     <main className="home-page editorial-home refined-home">
       <SiteHeader />
 
-      <section className="editorial-hero refined-hero">
+      <section className={`editorial-hero refined-hero${heroProduct ? "" : " refined-hero--empty"}`}>
         <div className="editorial-hero-rail editorial-hero-rail-clean">
           <span>GIRTZ / CATÁLOGO 2026</span>
         </div>
@@ -40,27 +40,33 @@ export default async function Home() {
             <Link href="/shop">VER CATÁLOGO</Link>
             <CartOpenButton>MI CARRITO</CartOpenButton>
           </div>
+          {!heroProduct ? (
+            <div className="refined-empty-catalog-note">
+              <strong>CATÁLOGO EN ACTUALIZACIÓN</strong>
+              Estamos preparando nuevas referencias. Puedes volver pronto para ver los modelos disponibles.
+            </div>
+          ) : null}
         </div>
 
-        <div className="editorial-hero-product refined-hero-product">
-          {heroProduct ? (
+        {heroProduct ? (
+          <div className="editorial-hero-product refined-hero-product">
             <Link href={`/product/${heroProduct.slug}`} className="editorial-product-shot" aria-label={`Ver ${heroProduct.name}`}>
               <ProductVisual product={heroProduct} priority sizes="(max-width: 800px) 92vw, 56vw" />
               <span className="editorial-shot-index">01</span>
             </Link>
-          ) : <div className="editorial-product-shot empty" />}
 
-          <div className="editorial-product-meta">
-            <div>
-              <span>{heroProduct?.brand?.toUpperCase() || "GIRTZ"}</span>
-              <h2>{heroProduct?.name || "NUEVAS REFERENCIAS"}</h2>
-            </div>
-            <div className="editorial-product-price">
-              <span>{heroProduct?.audience?.toUpperCase() || "UNISEX"}</span>
-              <strong>{heroProduct ? formatCop(heroProduct.price) : "PRÓXIMAMENTE"}</strong>
+            <div className="editorial-product-meta">
+              <div>
+                <span>{heroProduct.brand?.toUpperCase() || "GIRTZ"}</span>
+                <h2>{heroProduct.name}</h2>
+              </div>
+              <div className="editorial-product-price">
+                <span>{heroProduct.audience?.toUpperCase() || "UNISEX"}</span>
+                <strong>{formatCop(heroProduct.price)}</strong>
+              </div>
             </div>
           </div>
-        </div>
+        ) : null}
       </section>
 
       <section className="refined-category-section">
