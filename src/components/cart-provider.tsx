@@ -17,6 +17,8 @@ export type CartItem = {
   audience: "Hombre" | "Mujer" | "Unisex";
   price: number;
   quantity: number;
+  size?: string;
+  availableSizes?: string[];
   image?: string;
   imageAlt?: string;
 };
@@ -34,6 +36,7 @@ type CartContextValue = {
   addItem: (item: AddCartItem) => void;
   removeItem: (slug: string) => void;
   updateQuantity: (slug: string, quantity: number) => void;
+  updateSize: (slug: string, size: string) => void;
   clearCart: () => void;
 };
 
@@ -88,6 +91,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
           ? {
               ...entry,
               ...item,
+              size: item.size || entry.size,
+              availableSizes: item.availableSizes?.length ? item.availableSizes : entry.availableSizes,
               quantity: entry.quantity + quantity,
             }
           : entry,
@@ -115,6 +120,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
     [removeItem],
   );
 
+  const updateSize = useCallback((slug: string, size: string) => {
+    setItems((current) =>
+      current.map((entry) =>
+        entry.slug === slug ? { ...entry, size: size || undefined } : entry,
+      ),
+    );
+  }, []);
+
   const clearCart = useCallback(() => setItems([]), []);
 
   const value = useMemo<CartContextValue>(() => {
@@ -135,9 +148,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
       addItem,
       removeItem,
       updateQuantity,
+      updateSize,
       clearCart,
     };
-  }, [items, hydrated, isOpen, openCart, closeCart, addItem, removeItem, updateQuantity, clearCart]);
+  }, [items, hydrated, isOpen, openCart, closeCart, addItem, removeItem, updateQuantity, updateSize, clearCart]);
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }
