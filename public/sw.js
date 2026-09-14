@@ -1,7 +1,7 @@
-const CACHE_VERSION = "girtz-pwa-v1";
+const CACHE_VERSION = "girtz-pwa-v2";
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const OFFLINE_URL = "/offline.html";
-const PRECACHE = [OFFLINE_URL, "/manifest.webmanifest"];
+const PRECACHE = [OFFLINE_URL, "/manifest.webmanifest", "/pwa/icon/192"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -13,7 +13,12 @@ self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys()
       .then((keys) => Promise.all(keys.filter((key) => !key.startsWith(CACHE_VERSION)).map((key) => caches.delete(key))))
-      .then(() => self.clients.claim()),
+      .then(async () => {
+        if (self.registration.navigationPreload) {
+          await self.registration.navigationPreload.enable();
+        }
+        await self.clients.claim();
+      }),
   );
 });
 
@@ -35,7 +40,7 @@ function shouldNeverCache(url) {
 function isStaticAsset(url) {
   return (
     url.pathname.startsWith("/_next/static/") ||
-    url.pathname.startsWith("/_next/image") ||
+    url.pathname.startsWith("/pwa/icon/") ||
     /\.(?:css|js|woff2?|png|jpe?g|webp|avif|svg|ico)$/.test(url.pathname)
   );
 }
@@ -47,16 +52,20 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
 
-  if (shouldNeverCache(url)) {
-    return;
-  }
+  if (shouldNeverCache(url)) return;
 
   if (request.mode === "navigate") {
     event.respondWith(
-      fetch(request).catch(async () => {
-        const cache = await caches.open(STATIC_CACHE);
-        return (await cache.match(OFFLINE_URL)) || Response.error();
-      }),
+      (async () => {
+        try {
+          const preloaded = await event.preloadResponse;
+          if (preloaded) return preloaded;
+          return await fetch(request);
+        } catch {
+          const cache = await caches.open(STATIC_CACHE);
+          return (await cache.match(OFFLINE_URL)) || Response.error();
+        }
+      })(),
     );
     return;
   }
