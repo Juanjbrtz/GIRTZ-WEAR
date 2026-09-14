@@ -2,14 +2,29 @@ import Link from "next/link";
 import { createProduct, toggleProductActive, updateWhatsappNumber } from "@/app/admin/actions";
 import { AdminBulkProductUpload } from "@/components/admin-bulk-product-upload";
 import { AdminImageUpload } from "@/components/admin-image-upload";
+import { AdminProductDangerActions } from "@/components/admin-product-danger-actions";
 import { formatCop } from "@/data/products";
 import { getWhatsappNumber } from "@/lib/store-settings";
 import { getAdminProducts } from "@/lib/store-data";
 
-type ProductsPageProps = { searchParams: Promise<{ created?: string; whatsapp?: string; duplicate?: string }> };
+type ProductsPageProps = {
+  searchParams: Promise<{
+    created?: string;
+    whatsapp?: string;
+    duplicate?: string;
+    deleted?: string;
+    archived?: string;
+    archivedHistory?: string;
+    missing?: string;
+  }>;
+};
 
 export default async function AdminProductsPage({ searchParams }: ProductsPageProps) {
-  const [{ created, whatsapp, duplicate }, catalog, whatsappNumber] = await Promise.all([searchParams, getAdminProducts(), getWhatsappNumber()]);
+  const [{ created, whatsapp, duplicate, deleted, archived, archivedHistory, missing }, catalog, whatsappNumber] = await Promise.all([
+    searchParams,
+    getAdminProducts(),
+    getWhatsappNumber(),
+  ]);
 
   return (
     <section className="admin-section admin-products-v2">
@@ -21,6 +36,10 @@ export default async function AdminProductsPage({ searchParams }: ProductsPagePr
       {created === "1" ? <div className="admin-success">Producto creado y publicado.</div> : null}
       {whatsapp === "1" ? <div className="admin-success">Número de WhatsApp actualizado.</div> : null}
       {duplicate === "1" ? <div className="admin-success">Esa referencia ya existe. No se creó una copia duplicada.</div> : null}
+      {deleted === "1" ? <div className="admin-success">Producto eliminado definitivamente.</div> : null}
+      {archived === "1" ? <div className="admin-success">Producto desactivado. Ya no aparece en la tienda.</div> : null}
+      {archivedHistory === "1" ? <div className="admin-success">El producto tiene historial de ventas o movimientos, por eso se archivó en lugar de eliminarse.</div> : null}
+      {missing === "1" ? <div className="admin-success">El producto ya no está disponible.</div> : null}
 
       <AdminBulkProductUpload />
 
@@ -59,21 +78,25 @@ export default async function AdminProductsPage({ searchParams }: ProductsPagePr
           <div className="admin-block-heading"><div><span>CATÁLOGO ACTUAL</span><h2>{catalog.length} REFERENCIAS</h2></div></div>
           {catalog.length ? (
             <div className="admin-product-list-v2">
-              {catalog.map((product) => (
-                <article key={product.id} className="admin-product-row-v2">
-                  <div className="admin-product-thumb"><img src={`/api/product-image/${product.id}?v=${product.updatedAt.getTime()}`} alt={product.name} /></div>
-                  <div className="admin-product-copy">
-                    <div className="admin-product-badges"><span>{product.brand || "GIRTZ"}</span><span>{product.audience || "UNISEX"}</span>{product.featured ? <b>PORTADA</b> : null}{!product.active ? <i>OCULTO</i> : null}</div>
-                    <strong>{product.name}</strong>
-                    <small>Costo {formatCop(product.cost)} · utilidad bruta estimada {formatCop(Math.max(0, product.price - product.cost))}</small>
-                  </div>
-                  <div className="admin-product-price-v2"><strong>{formatCop(product.price)}</strong></div>
-                  <div className="admin-product-actions-v2">
-                    <Link href={`/admin/products/${product.id}/edit`} className="admin-ghost-action">EDITAR</Link>
-                    <form action={toggleProductActive}><input type="hidden" name="productId" value={product.id} /><input type="hidden" name="active" value={product.active ? "false" : "true"} /><button type="submit" className="admin-ghost-action">{product.active ? "OCULTAR" : "PUBLICAR"}</button></form>
-                  </div>
-                </article>
-              ))}
+              {catalog.map((product) => {
+                const imageUrl = `/api/product-image/${product.id}?v=${product.updatedAt.getTime()}`;
+                return (
+                  <article key={product.id} className="admin-product-row-v2">
+                    <div className="admin-product-thumb"><img src={imageUrl} alt={product.name} /></div>
+                    <div className="admin-product-copy">
+                      <div className="admin-product-badges"><span>{product.brand || "GIRTZ"}</span><span>{product.audience || "UNISEX"}</span>{product.featured ? <b>PORTADA</b> : null}{!product.active ? <i>OCULTO</i> : null}</div>
+                      <strong>{product.name}</strong>
+                      <small>Costo {formatCop(product.cost)} · utilidad bruta estimada {formatCop(Math.max(0, product.price - product.cost))}</small>
+                    </div>
+                    <div className="admin-product-price-v2"><strong>{formatCop(product.price)}</strong></div>
+                    <div className="admin-product-actions-v2">
+                      <Link href={`/admin/products/${product.id}/edit`} className="admin-ghost-action">EDITAR</Link>
+                      <form action={toggleProductActive}><input type="hidden" name="productId" value={product.id} /><input type="hidden" name="active" value={product.active ? "false" : "true"} /><button type="submit" className="admin-ghost-action">{product.active ? "OCULTAR" : "PUBLICAR"}</button></form>
+                      <AdminProductDangerActions productId={product.id} productName={product.name} imageUrl={imageUrl} active={product.active} compact />
+                    </div>
+                  </article>
+                );
+              })}
             </div>
           ) : <div className="admin-empty admin-empty-v2"><strong>EL CATÁLOGO ESTÁ LISTO.</strong><span>Sube la primera foto para comenzar.</span></div>}
         </section>
