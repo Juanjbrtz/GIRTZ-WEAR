@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { updateProduct } from "@/app/admin/actions";
 import { AdminImageUpload } from "@/components/admin-image-upload";
+import { AdminProductDangerActions } from "@/components/admin-product-danger-actions";
 import { formatCop } from "@/data/products";
 import { getAdminProducts } from "@/lib/store-data";
 
@@ -41,6 +42,19 @@ export default async function EditProductPage({ params, searchParams }: EditProd
           </div>
           <button className="admin-primary-action admin-submit" type="submit">GUARDAR CAMBIOS</button>
         </form>
+      </section>
+
+      <section className="admin-danger-zone">
+        <div className="admin-danger-zone-head">
+          <div><span>ADMINISTRACIÓN</span><h2>DESACTIVAR O ELIMINAR</h2></div>
+          <p>Desactivar conserva toda la información. Eliminar borra definitivamente solo cuando no existen ventas ni movimientos; si existe historial, GIRTZ lo archivará automáticamente.</p>
+        </div>
+        <AdminProductDangerActions
+          productId={product.id}
+          productName={product.name}
+          imageUrl={currentImage}
+          active={product.active}
+        />
       </section>
     </section>
   );
