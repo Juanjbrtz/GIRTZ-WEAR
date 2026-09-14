@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { getShortUserError } from "@/lib/user-errors";
 
 export default function AppError({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
@@ -14,7 +15,7 @@ export default function AppError({ error, reset }: { error: Error & { digest?: s
         <p className="girtz-state-copy">{message}</p>
         <div className="girtz-state-actions">
           <button type="button" className="girtz-state-button" onClick={() => reset()}>REINTENTAR</button>
-          <a className="girtz-state-button secondary" href="/">IR AL INICIO</a>
+          <Link className="girtz-state-button secondary" href="/">IR AL INICIO</Link>
         </div>
       </section>
     </main>
