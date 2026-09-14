@@ -46,6 +46,34 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
+    if (!("serviceWorker" in navigator)) return;
+
+    let registration: ServiceWorkerRegistration | null = null;
+
+    const registerPwa = async () => {
+      try {
+        registration = await navigator.serviceWorker.register("/sw.js", {
+          scope: "/",
+          updateViaCache: "none",
+        });
+        await registration.update();
+      } catch {
+        // La tienda debe seguir funcionando aunque el navegador no admita PWA.
+      }
+    };
+
+    const refreshWorker = () => {
+      if (document.visibilityState === "visible") {
+        registration?.update().catch(() => undefined);
+      }
+    };
+
+    registerPwa();
+    document.addEventListener("visibilitychange", refreshWorker);
+    return () => document.removeEventListener("visibilitychange", refreshWorker);
+  }, []);
+
+  useEffect(() => {
     let restoredItems: CartItem[] = [];
     try {
       const raw = window.localStorage.getItem(STORAGE_KEY);
