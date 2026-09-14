@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { updateAccountProfile } from "@/app/account/actions";
 import { signOutAccount } from "@/app/auth/actions";
+import { PasswordChangeForm } from "@/components/password-change-form";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { formatCop } from "@/data/products";
@@ -54,6 +55,7 @@ export default async function AccountPage({ searchParams }: { searchParams: Prom
         <nav className="account-quick-nav" aria-label="Secciones de mi cuenta">
           <a href="#pedidos">MIS PEDIDOS</a>
           <a href="#configuracion">MIS DATOS</a>
+          <a href="#seguridad">SEGURIDAD</a>
           <a href="#cerrar-sesion">CERRAR SESIÓN</a>
         </nav>
 
@@ -101,6 +103,14 @@ export default async function AccountPage({ searchParams }: { searchParams: Prom
               <button type="submit" className="primary-button">GUARDAR CAMBIOS</button>
             </form>
           ) : <div className="account-notice error">No fue posible cargar la información del perfil.</div>}
+        </section>
+
+        <section className="account-settings-card account-security-card" id="seguridad">
+          <div className="account-section-heading">
+            <div><span className="eyebrow">SEGURIDAD</span><h2>CONTRASEÑA</h2></div>
+          </div>
+          <p className="account-security-copy">Actualiza tu contraseña cuando lo necesites. Al cambiarla, las demás sesiones abiertas se cerrarán por seguridad.</p>
+          <PasswordChangeForm />
         </section>
 
         <section className="account-signout" id="cerrar-sesion">
