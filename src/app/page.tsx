@@ -5,6 +5,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { formatCop } from "@/data/products";
 import { getFeaturedProduct } from "@/lib/catalog";
+import "./pwa-polish.css";
 
 export const dynamic = "force-dynamic";
 
