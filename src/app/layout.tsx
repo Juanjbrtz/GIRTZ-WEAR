@@ -32,7 +32,7 @@ import "./admin-mobile-app.css";
 import "./password-security.css";
 
 const instrumentSans = Instrument_Sans({ variable: "--font-brand", subsets: ["latin"] });
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://girtz-wear.vercel.app";
+const siteUrl = "https://girtzwear.com";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
