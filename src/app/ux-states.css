@@ -1,0 +1,179 @@
+/* GIRTZ Wear — loading, empty and error states */
+.ux-state-shell {
+  min-height: 62svh;
+  display: grid;
+  place-items: center;
+  padding: 72px 20px 110px;
+  background: #050505;
+  color: #f2f1ec;
+}
+
+.ux-state-card {
+  width: min(620px, 100%);
+  padding: clamp(24px, 5vw, 42px);
+  border: 1px solid rgba(255,255,255,.10);
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(255,255,255,.05), transparent 35%),
+    rgba(13,13,13,.92);
+  box-shadow: 0 28px 90px rgba(0,0,0,.30);
+}
+
+.ux-state-card > span,
+.ux-loading-copy > span {
+  color: #888883;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .15em;
+}
+
+.ux-state-card h1,
+.ux-state-card h2 {
+  margin: 14px 0 0;
+  color: #f2f1ec;
+  font-size: clamp(34px, 7vw, 58px);
+  font-weight: 560;
+  line-height: .98;
+  letter-spacing: -.05em;
+}
+
+.ux-state-card p {
+  max-width: 520px;
+  margin: 20px 0 0;
+  color: #aaa9a3;
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.ux-state-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin-top: 26px;
+}
+
+.ux-state-actions a,
+.ux-state-actions button {
+  min-height: 46px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 17px;
+  border: 1px solid rgba(255,255,255,.15);
+  border-radius: 15px;
+  background: rgba(255,255,255,.035);
+  color: #ecebe6;
+  font-size: 9px;
+  font-weight: 760;
+  letter-spacing: .12em;
+  cursor: pointer;
+}
+
+.ux-state-actions .primary {
+  background: #f1f0eb;
+  color: #080808;
+}
+
+.ux-loading-shell {
+  min-height: 65svh;
+  padding: 54px clamp(18px, 4vw, 58px) 100px;
+  background: #050505;
+  color: #f2f1ec;
+}
+
+.ux-loading-copy {
+  max-width: 540px;
+  margin-bottom: 34px;
+}
+
+.ux-loading-copy h1 {
+  margin: 12px 0 0;
+  font-size: clamp(38px, 6vw, 64px);
+  font-weight: 560;
+  line-height: 1;
+  letter-spacing: -.05em;
+}
+
+.ux-skeleton-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.ux-skeleton-card {
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 24px;
+  background: #0b0b0b;
+}
+
+.ux-skeleton-media {
+  aspect-ratio: 4 / 4.7;
+  background: linear-gradient(105deg, #101010 25%, #171717 42%, #101010 60%);
+  background-size: 220% 100%;
+  animation: ux-shimmer 1.4s linear infinite;
+}
+
+.ux-skeleton-lines {
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+}
+
+.ux-skeleton-line {
+  height: 12px;
+  border-radius: 999px;
+  background: #171717;
+}
+
+.ux-skeleton-line.short { width: 42%; }
+.ux-skeleton-line.medium { width: 68%; }
+
+.admin-loading-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0,1fr));
+  gap: 12px;
+  margin-top: 26px;
+}
+
+.admin-loading-box {
+  min-height: 132px;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 20px;
+  background: linear-gradient(105deg, #0b0b0b 25%, #141414 42%, #0b0b0b 60%);
+  background-size: 220% 100%;
+  animation: ux-shimmer 1.4s linear infinite;
+}
+
+@keyframes ux-shimmer {
+  to { background-position-x: -220%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ux-skeleton-media,
+  .admin-loading-box { animation: none; }
+}
+
+@media (max-width: 700px) {
+  .ux-state-shell {
+    min-height: 58svh;
+    padding: 40px 18px 88px;
+  }
+
+  .ux-state-card {
+    padding: 24px;
+    border-radius: 22px;
+  }
+
+  .ux-skeleton-grid {
+    grid-template-columns: repeat(2, minmax(0,1fr));
+    gap: 10px;
+  }
+
+  .ux-skeleton-card { border-radius: 18px; }
+  .ux-skeleton-lines { padding: 12px; }
+
+  .admin-loading-grid {
+    grid-template-columns: 1fr;
+  }
+}
