@@ -44,8 +44,6 @@ export function AuthPanel({ mode }: AuthPanelProps) {
     const target = state.errorField ? refs[state.errorField]?.current : null;
 
     const frame = requestAnimationFrame(() => {
-      // Solo limpiamos el dato sensible que necesita corregirse.
-      // Si la contraseña base es inválida, también se limpia su confirmación.
       if (state.errorField === "password") {
         setPassword("");
         setConfirmPassword("");
@@ -162,6 +160,12 @@ export function AuthPanel({ mode }: AuthPanelProps) {
               </small>
             ) : null}
           </label>
+
+          {isSignIn ? (
+            <div className="auth-forgot-link">
+              <Link href="/auth/forgot-password">¿Olvidaste tu contraseña?</Link>
+            </div>
+          ) : null}
 
           {!isSignIn ? (
             <label className={`auth-field${confirmPasswordError ? " auth-field-invalid" : ""}`}>
