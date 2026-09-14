@@ -32,12 +32,32 @@ import "./admin-mobile-app.css";
 import "./password-security.css";
 
 const instrumentSans = Instrument_Sans({ variable: "--font-brand", subsets: ["latin"] });
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://girtz-wear.vercel.app";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   applicationName: "GIRTZ Wear",
   title: { default: "GIRTZ WEAR — Sneakers multimarca", template: "%s | GIRTZ WEAR" },
   description: "Sneakers multimarca. Arma tu selección y confirma disponibilidad y compra directamente por WhatsApp.",
   manifest: "/manifest.webmanifest",
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    locale: "es_CO",
+    url: "/",
+    siteName: "GIRTZ Wear",
+    title: "GIRTZ WEAR — Sneakers multimarca",
+    description: "Explora el catálogo y confirma talla, disponibilidad y envío por WhatsApp.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "GIRTZ WEAR — Sneakers multimarca",
+    description: "Explora el catálogo y confirma talla, disponibilidad y envío por WhatsApp.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
