@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { useCart } from "@/components/cart-provider";
 import { WhatsappConsultButton } from "@/components/whatsapp-consult-button";
 import { formatCop } from "@/data/products";
+import { getProductSizeOptions } from "@/lib/sizes";
 
 export function CartDrawer({ whatsappNumber }: { whatsappNumber: string }) {
   const {
@@ -16,8 +17,11 @@ export function CartDrawer({ whatsappNumber }: { whatsappNumber: string }) {
     closeCart,
     removeItem,
     updateQuantity,
+    updateSize,
     clearCart,
   } = useCart();
+
+  const missingSize = items.some((item) => !item.size);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -62,9 +66,10 @@ export function CartDrawer({ whatsappNumber }: { whatsappNumber: string }) {
             <div className="cart-drawer-items">
               {items.map((item) => {
                 const imageSrc = item.image || `/api/cart-product-image/${encodeURIComponent(item.slug)}`;
+                const sizeOptions = getProductSizeOptions(item.availableSizes);
 
                 return (
-                  <article className="cart-drawer-item" key={item.slug}>
+                  <article className={`cart-drawer-item${item.size ? "" : " needs-size"}`} key={item.slug}>
                     <div className="cart-drawer-thumb">
                       <Image
                         src={imageSrc}
@@ -79,7 +84,20 @@ export function CartDrawer({ whatsappNumber }: { whatsappNumber: string }) {
                       <span>{item.brand}</span>
                       <h3>{item.name}</h3>
                       <strong>{formatCop(item.price)}</strong>
-                      <small>Talla por confirmar en WhatsApp</small>
+                      <label className="cart-size-control">
+                        <span>TALLA EUR</span>
+                        <select
+                          value={item.size || ""}
+                          onChange={(event) => updateSize(item.slug, event.target.value)}
+                          aria-label={`Talla EUR para ${item.name}`}
+                        >
+                          <option value="">Seleccionar</option>
+                          {sizeOptions.map((size) => <option key={size} value={size}>{size}</option>)}
+                        </select>
+                      </label>
+                      <small className={item.size ? "cart-size-ok" : "cart-size-warning"}>
+                        {item.size ? `Talla solicitada: EUR ${item.size}` : "Selecciona una talla antes de confirmar."}
+                      </small>
                     </div>
 
                     <div className="cart-drawer-item-actions">
@@ -98,11 +116,12 @@ export function CartDrawer({ whatsappNumber }: { whatsappNumber: string }) {
             <footer className="cart-drawer-summary">
               <div className="cart-drawer-summary-line"><span>Unidades</span><strong>{count}</strong></div>
               <div className="cart-drawer-summary-line total"><span>Subtotal</span><strong>{formatCop(subtotal)}</strong></div>
-              <p>Confirmamos talla, disponibilidad y envío por WhatsApp antes de cerrar la compra.</p>
+              <p>{missingSize ? "Selecciona la talla EUR de cada modelo para continuar." : "Confirmaremos disponibilidad y envío por WhatsApp antes de cerrar la compra."}</p>
               <WhatsappConsultButton
                 whatsappNumber={whatsappNumber}
                 className="cart-drawer-whatsapp"
-                label="CONFIRMAR POR WHATSAPP"
+                label={missingSize ? "SELECCIONA LAS TALLAS" : "CONFIRMAR POR WHATSAPP"}
+                requireSizes
               />
               <div className="cart-drawer-secondary-actions">
                 <button type="button" onClick={closeCart}>SEGUIR COMPRANDO</button>
