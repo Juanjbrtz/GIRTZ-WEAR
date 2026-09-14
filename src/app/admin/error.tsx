@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 export default function AdminError({ reset }: { error: Error & { digest?: string }; reset: () => void }) {
   return (
     <main className="girtz-state-shell" role="alert">
@@ -10,7 +12,7 @@ export default function AdminError({ reset }: { error: Error & { digest?: string
         <p className="girtz-state-copy">La información administrativa no se modificó. Puedes intentar cargarla nuevamente.</p>
         <div className="girtz-state-actions">
           <button type="button" className="girtz-state-button" onClick={() => reset()}>REINTENTAR</button>
-          <a className="girtz-state-button secondary" href="/account">VOLVER A MI CUENTA</a>
+          <Link className="girtz-state-button secondary" href="/account">VOLVER A MI CUENTA</Link>
         </div>
       </section>
     </main>
