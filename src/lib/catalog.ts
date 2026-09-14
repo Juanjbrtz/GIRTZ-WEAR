@@ -1,6 +1,6 @@
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, inArray } from "drizzle-orm";
 import { getDb } from "@/db";
-import { products as productTable } from "@/db/schema";
+import { products as productTable, productVariants } from "@/db/schema";
 import type { Audience, Product } from "@/data/products";
 import { isDatabaseConfigured } from "@/lib/store-data";
 
@@ -9,7 +9,16 @@ function normalizeAudience(value: string | null): Audience {
   return "Unisex";
 }
 
-function mapProduct(row: typeof productTable.$inferSelect): Product {
+function sortSizes(sizes: string[]) {
+  return [...new Set(sizes)].sort((a, b) => {
+    const numberA = Number.parseFloat(a.replace(",", "."));
+    const numberB = Number.parseFloat(b.replace(",", "."));
+    if (Number.isFinite(numberA) && Number.isFinite(numberB)) return numberA - numberB;
+    return a.localeCompare(b, "es", { numeric: true });
+  });
+}
+
+function mapProduct(row: typeof productTable.$inferSelect, sizes: string[] = []): Product {
   return {
     id: row.id,
     slug: row.slug,
@@ -21,7 +30,7 @@ function mapProduct(row: typeof productTable.$inferSelect): Product {
       ? `${row.imageUrl}${row.imageUrl.includes("?") ? "&" : "?"}v=${row.updatedAt.getTime()}`
       : `/api/product-image/${row.id}?v=${row.updatedAt.getTime()}`,
     imageAlt: `${row.brand || "Sneaker"} ${row.name}`,
-    sizes: [],
+    sizes: sortSizes(sizes),
     description:
       row.description ||
       "Referencia seleccionada por GIRTZ WEAR. Consulta disponibilidad de tallas por WhatsApp.",
@@ -40,7 +49,21 @@ export async function getCatalogProducts(): Promise<Product[]> {
       .where(eq(productTable.active, true))
       .orderBy(desc(productTable.featured), desc(productTable.updatedAt));
 
-    return rows.map(mapProduct);
+    if (!rows.length) return [];
+
+    const variants = await db
+      .select({ productId: productVariants.productId, size: productVariants.size })
+      .from(productVariants)
+      .where(inArray(productVariants.productId, rows.map((row) => row.id)));
+
+    const sizesByProduct = new Map<string, string[]>();
+    for (const variant of variants) {
+      const current = sizesByProduct.get(variant.productId) || [];
+      current.push(variant.size);
+      sizesByProduct.set(variant.productId, current);
+    }
+
+    return rows.map((row) => mapProduct(row, sizesByProduct.get(row.id) || []));
   } catch {
     return [];
   }
@@ -57,7 +80,14 @@ export async function getCatalogProductBySlug(slug: string): Promise<Product | n
       .where(and(eq(productTable.slug, slug), eq(productTable.active, true)))
       .limit(1);
 
-    return row ? mapProduct(row) : null;
+    if (!row) return null;
+
+    const variants = await db
+      .select({ size: productVariants.size })
+      .from(productVariants)
+      .where(eq(productVariants.productId, row.id));
+
+    return mapProduct(row, variants.map((variant) => variant.size));
   } catch {
     return null;
   }
