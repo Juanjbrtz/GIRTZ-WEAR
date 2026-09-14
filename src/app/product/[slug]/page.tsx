@@ -45,11 +45,11 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
           <div className="editorial-detail-availability">
             <span>01</span>
-            <div><strong>DISPONIBILIDAD</strong><p>Confirmamos la talla disponible por WhatsApp antes de cerrar la compra.</p></div>
+            <div><strong>ELIGE TU TALLA</strong><p>Indica la talla EUR que buscas. La confirmaremos con el proveedor antes de cerrar la compra.</p></div>
           </div>
           <div className="editorial-detail-availability">
             <span>02</span>
-            <div><strong>CARRITO</strong><p>Agrega uno o varios modelos y revisa tu selección antes de consultar.</p></div>
+            <div><strong>CARRITO</strong><p>Agrega uno o varios modelos y ajusta talla o cantidad desde tu selección.</p></div>
           </div>
           <div className="editorial-detail-availability">
             <span>03</span>
@@ -57,7 +57,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
           </div>
 
           <div className="editorial-detail-actions">
-            <AddToCartButton product={product} />
+            <AddToCartButton product={product} showSizeSelector />
             <CartOpenButton>VER CARRITO ↗</CartOpenButton>
           </div>
         </aside>
