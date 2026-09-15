@@ -1,20 +1,25 @@
 import type { Metadata } from "next";
 import { InfoPage } from "@/components/info-page";
+import { getWhatsappNumber } from "@/lib/store-settings";
 
 export const metadata: Metadata = { title: "Contacto" };
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const whatsappNumber = await getWhatsappNumber();
+  const number = whatsappNumber.replace(/\D/g, "");
+  const href = number
+    ? `https://wa.me/${number}?text=${encodeURIComponent("Hola, quiero recibir información de GIRTZ WEAR.")}`
+    : null;
+
   return (
     <InfoPage eyebrow="GIRTZ WEAR / CONTACT" title="HABLEMOS">
-      <p>
-        El canal de atención y compra por WhatsApp se conectará antes del
-        lanzamiento. Esta ruta ya queda preparada para centralizar soporte,
-        preguntas sobre tallas y seguimiento de pedidos.
-      </p>
-      <p>
-        Por ahora no publicamos un número provisional para evitar que quede una
-        referencia incorrecta en producción.
-      </p>
+      <p>Escríbenos para consultar modelos, tallas, disponibilidad, envíos o seguimiento de tu pedido.</p>
+      <p>WhatsApp es nuestro canal principal de atención y también el medio donde confirmamos la disponibilidad final antes de cerrar una compra.</p>
+      {href ? (
+        <p><a href={href} target="_blank" rel="noreferrer">ABRIR WHATSAPP ↗</a></p>
+      ) : (
+        <p>El canal de WhatsApp está temporalmente en configuración.</p>
+      )}
     </InfoPage>
   );
 }
