@@ -3,8 +3,9 @@
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getDb, getSqlClient } from "@/db";
-import { products } from "@/db/schema";
+import { products, productVariants } from "@/db/schema";
 import { requireAdmin } from "@/lib/session";
+import { DEFAULT_EUR_SIZES } from "@/lib/sizes";
 import { isDatabaseConfigured } from "@/lib/store-data";
 import { getShortUserError } from "@/lib/user-errors";
 
@@ -21,6 +22,11 @@ function slugify(value: string) {
 
 function money(value: FormDataEntryValue | null) {
   return Math.max(0, Math.round(Number(String(value || "").replace(/\D/g, "")) || 0));
+}
+
+function getSizes(formData: FormData) {
+  const selected = new Set(formData.getAll("sizes").map((value) => String(value).trim()));
+  return DEFAULT_EUR_SIZES.filter((size) => selected.has(size));
 }
 
 function getImage(formData: FormData) {
@@ -54,7 +60,9 @@ export async function createProductFromBatch(formData: FormData) {
   const audience = cleanText(formData.get("audience"), 20) || "Unisex";
   const price = money(formData.get("price"));
   const cost = money(formData.get("cost"));
+  const sizes = getSizes(formData);
   if (!name || price < 100) throw new Error("Cada foto necesita nombre y precio válido.");
+  if (!sizes.length) throw new Error("Selecciona al menos una talla EUR.");
   if (!["Hombre", "Mujer", "Unisex"].includes(audience)) throw new Error("Sección inválida.");
 
   const db = getDb();
@@ -69,6 +77,16 @@ export async function createProductFromBatch(formData: FormData) {
       featured: false, active: true,
     }).returning({ id: products.id });
     if (!created) throw new Error("No fue posible crear el producto.");
+
+    await db.insert(productVariants).values(
+      sizes.map((size) => ({
+        productId: created.id,
+        size,
+        stockStatus: "available",
+        stockQuantity: null,
+      })),
+    ).onConflictDoNothing();
+
     await saveProductImage(created.id, image);
     await db.update(products).set({ imageUrl: `/api/product-image/${created.id}`, updatedAt: new Date() }).where(eq(products.id, created.id));
     revalidateCatalog();

@@ -33,6 +33,7 @@ import "./password-security.css";
 import "./responsive-universal.css";
 import "./catalog-account-polish.css";
 import "./brand-logo.css";
+import "./admin-size-upload.css";
 
 const instrumentSans = Instrument_Sans({ variable: "--font-brand", subsets: ["latin"] });
 const siteUrl = "https://girtzwear.com";
