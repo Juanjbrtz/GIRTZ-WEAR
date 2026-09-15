@@ -1,0 +1,193 @@
+/* GIRTZ Wear — responsive universal guardrails
+   iOS inspira el lenguaje visual, no el tamaño de pantalla. */
+
+/* Desktop first: no mobile chrome or bottom offsets. */
+html,
+body {
+  max-width: 100%;
+  overflow-x: clip;
+}
+
+body {
+  padding-bottom: 0 !important;
+}
+
+.girtz-mobile-dock {
+  display: none !important;
+}
+
+.site-header-final {
+  position: sticky !important;
+  top: 12px !important;
+  z-index: 80 !important;
+  display: grid !important;
+  grid-template-columns: auto minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  gap: clamp(18px, 2vw, 34px) !important;
+  width: calc(100% - 48px) !important;
+  max-width: 1500px !important;
+  margin: 12px auto 0 !important;
+  padding: 0 clamp(16px, 2vw, 28px) !important;
+}
+
+.brand-mark-final {
+  min-width: 0;
+  justify-self: start;
+}
+
+.main-nav-v3 {
+  width: fit-content !important;
+  max-width: 100%;
+  justify-self: center !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: clamp(2px, .4vw, 8px) !important;
+  padding: 4px !important;
+  white-space: nowrap;
+}
+
+.main-nav-v3 a {
+  flex: 0 0 auto;
+  padding-inline: clamp(9px, 1vw, 14px) !important;
+}
+
+.header-actions-final {
+  min-width: max-content;
+  justify-self: end !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.account-menu {
+  position: relative;
+}
+
+.account-menu-popover {
+  right: 0 !important;
+  left: auto !important;
+}
+
+/* Large tablet / compact laptop. Keep full navigation, but tighten it. */
+@media (min-width: 901px) and (max-width: 1180px) {
+  .site-header-final {
+    width: calc(100% - 28px) !important;
+    gap: 12px !important;
+    padding-inline: 16px !important;
+  }
+
+  .brand-mark-final span {
+    font-size: 23px !important;
+  }
+
+  .main-nav-v3 a {
+    padding-inline: 8px !important;
+    font-size: 7.5px !important;
+    letter-spacing: .11em !important;
+  }
+
+  .header-actions-final .cart-link-icon,
+  .account-menu > summary {
+    width: 38px !important;
+    height: 38px !important;
+    min-height: 38px !important;
+  }
+}
+
+/* Mobile + small tablets: the dock becomes the primary navigation. */
+@media (max-width: 900px) {
+  body {
+    padding-bottom: calc(104px + env(safe-area-inset-bottom)) !important;
+  }
+
+  .site-header-final {
+    position: sticky !important;
+    top: max(8px, env(safe-area-inset-top)) !important;
+    width: calc(100% - 20px) !important;
+    min-height: 58px !important;
+    height: auto !important;
+    margin: 8px auto 0 !important;
+    padding: 0 14px !important;
+    grid-template-columns: auto 1fr auto !important;
+    gap: 10px !important;
+  }
+
+  .site-header-final .main-nav-v3 {
+    display: none !important;
+  }
+
+  .header-actions-final {
+    grid-column: 3;
+  }
+
+  .header-actions-final .cart-link-icon {
+    display: none !important;
+  }
+
+  .girtz-mobile-dock {
+    position: fixed !important;
+    z-index: 90 !important;
+    left: max(14px, env(safe-area-inset-left)) !important;
+    right: max(14px, env(safe-area-inset-right)) !important;
+    bottom: max(14px, env(safe-area-inset-bottom)) !important;
+    width: auto !important;
+    min-height: 70px !important;
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    align-items: center !important;
+    padding: 8px 8px max(8px, env(safe-area-inset-bottom)) !important;
+  }
+
+  .girtz-mobile-dock a,
+  .girtz-mobile-dock button {
+    min-width: 0 !important;
+  }
+
+  .account-page,
+  .catalog-page,
+  .editorial-home,
+  .product-detail-page,
+  .inner-page {
+    padding-bottom: 28px;
+  }
+
+  .site-footer {
+    padding-bottom: calc(112px + env(safe-area-inset-bottom)) !important;
+  }
+}
+
+/* Narrow phones. Preserve two product columns, but reduce chrome. */
+@media (max-width: 560px) {
+  .site-header-final {
+    width: calc(100% - 16px) !important;
+    border-radius: 20px !important;
+  }
+
+  .brand-mark-final span {
+    font-size: 25px !important;
+  }
+
+  .girtz-mobile-dock {
+    left: 10px !important;
+    right: 10px !important;
+    bottom: max(10px, env(safe-area-inset-bottom)) !important;
+    min-height: 66px !important;
+  }
+}
+
+/* Wide desktop: let the composition breathe instead of stretching controls. */
+@media (min-width: 1500px) {
+  .site-header-final,
+  .refined-hero,
+  .refined-category-section,
+  .refined-service-strip,
+  .refined-shop-head,
+  .refined-filter-bar,
+  .refined-catalog-meta,
+  .refined-product-grid,
+  .editorial-detail {
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+}
