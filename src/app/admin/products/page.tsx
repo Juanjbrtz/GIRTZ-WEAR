@@ -1,9 +1,11 @@
 import Link from "next/link";
-import { createProduct, toggleProductActive, updateWhatsappNumber } from "@/app/admin/actions";
+import { toggleProductActive, updateWhatsappNumber } from "@/app/admin/actions";
 import { updateCatalogUpdateNotice } from "@/app/admin/catalog-notice-actions";
+import { createProductWithSizes } from "@/app/admin/products/create-actions";
 import { AdminBulkProductUpload } from "@/components/admin-bulk-product-upload";
 import { AdminImageUpload } from "@/components/admin-image-upload";
 import { AdminProductDangerActions } from "@/components/admin-product-danger-actions";
+import { AdminSizeSelector } from "@/components/admin-size-selector";
 import { formatCop } from "@/data/products";
 import { getCatalogUpdateSettings, getWhatsappNumber } from "@/lib/store-settings";
 import { getAdminProducts } from "@/lib/store-data";
@@ -33,7 +35,7 @@ export default async function AdminProductsPage({ searchParams }: ProductsPagePr
   return (
     <section className="admin-section admin-products-v2">
       <header className="admin-heading admin-heading-v2">
-        <div><span>CATÁLOGO / GESTIÓN</span><h1>PRODUCTOS</h1><p>Sube fotos, define precio y costo y publica directamente en la tienda.</p></div>
+        <div><span>CATÁLOGO / GESTIÓN</span><h1>PRODUCTOS</h1><p>Sube fotos, define precio, costo y tallas, y publica directamente en la tienda.</p></div>
         <div className="admin-count">{catalog.filter((item) => item.active).length} PUBLICADOS</div>
       </header>
 
@@ -78,7 +80,7 @@ export default async function AdminProductsPage({ searchParams }: ProductsPagePr
       <div className="admin-products-layout-v2">
         <section className="admin-panel-block product-create-panel-v2">
           <div className="admin-block-heading"><div><span>NUEVA REFERENCIA</span><h2>SUBIR UNA FOTO</h2></div></div>
-          <form action={createProduct} className="admin-form admin-product-form-v2">
+          <form action={createProductWithSizes} className="admin-form admin-product-form-v2">
             <AdminImageUpload required />
             <div className="admin-form-grid two">
               <label><span>NOMBRE *</span><input name="name" placeholder="New Balance 9060" required /></label>
@@ -89,6 +91,7 @@ export default async function AdminProductsPage({ searchParams }: ProductsPagePr
               <label><span>PRECIO DE VENTA *</span><input name="price" inputMode="numeric" pattern="[0-9]*" placeholder="220000" required /></label>
               <label><span>COSTO</span><input name="cost" inputMode="numeric" pattern="[0-9]*" placeholder="150000" /></label>
             </div>
+            <AdminSizeSelector />
             <label><span>DESCRIPCIÓN <small>Opcional</small></span><textarea name="description" rows={3} placeholder="Detalles del modelo." /></label>
             <div className="admin-check-row">
               <label className="admin-check"><input name="active" type="checkbox" defaultChecked /><span>PUBLICAR EN LA TIENDA</span></label>
@@ -104,6 +107,7 @@ export default async function AdminProductsPage({ searchParams }: ProductsPagePr
             <div className="admin-product-list-v2">
               {catalog.map((product) => {
                 const imageUrl = `/api/product-image/${product.id}?v=${product.updatedAt.getTime()}`;
+                const sizes = product.variants.map((variant) => variant.size);
                 return (
                   <article key={product.id} className="admin-product-row-v2">
                     <div className="admin-product-thumb"><img src={imageUrl} alt={product.name} /></div>
@@ -111,6 +115,7 @@ export default async function AdminProductsPage({ searchParams }: ProductsPagePr
                       <div className="admin-product-badges"><span>{product.brand || "GIRTZ"}</span><span>{product.audience || "UNISEX"}</span>{product.featured ? <b>PORTADA</b> : null}{!product.active ? <i>OCULTO</i> : null}</div>
                       <strong>{product.name}</strong>
                       <small>Costo {formatCop(product.cost)} · utilidad bruta estimada {formatCop(Math.max(0, product.price - product.cost))}</small>
+                      <small>{sizes.length ? `Tallas EUR: ${sizes.join(" · ")}` : "Tallas sin configurar"}</small>
                     </div>
                     <div className="admin-product-price-v2"><strong>{formatCop(product.price)}</strong></div>
                     <div className="admin-product-actions-v2">
