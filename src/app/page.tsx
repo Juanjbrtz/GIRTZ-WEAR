@@ -4,25 +4,82 @@ import { ProductVisual } from "@/components/product-visual";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { formatCop } from "@/data/products";
-import { getFeaturedProduct } from "@/lib/catalog";
+import { getCatalogProducts, getFeaturedProduct } from "@/lib/catalog";
 import "./pwa-polish.css";
+import "./home-iconography.css";
 
 export const dynamic = "force-dynamic";
 
-const sections = [
-  { href: "/shop?categoria=hombre", number: "01", title: "Hombre", note: "Ver modelos" },
-  { href: "/shop?categoria=mujer", number: "02", title: "Mujer", note: "Ver modelos" },
-  { href: "/shop?categoria=unisex", number: "03", title: "Unisex", note: "Ver modelos" },
+type HomeIcon = "man" | "woman" | "unisex" | "brand" | "available" | "bag";
+
+const sections: Array<{ href: string; icon: HomeIcon; title: string; note: string }> = [
+  { href: "/shop?categoria=hombre", icon: "man", title: "Hombre", note: "Ver modelos" },
+  { href: "/shop?categoria=mujer", icon: "woman", title: "Mujer", note: "Ver modelos" },
+  { href: "/shop?categoria=unisex", icon: "unisex", title: "Unisex", note: "Ver modelos" },
 ];
 
-const serviceNotes = [
-  { number: "01", title: "Multimarca", text: "Modelos de distintas marcas en un solo catálogo." },
-  { number: "02", title: "Disponibilidad", text: "Confirmamos talla y disponibilidad por WhatsApp." },
-  { number: "03", title: "Compra", text: "Coordinamos contigo el cierre y el envío del pedido." },
+const serviceNotes: Array<{ icon: HomeIcon; title: string; text: string }> = [
+  { icon: "brand", title: "Multimarca", text: "Modelos de distintas marcas en un solo catálogo." },
+  { icon: "available", title: "Disponibilidad", text: "Confirmamos talla y disponibilidad por WhatsApp." },
+  { icon: "bag", title: "Compra", text: "Coordinamos contigo el cierre y el envío del pedido." },
 ];
+
+function FeatureIcon({ icon }: { icon: HomeIcon }) {
+  if (icon === "brand") {
+    return <span className="home-brand-icon" aria-hidden="true">G</span>;
+  }
+
+  if (icon === "available") {
+    return (
+      <svg className="home-feature-icon" viewBox="0 0 32 32" aria-hidden="true">
+        <circle cx="16" cy="16" r="11" />
+        <path d="m10.5 16 3.5 3.5 7.5-8" />
+      </svg>
+    );
+  }
+
+  if (icon === "bag") {
+    return (
+      <svg className="home-feature-icon" viewBox="0 0 32 32" aria-hidden="true">
+        <path d="M8 11h16l-1 14H9L8 11Z" />
+        <path d="M12 11V9a4 4 0 0 1 8 0v2" />
+      </svg>
+    );
+  }
+
+  if (icon === "unisex") {
+    return (
+      <svg className="home-feature-icon home-feature-icon--people" viewBox="0 0 40 32" aria-hidden="true">
+        <circle cx="13" cy="9" r="4" />
+        <path d="M5 27c.8-7 3.5-10.5 8-10.5S20.2 20 21 27" />
+        <circle cx="28" cy="9" r="4" />
+        <path d="M20 27c.8-7 3.5-10.5 8-10.5S35.2 20 36 27" />
+      </svg>
+    );
+  }
+
+  if (icon === "woman") {
+    return (
+      <svg className="home-feature-icon" viewBox="0 0 32 32" aria-hidden="true">
+        <circle cx="16" cy="8.5" r="4" />
+        <path d="M8.5 27c.8-7 3.3-10.8 7.5-10.8S22.7 20 23.5 27" />
+        <path d="M11.5 8.5c.4-5 8.6-5 9 0M12 12.5l-2 5M20 12.5l2 5" />
+      </svg>
+    );
+  }
+
+  return (
+    <svg className="home-feature-icon" viewBox="0 0 32 32" aria-hidden="true">
+      <circle cx="16" cy="8.5" r="4" />
+      <path d="M8 27c.8-7 3.5-10.8 8-10.8S23.2 20 24 27" />
+      <path d="M11 18h10" />
+    </svg>
+  );
+}
 
 export default async function Home() {
-  const heroProduct = await getFeaturedProduct();
+  const [heroProduct, catalogProducts] = await Promise.all([getFeaturedProduct(), getCatalogProducts()]);
+  const hasCatalog = catalogProducts.length > 0;
 
   return (
     <main className="home-page editorial-home refined-home">
@@ -41,7 +98,7 @@ export default async function Home() {
             <Link href="/shop">VER CATÁLOGO</Link>
             <CartOpenButton>MI CARRITO</CartOpenButton>
           </div>
-          {!heroProduct ? (
+          {!hasCatalog ? (
             <div className="refined-empty-catalog-note">
               <strong>CATÁLOGO EN ACTUALIZACIÓN</strong>
               Estamos preparando nuevas referencias. Puedes volver pronto para ver los modelos disponibles.
@@ -80,7 +137,7 @@ export default async function Home() {
         <div className="refined-category-list">
           {sections.map((section) => (
             <Link href={section.href} key={section.href} className="refined-category-row">
-              <span>{section.number}</span>
+              <span className="home-icon-slot"><FeatureIcon icon={section.icon} /></span>
               <strong>{section.title}</strong>
               <small>{section.note}</small>
               <b>↗</b>
@@ -91,8 +148,8 @@ export default async function Home() {
 
       <section className="refined-service-strip" aria-label="Cómo comprar en GIRTZ Wear">
         {serviceNotes.map((item) => (
-          <article key={item.number}>
-            <span>{item.number}</span>
+          <article key={item.title}>
+            <span className="home-service-icon"><FeatureIcon icon={item.icon} /></span>
             <strong>{item.title}</strong>
             <p>{item.text}</p>
           </article>
