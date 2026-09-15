@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { AdminMobileDock } from "@/components/admin-mobile-dock";
+import { BrandWordmark } from "@/components/brand-logo";
 import { requireAdmin } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
@@ -21,7 +22,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
     <main className="admin-page admin-page-final">
       <aside className="admin-sidebar">
         <div className="admin-sidebar-head">
-          <Link href="/" className="admin-brand">GIRTZ <span>ADMIN</span></Link>
+          <Link href="/" className="admin-brand" aria-label="GIRTZ, volver a la tienda"><BrandWordmark className="girtz-wordmark--admin" /><span>ADMIN</span></Link>
           <p>{session.user.email}</p>
         </div>
         <nav aria-label="Panel administrativo">{adminNav.map((item) => <Link key={item.href} href={item.href}>{item.label}</Link>)}</nav>
