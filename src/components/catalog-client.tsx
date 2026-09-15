@@ -52,10 +52,12 @@ export function CatalogClient({
   products,
   initialCategory = "todos",
   initialBrand = "",
+  noticeMessage = "",
 }: {
   products: Product[];
   initialCategory?: string;
   initialBrand?: string;
+  noticeMessage?: string;
 }) {
   const [category, setCategory] = useState<Category>(normalizeCategory(initialCategory));
   const [brand, setBrand] = useState(initialBrand);
@@ -87,10 +89,9 @@ export function CatalogClient({
     return () => window.removeEventListener("popstate", handlePopState);
   }, []);
 
-  function syncUrl(nextCategory: Category, nextBrand = "", mode: "push" | "replace" = "push") {
+  function syncUrl(nextCategory: Category, nextBrand = "") {
     const href = buildHref(nextCategory, nextBrand);
-    const method = mode === "replace" ? "replaceState" : "pushState";
-    window.history[method]({ category: nextCategory, brand: nextBrand }, "", href);
+    window.history.pushState({ category: nextCategory, brand: nextBrand }, "", href);
   }
 
   function selectCategory(event: MouseEvent<HTMLAnchorElement>, nextCategory: Category) {
@@ -117,6 +118,13 @@ export function CatalogClient({
         </div>
         <p>Explora por categoría o marca. Agrega tus modelos favoritos y confirma talla, disponibilidad y envío por WhatsApp.</p>
       </section>
+
+      {noticeMessage ? (
+        <section className="catalog-update-banner" role="status">
+          <span>CATÁLOGO EN ACTUALIZACIÓN</span>
+          <p>{noticeMessage}</p>
+        </section>
+      ) : null}
 
       <section className="editorial-filter-bar refined-filter-bar">
         <nav aria-label="Filtrar catálogo por sección">
@@ -166,7 +174,7 @@ export function CatalogClient({
       </section>
 
       {visibleProducts.length ? (
-        <section className="editorial-product-grid refined-product-grid" aria-live="polite">
+        <section className="editorial-product-grid refined-product-grid">
           {visibleProducts.map((product, index) => (
             <ProductCard key={product.slug} product={product} index={index} />
           ))}
