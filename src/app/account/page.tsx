@@ -83,7 +83,11 @@ export default async function AccountPage({ searchParams }: { searchParams: Prom
               ))}
             </div>
           ) : (
-            <div className="empty-state"><span>AÚN NO HAY PEDIDOS REGISTRADOS</span><h3>CUANDO UNA COMPRA SE CIERRE Y QUEDE REGISTRADA, PODRÁS VERLA AQUÍ.</h3><Link href="/shop" className="primary-button">VER CATÁLOGO</Link></div>
+            <div className="empty-state account-empty-orders">
+              <span>AÚN NO HAY PEDIDOS</span>
+              <h3>Cuando una compra quede registrada, podrás verla aquí.</h3>
+              <Link href="/shop" className="primary-button">VER CATÁLOGO</Link>
+            </div>
           )}
         </section>
 
