@@ -6,6 +6,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import type { Audience } from "@/data/products";
 import { getCatalogProducts } from "@/lib/catalog";
+import { getCatalogUpdateSettings } from "@/lib/store-settings";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Catálogo", description: "Explora sneakers multimarca en GIRTZ WEAR y confirma disponibilidad por WhatsApp." };
@@ -20,7 +21,11 @@ const categoryMap: Record<string, Audience> = { hombre: "Hombre", mujer: "Mujer"
 function brandHref(category: string, brand?: string) { const params = new URLSearchParams(); if (category !== "todos") params.set("categoria", category); if (brand) params.set("marca", brand); const query = params.toString(); return query ? `/shop?${query}` : "/shop"; }
 
 export default async function ShopPage({ searchParams }: ShopPageProps) {
-  const [{ categoria, marca, carrito }, catalogProducts] = await Promise.all([searchParams, getCatalogProducts()]);
+  const [{ categoria, marca, carrito }, catalogProducts, catalogUpdate] = await Promise.all([
+    searchParams,
+    getCatalogProducts(),
+    getCatalogUpdateSettings(),
+  ]);
   const hasCatalog = catalogProducts.length > 0;
   const activeCategory = categoria && categoryMap[categoria] ? categoria : "todos";
   const audience = categoryMap[activeCategory];
@@ -41,6 +46,13 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
         </div>
         <p>Explora por categoría o marca. Agrega tus modelos favoritos y confirma talla, disponibilidad y envío por WhatsApp.</p>
       </section>
+
+      {hasCatalog && catalogUpdate.forceNotice ? (
+        <section className="catalog-update-banner" role="status">
+          <span>CATÁLOGO EN ACTUALIZACIÓN</span>
+          <p>{catalogUpdate.message}</p>
+        </section>
+      ) : null}
 
       {hasCatalog ? (
         <>
@@ -81,7 +93,7 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
       ) : (
         <section className="editorial-empty refined-empty">
           <span>CATÁLOGO EN ACTUALIZACIÓN</span>
-          <h2>Estamos preparando nuevas referencias.</h2>
+          <h2>{catalogUpdate.message}</h2>
           <Link href="/">VOLVER AL INICIO ↗</Link>
         </section>
       )}
