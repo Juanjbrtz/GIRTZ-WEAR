@@ -20,6 +20,14 @@ const filters = [
 const categoryMap: Record<string, Audience> = { hombre: "Hombre", mujer: "Mujer", unisex: "Unisex" };
 function brandHref(category: string, brand?: string) { const params = new URLSearchParams(); if (category !== "todos") params.set("categoria", category); if (brand) params.set("marca", brand); const query = params.toString(); return query ? `/shop?${query}` : "/shop"; }
 
+function matchesCategory(productAudience: Audience, category: string) {
+  if (category === "todos") return true;
+  if (category === "unisex") return productAudience === "Unisex";
+  if (category === "hombre") return productAudience === "Hombre" || productAudience === "Unisex";
+  if (category === "mujer") return productAudience === "Mujer" || productAudience === "Unisex";
+  return true;
+}
+
 export default async function ShopPage({ searchParams }: ShopPageProps) {
   const [{ categoria, marca, carrito }, catalogProducts, catalogUpdate] = await Promise.all([
     searchParams,
@@ -28,8 +36,7 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
   ]);
   const hasCatalog = catalogProducts.length > 0;
   const activeCategory = categoria && categoryMap[categoria] ? categoria : "todos";
-  const audience = categoryMap[activeCategory];
-  const categoryProducts = audience ? catalogProducts.filter((product) => product.audience === audience) : catalogProducts;
+  const categoryProducts = catalogProducts.filter((product) => matchesCategory(product.audience, activeCategory));
   const brands = [...new Set(categoryProducts.map((product) => product.brand).filter(Boolean))].sort((a, b) => a.localeCompare(b, "es"));
   const activeBrand = marca && brands.includes(marca) ? marca : "";
   const visibleProducts = activeBrand ? categoryProducts.filter((product) => product.brand === activeBrand) : categoryProducts;
