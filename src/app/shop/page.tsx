@@ -21,6 +21,7 @@ function brandHref(category: string, brand?: string) { const params = new URLSea
 
 export default async function ShopPage({ searchParams }: ShopPageProps) {
   const [{ categoria, marca, carrito }, catalogProducts] = await Promise.all([searchParams, getCatalogProducts()]);
+  const hasCatalog = catalogProducts.length > 0;
   const activeCategory = categoria && categoryMap[categoria] ? categoria : "todos";
   const audience = categoryMap[activeCategory];
   const categoryProducts = audience ? catalogProducts.filter((product) => product.audience === audience) : catalogProducts;
@@ -41,34 +42,48 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
         <p>Explora por categoría o marca. Agrega tus modelos favoritos y confirma talla, disponibilidad y envío por WhatsApp.</p>
       </section>
 
-      <section className="editorial-filter-bar refined-filter-bar">
-        <nav aria-label="Filtrar catálogo por sección">
-          {filters.map((filter) => (
-            <Link key={filter.value} href={filter.href} className={activeCategory === filter.value ? "active" : undefined}>{filter.label}</Link>
-          ))}
-        </nav>
+      {hasCatalog ? (
+        <>
+          <section className="editorial-filter-bar refined-filter-bar">
+            <nav aria-label="Filtrar catálogo por sección">
+              {filters.map((filter) => (
+                <Link key={filter.value} href={filter.href} className={activeCategory === filter.value ? "active" : undefined}>{filter.label}</Link>
+              ))}
+            </nav>
 
-        {brands.length ? (
-          <nav className="editorial-brand-nav" aria-label="Filtrar catálogo por marca">
-            <span>Marca</span>
-            <Link href={brandHref(activeCategory)} className={!activeBrand ? "active" : undefined}>Todas</Link>
-            {brands.map((brand) => <Link key={brand} href={brandHref(activeCategory, brand)} className={activeBrand === brand ? "active" : undefined}>{brand}</Link>)}
-          </nav>
-        ) : null}
-      </section>
+            {brands.length ? (
+              <nav className="editorial-brand-nav" aria-label="Filtrar catálogo por marca">
+                <span>Marca</span>
+                <Link href={brandHref(activeCategory)} className={!activeBrand ? "active" : undefined}>Todas</Link>
+                {brands.map((brand) => <Link key={brand} href={brandHref(activeCategory, brand)} className={activeBrand === brand ? "active" : undefined}>{brand}</Link>)}
+              </nav>
+            ) : null}
+          </section>
 
-      <section className="editorial-catalog-meta refined-catalog-meta">
-        <span>{activeCategory === "todos" ? "Todos los modelos" : categoryMap[activeCategory]}</span>
-        <span>{activeBrand || "Todas las marcas"}</span>
-        <span>{visibleProducts.length} {visibleProducts.length === 1 ? "referencia" : "referencias"}</span>
-      </section>
+          <section className="editorial-catalog-meta refined-catalog-meta">
+            <span>{activeCategory === "todos" ? "Todos los modelos" : categoryMap[activeCategory]}</span>
+            <span>{activeBrand || "Todas las marcas"}</span>
+            <span>{visibleProducts.length} {visibleProducts.length === 1 ? "referencia" : "referencias"}</span>
+          </section>
+        </>
+      ) : null}
 
       {visibleProducts.length ? (
         <section className="editorial-product-grid refined-product-grid">
           {visibleProducts.map((product, index) => <ProductCard key={product.slug} product={product} index={index} />)}
         </section>
+      ) : hasCatalog ? (
+        <section className="editorial-empty refined-empty">
+          <span>FILTROS</span>
+          <h2>No encontramos modelos con esta selección.</h2>
+          <Link href="/shop">LIMPIAR FILTROS ↗</Link>
+        </section>
       ) : (
-        <section className="editorial-empty refined-empty"><span>CATÁLOGO</span><h2>Sin resultados por ahora.</h2><Link href="/shop">VER TODO EL CATÁLOGO ↗</Link></section>
+        <section className="editorial-empty refined-empty">
+          <span>CATÁLOGO EN ACTUALIZACIÓN</span>
+          <h2>Estamos preparando nuevas referencias.</h2>
+          <Link href="/">VOLVER AL INICIO ↗</Link>
+        </section>
       )}
 
       <SiteFooter />
