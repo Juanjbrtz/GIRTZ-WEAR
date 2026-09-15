@@ -1,5 +1,6 @@
 "use server";
 
+import { randomUUID } from "node:crypto";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -68,13 +69,16 @@ export async function createProductWithSizes(formData: FormData) {
   const sizes = getSizes(formData);
   const featured = formData.get("featured") === "on";
   const active = formData.get("active") === "on";
+  const submissionKey = cleanText(formData.get("submissionKey"), 100) || randomUUID();
 
   if (!name || price < 100 || !image) throw new Error("Completa foto, nombre y precio.");
   if (!sizes.length) throw new Error("Selecciona al menos una talla EUR.");
   if (!["Hombre", "Mujer", "Unisex"].includes(audience)) throw new Error("Sección inválida.");
 
   const db = getDb();
-  const slug = slugify(`${brand}-${name}`) || `producto-${Date.now()}`;
+  const baseSlug = slugify(`${brand}-${name}`) || "producto";
+  const keySlug = slugify(submissionKey) || randomUUID().replace(/-/g, "");
+  const slug = `${baseSlug}-${keySlug}`;
   const [existing] = await db.select({ id: products.id }).from(products).where(eq(products.slug, slug)).limit(1);
   if (existing) redirect("/admin/products?duplicate=1");
 
