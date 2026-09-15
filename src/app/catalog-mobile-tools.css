@@ -1,0 +1,43 @@
+/* Mobile-only utility link for the size guide inside catalog filters. */
+.mobile-size-guide-link {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .catalog-page .refined-filter-bar {
+    gap: 10px !important;
+  }
+
+  .catalog-page .mobile-size-guide-link {
+    width: 100%;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 4px;
+    padding: 0 14px;
+    border: 1px solid #343434;
+    border-radius: 14px;
+    background: #111;
+    color: #f2f1ec;
+    text-decoration: none;
+  }
+
+  .catalog-page .mobile-size-guide-link span {
+    font-size: 8px;
+    font-weight: 760;
+    letter-spacing: .13em;
+  }
+
+  .catalog-page .mobile-size-guide-link b {
+    color: #aaa9a3;
+    font-size: 15px;
+    font-weight: 500;
+  }
+
+  .catalog-page .mobile-size-guide-link:active {
+    transform: scale(.985);
+    background: #171717;
+  }
+}
