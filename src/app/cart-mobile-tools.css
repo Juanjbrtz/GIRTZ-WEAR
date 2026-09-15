@@ -1,0 +1,30 @@
+/* GIRTZ WEAR — mobile-only size guide access inside cart drawer. */
+.cart-mobile-size-guide {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .cart-mobile-size-guide {
+    width: fit-content;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    margin: 4px 0 12px;
+    color: #aaa9a3;
+    font-size: 8px;
+    font-weight: 720;
+    letter-spacing: .11em;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(255,255,255,.22);
+    padding-bottom: 4px;
+  }
+
+  .cart-mobile-size-guide span {
+    font-size: 10px;
+    line-height: 1;
+  }
+
+  .cart-drawer-empty .cart-mobile-size-guide {
+    margin: 4px 0 16px;
+  }
+}
