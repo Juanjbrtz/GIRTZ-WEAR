@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { AccountMenu } from "@/components/account-menu";
+import { BrandWordmark } from "@/components/brand-logo";
 import { CartLink } from "@/components/cart-link";
 import { MobileDock } from "@/components/mobile-dock";
 import { getSessionAccount } from "@/lib/session";
@@ -20,7 +21,7 @@ export async function SiteHeader() {
     <>
       <header className="site-header site-header-v3 site-header-final">
         <Link href="/" className="brand-mark brand-mark-final" aria-label="GIRTZ WEAR, inicio">
-          <span>GIRTZ</span>
+          <BrandWordmark className="girtz-wordmark--header" priority />
         </Link>
 
         <nav className="main-nav main-nav-v3" aria-label="Navegación principal">
