@@ -7,9 +7,9 @@ import { getSessionAccount } from "@/lib/session";
 
 const navItems = [
   { href: "/shop", label: "CATÁLOGO" },
-  { href: "/shop?categoria=hombre", label: "HOMBRE" },
-  { href: "/shop?categoria=mujer", label: "MUJER" },
-  { href: "/shop?categoria=unisex", label: "UNISEX" },
+  { href: "/como-comprar", label: "CÓMO COMPRAR" },
+  { href: "/guia-tallas", label: "GUÍA DE TALLAS" },
+  { href: "/contact", label: "CONTACTO" },
 ];
 
 export async function SiteHeader() {
