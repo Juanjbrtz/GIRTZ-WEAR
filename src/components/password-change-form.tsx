@@ -7,6 +7,7 @@ import { getPasswordRuleError } from "@/lib/password-rules";
 type PasswordField = "current" | "password" | "confirmPassword";
 
 export function PasswordChangeForm() {
+  const [open, setOpen] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -14,6 +15,24 @@ export function PasswordChangeForm() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [pending, setPending] = useState(false);
+
+  function resetFormState() {
+    setCurrentPassword("");
+    setPassword("");
+    setConfirmPassword("");
+    setFieldError(null);
+    setError("");
+  }
+
+  function openForm() {
+    setSuccess(false);
+    setOpen(true);
+  }
+
+  function closeForm() {
+    resetFormState();
+    setOpen(false);
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -68,10 +87,9 @@ export function PasswordChangeForm() {
         return;
       }
 
-      setCurrentPassword("");
-      setPassword("");
-      setConfirmPassword("");
+      resetFormState();
       setSuccess(true);
+      setOpen(false);
     } catch {
       setError("No pudimos cambiar la contraseña en este momento.");
     } finally {
@@ -85,6 +103,21 @@ export function PasswordChangeForm() {
       setError("");
     }
     setSuccess(false);
+  }
+
+  if (!open) {
+    return (
+      <div className="account-password-collapsed">
+        {success ? (
+          <div className="account-notice success" role="status">
+            Contraseña actualizada correctamente. Cerramos las demás sesiones por seguridad.
+          </div>
+        ) : null}
+        <button type="button" className="secondary-button" onClick={openForm}>
+          CAMBIAR CONTRASEÑA
+        </button>
+      </div>
+    );
   }
 
   return (
@@ -132,11 +165,15 @@ export function PasswordChangeForm() {
       </label>
 
       {!fieldError && error ? <div className="account-notice error" role="alert">{error}</div> : null}
-      {success ? <div className="account-notice success" role="status">Contraseña actualizada correctamente. Cerramos las demás sesiones por seguridad.</div> : null}
 
-      <button type="submit" className="primary-button" disabled={pending}>
-        {pending ? "ACTUALIZANDO..." : "ACTUALIZAR CONTRASEÑA"}
-      </button>
+      <div className="account-password-actions">
+        <button type="submit" className="primary-button" disabled={pending}>
+          {pending ? "ACTUALIZANDO..." : "ACTUALIZAR CONTRASEÑA"}
+        </button>
+        <button type="button" className="secondary-button" onClick={closeForm} disabled={pending}>
+          CANCELAR
+        </button>
+      </div>
     </form>
   );
 }
