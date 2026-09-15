@@ -1,0 +1,217 @@
+/* GIRTZ Wear — cierre de catálogo, cuenta y Admin móvil */
+
+.catalog-update-banner {
+  max-width: 1440px;
+  margin: 0 auto 14px;
+  padding: 15px 18px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 18px;
+  border: 1px solid rgba(255,255,255,.09);
+  border-radius: 18px;
+  background: rgba(255,255,255,.025);
+}
+
+.catalog-update-banner span {
+  color: #f1f0eb;
+  font-size: 8px;
+  font-weight: 760;
+  letter-spacing: .14em;
+  white-space: nowrap;
+}
+
+.catalog-update-banner p {
+  margin: 0;
+  color: #8e8e89;
+  font-size: 10px;
+  line-height: 1.55;
+}
+
+.admin-catalog-notice-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: end;
+}
+
+.admin-catalog-toggle {
+  grid-column: 1 / -1;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 13px;
+  border: 1px solid #292929;
+  background: #090909;
+  cursor: pointer;
+}
+
+.admin-catalog-toggle input {
+  width: 17px;
+  height: 17px;
+  margin: 0;
+  accent-color: #f1f0eb;
+}
+
+.admin-catalog-toggle span,
+.admin-catalog-message > span {
+  color: #8a8a85;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: .11em;
+}
+
+.admin-catalog-message {
+  display: grid;
+  gap: 8px;
+}
+
+.admin-catalog-message textarea {
+  width: 100%;
+  min-height: 78px;
+  padding: 12px 13px;
+  border: 1px solid #303030;
+  outline: none;
+  resize: vertical;
+  background: #080808;
+  color: #f4f4f0;
+  font: inherit;
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.admin-catalog-message textarea:focus {
+  border-color: #73736f;
+}
+
+@media (max-width: 900px) {
+  .catalog-update-banner {
+    margin-inline: 14px;
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .catalog-update-banner span {
+    white-space: normal;
+  }
+
+  .admin-catalog-notice-form {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-catalog-toggle,
+  .admin-catalog-message,
+  .admin-catalog-notice-form .admin-primary-action {
+    grid-column: auto;
+  }
+
+  .admin-catalog-message textarea {
+    min-height: 92px;
+    border-radius: 13px;
+    font-size: 16px;
+  }
+
+  .account-page-final .account-shell {
+    gap: 26px !important;
+    padding-bottom: calc(118px + env(safe-area-inset-bottom)) !important;
+  }
+
+  .account-page-final .account-heading {
+    gap: 22px !important;
+    padding-bottom: 26px !important;
+  }
+
+  .account-page-final .account-heading h1 {
+    font-size: clamp(44px, 12vw, 60px) !important;
+    line-height: .94 !important;
+  }
+
+  .account-page-final .account-heading p {
+    margin-top: 16px !important;
+    font-size: 12px !important;
+    line-height: 1.6 !important;
+  }
+
+  .account-page-final .account-summary-grid article {
+    min-height: 96px !important;
+    gap: 14px !important;
+    padding: 18px !important;
+  }
+
+  .account-page-final .account-orders {
+    margin-top: 34px !important;
+  }
+
+  .account-empty-orders {
+    min-height: 220px !important;
+    gap: 15px !important;
+    padding: 28px 0 34px !important;
+  }
+
+  .account-empty-orders h3 {
+    max-width: 430px !important;
+    font-size: clamp(25px, 7vw, 34px) !important;
+    line-height: 1.04 !important;
+    letter-spacing: -.035em !important;
+  }
+
+  .account-empty-orders > span {
+    font-size: 8px !important;
+  }
+
+  .account-page-final .account-settings-card,
+  .account-page-final .account-signout {
+    padding: 20px !important;
+  }
+
+  .account-page-final .site-footer {
+    padding-top: 40px !important;
+  }
+
+  .account-page-final .site-footer > p,
+  .account-page-final .footer-links:not(.secondary) {
+    display: none !important;
+  }
+
+  .admin-page .admin-heading h1 {
+    font-size: clamp(34px, 9.4vw, 46px) !important;
+    line-height: .98 !important;
+  }
+
+  .admin-page .admin-heading > div > p,
+  .admin-page .admin-heading-v2 > div:first-child > p {
+    max-width: 38ch !important;
+    margin-top: 11px !important;
+    font-size: 10px !important;
+    line-height: 1.55 !important;
+  }
+}
+
+@media (max-width: 560px) {
+  .catalog-update-banner {
+    margin-inline: 10px;
+    padding: 14px 15px;
+    border-radius: 16px;
+  }
+
+  .account-page-final .account-shell {
+    padding-inline: 16px !important;
+  }
+
+  .account-page-final .account-heading h1 {
+    font-size: clamp(40px, 11.5vw, 52px) !important;
+  }
+
+  .account-page-final .account-section-heading h2 {
+    font-size: 25px !important;
+  }
+
+  .account-page-final .site-footer {
+    padding-inline: 18px !important;
+  }
+
+  .admin-page .admin-heading h1 {
+    font-size: clamp(32px, 9vw, 42px) !important;
+  }
+}

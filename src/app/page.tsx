@@ -5,6 +5,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { formatCop } from "@/data/products";
 import { getCatalogProducts, getFeaturedProduct } from "@/lib/catalog";
+import { getCatalogUpdateSettings } from "@/lib/store-settings";
 import "./pwa-polish.css";
 import "./home-iconography.css";
 
@@ -78,8 +79,13 @@ function FeatureIcon({ icon }: { icon: HomeIcon }) {
 }
 
 export default async function Home() {
-  const [heroProduct, catalogProducts] = await Promise.all([getFeaturedProduct(), getCatalogProducts()]);
+  const [heroProduct, catalogProducts, catalogUpdate] = await Promise.all([
+    getFeaturedProduct(),
+    getCatalogProducts(),
+    getCatalogUpdateSettings(),
+  ]);
   const hasCatalog = catalogProducts.length > 0;
+  const showCatalogUpdate = !hasCatalog || catalogUpdate.forceNotice;
 
   return (
     <main className="home-page editorial-home refined-home">
@@ -98,10 +104,10 @@ export default async function Home() {
             <Link href="/shop">VER CATÁLOGO</Link>
             <CartOpenButton>MI CARRITO</CartOpenButton>
           </div>
-          {!hasCatalog ? (
-            <div className="refined-empty-catalog-note">
+          {showCatalogUpdate ? (
+            <div className="refined-empty-catalog-note" role="status">
               <strong>CATÁLOGO EN ACTUALIZACIÓN</strong>
-              Estamos preparando nuevas referencias. Puedes volver pronto para ver los modelos disponibles.
+              {catalogUpdate.message}
             </div>
           ) : null}
         </div>
