@@ -4,7 +4,6 @@ import { CartOpenButton } from "@/components/cart-open-button";
 import { ProductVisual } from "@/components/product-visual";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
-import { formatCop } from "@/data/products";
 import { getCatalogProducts, getFeaturedProduct } from "@/lib/catalog";
 import { getCatalogUpdateSettings } from "@/lib/store-settings";
 import "./pwa-polish.css";
@@ -110,19 +109,16 @@ export default async function Home() {
 
         <div className="editorial-hero-copy refined-hero-copy featured-cover-copy">
           <p>SNEAKERS MULTIMARCA</p>
-          <h1>ENCUENTRA<br/>TU PRÓXIMO PAR.</h1>
+          <h1 className="featured-cover-title">
+            <span>ENCUENTRA</span>
+            <span>TU PRÓXIMO</span>
+            <span>PAR.</span>
+          </h1>
           <span className="refined-hero-description">Explora el catálogo, agrega tus favoritos y confirma disponibilidad por WhatsApp.</span>
           <div className="editorial-hero-actions">
             <Link href="/shop">VER CATÁLOGO</Link>
             <CartOpenButton>MI CARRITO</CartOpenButton>
           </div>
-          {heroProduct ? (
-            <Link href={`/product/${heroProduct.slug}`} className="featured-cover-meta">
-              <span>DESTACADO · {heroProduct.brand?.toUpperCase() || "GIRTZ"}</span>
-              <strong>{heroProduct.name}</strong>
-              <small>{formatCop(heroProduct.price)}</small>
-            </Link>
-          ) : null}
           {showCatalogUpdate ? (
             <div className="refined-empty-catalog-note" role="status">
               <strong>CATÁLOGO EN ACTUALIZACIÓN</strong>
