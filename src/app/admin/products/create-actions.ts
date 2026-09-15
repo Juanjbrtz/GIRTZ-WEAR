@@ -83,20 +83,28 @@ export async function createProductWithSizes(formData: FormData) {
   if (existing) redirect("/admin/products?duplicate=1");
 
   if (featured) await db.update(products).set({ featured: false, updatedAt: new Date() });
-  const [created] = await db.insert(products).values({
-    name,
-    slug,
-    brand,
-    audience,
-    sku: null,
-    description: description || "Referencia disponible por pedido. Confirma disponibilidad antes de cerrar la compra por WhatsApp.",
-    price,
-    cost,
-    category: "Sneakers",
-    imageUrl: null,
-    featured,
-    active,
-  }).returning({ id: products.id });
+
+  let created: { id: string } | undefined;
+  try {
+    [created] = await db.insert(products).values({
+      name,
+      slug,
+      brand,
+      audience,
+      sku: null,
+      description: description || "Referencia disponible por pedido. Confirma disponibilidad antes de cerrar la compra por WhatsApp.",
+      price,
+      cost,
+      category: "Sneakers",
+      imageUrl: null,
+      featured,
+      active,
+    }).returning({ id: products.id });
+  } catch (error) {
+    const [alreadyCreated] = await db.select({ id: products.id }).from(products).where(eq(products.slug, slug)).limit(1);
+    if (alreadyCreated) redirect("/admin/products?duplicate=1");
+    throw error;
+  }
 
   if (!created) throw new Error("No fue posible crear el producto.");
 
