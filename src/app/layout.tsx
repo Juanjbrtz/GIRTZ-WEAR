@@ -32,6 +32,7 @@ import "./admin-mobile-app.css";
 import "./password-security.css";
 import "./responsive-universal.css";
 import "./catalog-account-polish.css";
+import "./brand-logo.css";
 
 const instrumentSans = Instrument_Sans({ variable: "--font-brand", subsets: ["latin"] });
 const siteUrl = "https://girtzwear.com";
@@ -67,6 +68,7 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
       { url: "/pwa/icon/192", sizes: "192x192", type: "image/png" },
       { url: "/pwa/icon/512", sizes: "512x512", type: "image/png" },
     ],
