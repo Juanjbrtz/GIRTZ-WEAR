@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import Link from "next/link";
 import { toggleProductActive, updateWhatsappNumber } from "@/app/admin/actions";
 import { updateCatalogUpdateNotice } from "@/app/admin/catalog-notice-actions";
@@ -31,6 +32,7 @@ export default async function AdminProductsPage({ searchParams }: ProductsPagePr
     getCatalogUpdateSettings(),
   ]);
   const { created, whatsapp, catalogNotice, duplicate, deleted, archived, archivedHistory, missing } = params;
+  const singleUploadKey = randomUUID();
 
   return (
     <section className="admin-section admin-products-v2">
@@ -42,7 +44,7 @@ export default async function AdminProductsPage({ searchParams }: ProductsPagePr
       {created === "1" ? <div className="admin-success">Producto creado y publicado.</div> : null}
       {whatsapp === "1" ? <div className="admin-success">Número de WhatsApp actualizado.</div> : null}
       {catalogNotice === "1" ? <div className="admin-success">Aviso del catálogo actualizado.</div> : null}
-      {duplicate === "1" ? <div className="admin-success">Esa referencia ya existe. No se creó una copia duplicada.</div> : null}
+      {duplicate === "1" ? <div className="admin-success">Ese envío ya había sido procesado. No se creó otra copia.</div> : null}
       {deleted === "1" ? <div className="admin-success">Producto eliminado definitivamente.</div> : null}
       {archived === "1" ? <div className="admin-success">Producto desactivado. Ya no aparece en la tienda.</div> : null}
       {archivedHistory === "1" ? <div className="admin-success">El producto tiene historial de ventas o movimientos, por eso se archivó en lugar de eliminarse.</div> : null}
@@ -81,6 +83,7 @@ export default async function AdminProductsPage({ searchParams }: ProductsPagePr
         <section className="admin-panel-block product-create-panel-v2">
           <div className="admin-block-heading"><div><span>NUEVA REFERENCIA</span><h2>SUBIR UNA FOTO</h2></div></div>
           <form action={createProductWithSizes} className="admin-form admin-product-form-v2">
+            <input type="hidden" name="submissionKey" value={singleUploadKey} />
             <AdminImageUpload required />
             <div className="admin-form-grid two">
               <label><span>NOMBRE *</span><input name="name" placeholder="New Balance 9060" required /></label>
