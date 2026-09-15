@@ -1,16 +1,18 @@
 import Link from "next/link";
 import { createProduct, toggleProductActive, updateWhatsappNumber } from "@/app/admin/actions";
+import { updateCatalogUpdateNotice } from "@/app/admin/catalog-notice-actions";
 import { AdminBulkProductUpload } from "@/components/admin-bulk-product-upload";
 import { AdminImageUpload } from "@/components/admin-image-upload";
 import { AdminProductDangerActions } from "@/components/admin-product-danger-actions";
 import { formatCop } from "@/data/products";
-import { getWhatsappNumber } from "@/lib/store-settings";
+import { getCatalogUpdateSettings, getWhatsappNumber } from "@/lib/store-settings";
 import { getAdminProducts } from "@/lib/store-data";
 
 type ProductsPageProps = {
   searchParams: Promise<{
     created?: string;
     whatsapp?: string;
+    catalogNotice?: string;
     duplicate?: string;
     deleted?: string;
     archived?: string;
@@ -20,11 +22,13 @@ type ProductsPageProps = {
 };
 
 export default async function AdminProductsPage({ searchParams }: ProductsPageProps) {
-  const [{ created, whatsapp, duplicate, deleted, archived, archivedHistory, missing }, catalog, whatsappNumber] = await Promise.all([
+  const [params, catalog, whatsappNumber, catalogUpdate] = await Promise.all([
     searchParams,
     getAdminProducts(),
     getWhatsappNumber(),
+    getCatalogUpdateSettings(),
   ]);
+  const { created, whatsapp, catalogNotice, duplicate, deleted, archived, archivedHistory, missing } = params;
 
   return (
     <section className="admin-section admin-products-v2">
@@ -35,6 +39,7 @@ export default async function AdminProductsPage({ searchParams }: ProductsPagePr
 
       {created === "1" ? <div className="admin-success">Producto creado y publicado.</div> : null}
       {whatsapp === "1" ? <div className="admin-success">Número de WhatsApp actualizado.</div> : null}
+      {catalogNotice === "1" ? <div className="admin-success">Aviso del catálogo actualizado.</div> : null}
       {duplicate === "1" ? <div className="admin-success">Esa referencia ya existe. No se creó una copia duplicada.</div> : null}
       {deleted === "1" ? <div className="admin-success">Producto eliminado definitivamente.</div> : null}
       {archived === "1" ? <div className="admin-success">Producto desactivado. Ya no aparece en la tienda.</div> : null}
@@ -48,6 +53,25 @@ export default async function AdminProductsPage({ searchParams }: ProductsPagePr
         <form action={updateWhatsappNumber} className="admin-whatsapp-form">
           <label><span>NÚMERO CON INDICATIVO</span><input name="whatsappNumber" type="tel" inputMode="numeric" defaultValue={whatsappNumber} placeholder="573001234567" /></label>
           <button type="submit" className="admin-primary-action">GUARDAR WHATSAPP</button>
+        </form>
+      </section>
+
+      <section className="admin-settings-strip admin-catalog-notice-settings">
+        <div>
+          <span>ESTADO DEL CATÁLOGO</span>
+          <h2>AVISO DE ACTUALIZACIÓN</h2>
+          <p>Con el control apagado, el aviso aparece automáticamente solo cuando no hay productos publicados. Actívalo si quieres mostrarlo temporalmente aunque el catálogo ya tenga referencias.</p>
+        </div>
+        <form action={updateCatalogUpdateNotice} className="admin-catalog-notice-form">
+          <label className="admin-catalog-toggle">
+            <input name="forceNotice" type="checkbox" defaultChecked={catalogUpdate.forceNotice} />
+            <span>MOSTRAR AVISO AUNQUE HAYA PRODUCTOS</span>
+          </label>
+          <label className="admin-catalog-message">
+            <span>MENSAJE DEL AVISO</span>
+            <textarea name="catalogUpdateMessage" rows={3} defaultValue={catalogUpdate.message} maxLength={240} />
+          </label>
+          <button type="submit" className="admin-primary-action">GUARDAR AVISO</button>
         </form>
       </section>
 
