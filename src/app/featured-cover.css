@@ -1,0 +1,189 @@
+/* Featured product returns to the cover, behind the hero copy. */
+.featured-cover-hero {
+  position: relative !important;
+  isolation: isolate;
+  display: block !important;
+  min-height: min(850px, calc(100svh - 92px)) !important;
+  overflow: hidden;
+  padding: 0 !important;
+  border: 1px solid rgba(255,255,255,.08) !important;
+  border-radius: 32px;
+  background: #090909;
+}
+
+.featured-cover-media {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: block;
+  overflow: hidden;
+  background: #0b0b0b;
+}
+
+.featured-cover-media .product-visual-image,
+.featured-cover-media img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center 58% !important;
+  filter: brightness(.72) saturate(.88) contrast(1.04);
+  transform: scale(1.015);
+}
+
+.featured-cover-shade {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(4,4,4,.92) 0%, rgba(4,4,4,.75) 34%, rgba(4,4,4,.30) 67%, rgba(4,4,4,.18) 100%),
+    linear-gradient(180deg, rgba(5,5,5,.20) 0%, rgba(5,5,5,.10) 48%, rgba(5,5,5,.68) 100%);
+}
+
+.featured-cover-hero .editorial-hero-rail {
+  position: relative !important;
+  z-index: 3 !important;
+  left: auto !important;
+  top: auto !important;
+  padding: 34px 42px 0 !important;
+}
+
+.featured-cover-copy {
+  position: relative !important;
+  z-index: 3 !important;
+  min-height: min(790px, calc(100svh - 120px));
+  max-width: 760px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 90px 48px 72px !important;
+}
+
+.featured-cover-copy > p,
+.featured-cover-copy .refined-hero-description {
+  text-shadow: 0 2px 24px rgba(0,0,0,.72);
+}
+
+.featured-cover-copy h1 {
+  max-width: 690px !important;
+  color: #f4f3ee !important;
+  font-size: clamp(58px, 7vw, 112px) !important;
+  line-height: .84 !important;
+  letter-spacing: -.075em !important;
+  text-shadow: 0 5px 34px rgba(0,0,0,.44);
+}
+
+.featured-cover-copy .refined-hero-description {
+  color: rgba(244,243,238,.74) !important;
+  max-width: 440px !important;
+}
+
+.featured-cover-meta {
+  display: grid;
+  gap: 3px;
+  width: fit-content;
+  max-width: min(440px, 100%);
+  margin-top: 28px;
+  padding: 13px 16px;
+  border: 1px solid rgba(255,255,255,.16);
+  border-radius: 16px;
+  background: rgba(5,5,5,.46);
+  color: #f4f3ee;
+  text-decoration: none;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.featured-cover-meta span {
+  color: rgba(244,243,238,.58);
+  font-size: 8px;
+  font-weight: 760;
+  letter-spacing: .14em;
+}
+
+.featured-cover-meta strong {
+  font-size: 17px;
+  font-weight: 630;
+  letter-spacing: -.025em;
+}
+
+.featured-cover-meta small {
+  color: rgba(244,243,238,.78);
+  font-size: 12px;
+}
+
+.featured-cover-hero.refined-hero--empty {
+  min-height: 680px !important;
+}
+
+@media (max-width: 900px) {
+  .featured-cover-hero {
+    min-height: 760px !important;
+    margin: 8px 14px 0 !important;
+    border-radius: 28px;
+  }
+
+  .featured-cover-media .product-visual-image,
+  .featured-cover-media img {
+    object-position: center 60% !important;
+    filter: brightness(.66) saturate(.86) contrast(1.04);
+  }
+
+  .featured-cover-shade {
+    background:
+      linear-gradient(180deg, rgba(4,4,4,.55) 0%, rgba(4,4,4,.48) 24%, rgba(4,4,4,.30) 52%, rgba(4,4,4,.74) 100%),
+      linear-gradient(90deg, rgba(4,4,4,.72) 0%, rgba(4,4,4,.32) 82%);
+  }
+
+  .featured-cover-hero .editorial-hero-rail {
+    padding: 24px 20px 0 !important;
+  }
+
+  .featured-cover-copy {
+    min-height: 700px;
+    justify-content: flex-start;
+    padding: 92px 20px 84px !important;
+  }
+
+  .featured-cover-copy h1 {
+    max-width: 380px !important;
+    font-size: clamp(52px, 14.2vw, 70px) !important;
+    line-height: .88 !important;
+  }
+
+  .featured-cover-copy .refined-hero-description {
+    max-width: 355px !important;
+    color: rgba(244,243,238,.78) !important;
+  }
+
+  .featured-cover-copy .editorial-hero-actions {
+    margin-top: 28px !important;
+  }
+
+  .featured-cover-meta {
+    margin-top: 22px;
+    padding: 12px 14px;
+  }
+}
+
+@media (max-width: 520px) {
+  .featured-cover-hero {
+    min-height: 720px !important;
+    margin-inline: 10px !important;
+    border-radius: 24px;
+  }
+
+  .featured-cover-copy {
+    min-height: 666px;
+    padding: 80px 18px 74px !important;
+  }
+
+  .featured-cover-copy h1 {
+    font-size: clamp(48px, 14vw, 62px) !important;
+  }
+
+  .featured-cover-meta strong {
+    font-size: 15px;
+  }
+}
