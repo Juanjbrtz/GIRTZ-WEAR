@@ -78,7 +78,6 @@ export async function updateProductWithSizes(formData: FormData) {
 
   const existingVariants = await db.select().from(productVariants).where(eq(productVariants.productId, productId));
   const selectedSet = new Set(sizes);
-  const sql = getSqlClient();
 
   if (featured) {
     await db.update(products).set({ featured: false, updatedAt: new Date() });
@@ -97,24 +96,24 @@ export async function updateProductWithSizes(formData: FormData) {
     updatedAt: new Date(),
   }).where(eq(products.id, productId));
 
-  const variantStatements = [
-    ...sizes.map((size) => sql`
-      INSERT INTO product_variants (product_id, size, stock_status, stock_quantity, created_at, updated_at)
-      VALUES (${productId}::uuid, ${size}, 'available', NULL, now(), now())
-      ON CONFLICT (product_id, size)
-      DO UPDATE SET stock_status='available', updated_at=now()
-    `),
-    ...existingVariants
-      .filter((variant) => !selectedSet.has(variant.size))
-      .map((variant) => sql`
-        UPDATE product_variants
-        SET stock_status='hidden', updated_at=now()
-        WHERE id=${variant.id}::uuid
-      `),
-  ];
+  for (const size of sizes) {
+    await db.insert(productVariants).values({
+      productId,
+      size,
+      stockStatus: "available",
+      stockQuantity: null,
+    }).onConflictDoUpdate({
+      target: [productVariants.productId, productVariants.size],
+      set: { stockStatus: "available", updatedAt: new Date() },
+    });
+  }
 
-  if (variantStatements.length) {
-    await sql.transaction(() => variantStatements);
+  for (const variant of existingVariants) {
+    if (!selectedSet.has(variant.size)) {
+      await db.update(productVariants)
+        .set({ stockStatus: "hidden", updatedAt: new Date() })
+        .where(eq(productVariants.id, variant.id));
+    }
   }
 
   if (image) await saveProductImage(productId, image);
