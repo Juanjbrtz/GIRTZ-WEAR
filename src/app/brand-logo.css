@@ -1,0 +1,81 @@
+/* GIRTZ — integración de identidad visual */
+.brand-mark-final {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: flex-start;
+  min-width: 0;
+  line-height: 0;
+}
+
+.girtz-wordmark--header {
+  display: block;
+  width: clamp(108px, 8vw, 132px);
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 0 8px rgba(244, 243, 238, .11));
+}
+
+.footer-brand {
+  align-items: start;
+}
+
+.girtz-wordmark--footer {
+  display: block;
+  width: clamp(178px, 18vw, 248px);
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 0 12px rgba(244, 243, 238, .08));
+}
+
+.admin-brand {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 8px;
+  line-height: 0;
+}
+
+.girtz-wordmark--admin {
+  display: block;
+  width: 86px;
+  height: auto;
+  object-fit: contain;
+}
+
+.home-brand-icon {
+  display: grid !important;
+  place-items: center;
+  line-height: 0;
+}
+
+.girtz-mark--feature {
+  display: block;
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 7px rgba(244, 243, 238, .08));
+}
+
+@media (max-width: 900px) {
+  .girtz-wordmark--header {
+    width: 106px;
+  }
+
+  .girtz-wordmark--admin {
+    width: 82px;
+  }
+}
+
+@media (max-width: 560px) {
+  .girtz-wordmark--header {
+    width: 102px;
+  }
+
+  .girtz-wordmark--footer {
+    width: 176px;
+  }
+
+  .girtz-mark--feature {
+    width: 31px;
+    height: 31px;
+  }
+}

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BrandMark } from "@/components/brand-logo";
 import { CartOpenButton } from "@/components/cart-open-button";
 import { ProductVisual } from "@/components/product-visual";
 import { SiteFooter } from "@/components/site-footer";
@@ -27,7 +28,7 @@ const serviceNotes: Array<{ icon: HomeIcon; title: string; text: string }> = [
 
 function FeatureIcon({ icon }: { icon: HomeIcon }) {
   if (icon === "brand") {
-    return <span className="home-brand-icon" aria-hidden="true">G</span>;
+    return <span className="home-brand-icon"><BrandMark className="girtz-mark--feature" /></span>;
   }
 
   if (icon === "available") {
