@@ -1,5 +1,6 @@
 "use server";
 
+import { randomUUID } from "node:crypto";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getDb, getSqlClient } from "@/db";
@@ -61,12 +62,15 @@ export async function createProductFromBatch(formData: FormData) {
   const price = money(formData.get("price"));
   const cost = money(formData.get("cost"));
   const sizes = getSizes(formData);
+  const submissionKey = cleanText(formData.get("submissionKey"), 100) || randomUUID();
   if (!name || price < 100) throw new Error("Cada foto necesita nombre y precio válido.");
   if (!sizes.length) throw new Error("Selecciona al menos una talla EUR.");
   if (!["Hombre", "Mujer", "Unisex"].includes(audience)) throw new Error("Sección inválida.");
 
   const db = getDb();
-  const slug = slugify(`${brand}-${name}`) || `producto-${Date.now()}`;
+  const baseSlug = slugify(`${brand}-${name}`) || "producto";
+  const keySlug = slugify(submissionKey) || randomUUID().replace(/-/g, "");
+  const slug = `${baseSlug}-${keySlug}`;
   const [existing] = await db.select({ id: products.id, name: products.name }).from(products).where(eq(products.slug, slug)).limit(1);
   if (existing) return { ok: true, id: existing.id, name: existing.name, duplicate: true };
 
