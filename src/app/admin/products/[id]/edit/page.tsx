@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { updateProduct } from "@/app/admin/actions";
+import { updateProductWithSizes } from "@/app/admin/products/update-actions";
 import { AdminImageUpload } from "@/components/admin-image-upload";
 import { AdminProductDangerActions } from "@/components/admin-product-danger-actions";
+import { AdminSizeSelector } from "@/components/admin-size-selector";
 import { formatCop } from "@/data/products";
 import { getAdminProducts } from "@/lib/store-data";
 
@@ -13,16 +14,22 @@ export default async function EditProductPage({ params, searchParams }: EditProd
   const product = catalog.find((entry) => entry.id === id);
   if (!product) notFound();
   const currentImage = `/api/product-image/${product.id}?v=${product.updatedAt.getTime()}`;
+  const selectedSizes = product.variants.filter((variant) => variant.stockStatus !== "hidden").map((variant) => variant.size);
 
   return (
     <section className="admin-section admin-edit-product">
       <header className="admin-heading admin-heading-v2">
-        <div><span>PRODUCTOS / EDITAR</span><h1>{product.name}</h1><p>{product.brand} · {product.audience} · venta {formatCop(product.price)} · costo {formatCop(product.cost)}</p></div>
+        <div>
+          <span>PRODUCTOS / EDITAR</span>
+          <h1>{product.name}</h1>
+          <p>{product.brand} · {product.audience} · venta {formatCop(product.price)} · costo {formatCop(product.cost)}</p>
+          <p>{selectedSizes.length ? `Tallas EUR: ${selectedSizes.join(" · ")}` : "Tallas EUR sin configurar"}</p>
+        </div>
         <Link href="/admin/products" className="admin-ghost-action">VOLVER</Link>
       </header>
-      {saved === "1" ? <div className="admin-success">Cambios guardados correctamente.</div> : null}
+      {saved === "1" ? <div className="admin-success">Cambios guardados correctamente. Las tallas EUR ya están actualizadas en la ficha del producto.</div> : null}
       <section className="admin-panel-block admin-edit-panel">
-        <form action={updateProduct} className="admin-form admin-product-form-v2">
+        <form action={updateProductWithSizes} className="admin-form admin-product-form-v2">
           <input type="hidden" name="productId" value={product.id} />
           <AdminImageUpload currentImage={currentImage} />
           <div className="admin-form-grid two">
@@ -34,6 +41,11 @@ export default async function EditProductPage({ params, searchParams }: EditProd
             <label><span>PRECIO DE VENTA *</span><input name="price" inputMode="numeric" pattern="[0-9]*" defaultValue={product.price} required /></label>
             <label><span>COSTO</span><input name="cost" inputMode="numeric" pattern="[0-9]*" defaultValue={product.cost} /></label>
           </div>
+          <AdminSizeSelector
+            selectedSizes={selectedSizes}
+            label="TALLAS EUR 35–46 *"
+            hint="Marca las tallas EUR que quieres mostrar en la ficha del producto. Los cambios se reflejan en la tienda al guardar."
+          />
           <label><span>DESCRIPCIÓN</span><textarea name="description" rows={4} defaultValue={product.description || ""} /></label>
           <div className="admin-product-note"><strong>UTILIDAD BRUTA ESTIMADA</strong><span>{formatCop(Math.max(0, product.price - product.cost))} por unidad antes de gastos.</span></div>
           <div className="admin-check-row">

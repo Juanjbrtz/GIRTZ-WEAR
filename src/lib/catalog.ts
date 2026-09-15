@@ -1,4 +1,4 @@
-import { and, desc, eq, inArray } from "drizzle-orm";
+import { and, desc, eq, inArray, ne } from "drizzle-orm";
 import { getDb } from "@/db";
 import { products as productTable, productVariants } from "@/db/schema";
 import type { Audience, Product } from "@/data/products";
@@ -54,7 +54,10 @@ export async function getCatalogProducts(): Promise<Product[]> {
     const variants = await db
       .select({ productId: productVariants.productId, size: productVariants.size })
       .from(productVariants)
-      .where(inArray(productVariants.productId, rows.map((row) => row.id)));
+      .where(and(
+        inArray(productVariants.productId, rows.map((row) => row.id)),
+        ne(productVariants.stockStatus, "hidden"),
+      ));
 
     const sizesByProduct = new Map<string, string[]>();
     for (const variant of variants) {
@@ -85,7 +88,10 @@ export async function getCatalogProductBySlug(slug: string): Promise<Product | n
     const variants = await db
       .select({ size: productVariants.size })
       .from(productVariants)
-      .where(eq(productVariants.productId, row.id));
+      .where(and(
+        eq(productVariants.productId, row.id),
+        ne(productVariants.stockStatus, "hidden"),
+      ));
 
     return mapProduct(row, variants.map((variant) => variant.size));
   } catch {

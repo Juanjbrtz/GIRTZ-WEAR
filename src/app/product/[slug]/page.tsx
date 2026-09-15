@@ -43,9 +43,22 @@ export default async function ProductPage({ params }: ProductPageProps) {
           <div className="editorial-detail-price">{formatCop(product.price)} <small>+ envío</small></div>
           <p className="editorial-detail-description">{product.description}</p>
 
+          {product.sizes?.length ? (
+            <div className="editorial-detail-eur-sizes" aria-label="Tallas EUR configuradas">
+              <div className="editorial-detail-eur-sizes-head">
+                <span>TALLAS EUR</span>
+                <small>35–46</small>
+              </div>
+              <div className="editorial-detail-eur-size-list">
+                {product.sizes.map((size) => <b key={size}>{size}</b>)}
+              </div>
+              <p>Estas son las tallas EUR habilitadas para esta referencia. La disponibilidad final se confirma por WhatsApp.</p>
+            </div>
+          ) : null}
+
           <div className="editorial-detail-availability">
             <span>01</span>
-            <div><strong>ELIGE TU TALLA</strong><p>Indica la talla EUR que buscas. La confirmaremos con el proveedor antes de cerrar la compra.</p></div>
+            <div><strong>ELIGE TU TALLA EUR</strong><p>Indica la talla EUR que buscas. La confirmaremos con el proveedor antes de cerrar la compra.</p></div>
           </div>
           <div className="editorial-detail-availability">
             <span>02</span>
