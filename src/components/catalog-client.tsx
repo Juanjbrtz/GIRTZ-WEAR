@@ -165,6 +165,11 @@ export function CatalogClient({
             ))}
           </nav>
         ) : null}
+
+        <a className="mobile-size-guide-link" href="/guia-tallas" aria-label="Abrir guía de tallas">
+          <span>GUÍA DE TALLAS</span>
+          <b aria-hidden="true">↗</b>
+        </a>
       </section>
 
       <section className="editorial-catalog-meta refined-catalog-meta">
