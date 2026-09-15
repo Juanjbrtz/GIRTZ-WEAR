@@ -1,10 +1,11 @@
 import Link from "next/link";
+import { BrandWordmark } from "@/components/brand-logo";
 
 export function SiteFooter() {
   return (
     <footer className="site-footer">
       <div className="footer-brand">
-        <span>GIRTZ</span>
+        <BrandWordmark className="girtz-wordmark--footer" />
         <small>WEAR / COLOMBIA</small>
       </div>
 
