@@ -31,6 +31,7 @@ import "./size-flow.css";
 import "./admin-mobile-app.css";
 import "./password-security.css";
 import "./responsive-universal.css";
+import "./catalog-account-polish.css";
 
 const instrumentSans = Instrument_Sans({ variable: "--font-brand", subsets: ["latin"] });
 const siteUrl = "https://girtzwear.com";
