@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect } from "react";
 import { useCart } from "@/components/cart-provider";
 import { WhatsappConsultButton } from "@/components/whatsapp-consult-button";
@@ -117,6 +118,9 @@ export function CartDrawer({ whatsappNumber }: { whatsappNumber: string }) {
               <div className="cart-drawer-summary-line"><span>Unidades</span><strong>{count}</strong></div>
               <div className="cart-drawer-summary-line total"><span>Subtotal</span><strong>{formatCop(subtotal)}</strong></div>
               <p>{missingSize ? "Selecciona la talla EUR de cada modelo para continuar." : "Confirmaremos disponibilidad y envío por WhatsApp antes de cerrar la compra."}</p>
+              <Link href="/guia-tallas" className="cart-mobile-size-guide" onClick={closeCart}>
+                GUÍA DE TALLAS <span aria-hidden="true">↗</span>
+              </Link>
               <WhatsappConsultButton
                 whatsappNumber={whatsappNumber}
                 className="cart-drawer-whatsapp"
@@ -134,6 +138,9 @@ export function CartDrawer({ whatsappNumber }: { whatsappNumber: string }) {
             <span>MI SELECCIÓN</span>
             <h3>Tu carrito está vacío.</h3>
             <p>Agrega uno o varios modelos y vuelve aquí para confirmar disponibilidad.</p>
+            <Link href="/guia-tallas" className="cart-mobile-size-guide" onClick={closeCart}>
+              GUÍA DE TALLAS <span aria-hidden="true">↗</span>
+            </Link>
             <button type="button" onClick={closeCart}>VOLVER AL CATÁLOGO</button>
           </div>
         )}
