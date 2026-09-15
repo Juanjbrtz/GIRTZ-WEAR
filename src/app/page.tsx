@@ -92,12 +92,23 @@ export default async function Home() {
     <main className="home-page editorial-home refined-home">
       <SiteHeader />
 
-      <section className={`editorial-hero refined-hero${heroProduct ? "" : " refined-hero--empty"}`}>
+      <section className={`editorial-hero refined-hero featured-cover-hero${heroProduct ? " featured-cover-hero--active" : " refined-hero--empty"}`}>
+        {heroProduct ? (
+          <Link
+            href={`/product/${heroProduct.slug}`}
+            className="featured-cover-media"
+            aria-label={`Ver producto destacado ${heroProduct.name}`}
+          >
+            <ProductVisual product={heroProduct} priority sizes="100vw" />
+            <span className="featured-cover-shade" aria-hidden="true" />
+          </Link>
+        ) : null}
+
         <div className="editorial-hero-rail editorial-hero-rail-clean">
           <span>GIRTZ / CATÁLOGO 2026</span>
         </div>
 
-        <div className="editorial-hero-copy refined-hero-copy">
+        <div className="editorial-hero-copy refined-hero-copy featured-cover-copy">
           <p>SNEAKERS MULTIMARCA</p>
           <h1>ENCUENTRA<br/>TU PRÓXIMO PAR.</h1>
           <span className="refined-hero-description">Explora el catálogo, agrega tus favoritos y confirma disponibilidad por WhatsApp.</span>
@@ -105,6 +116,13 @@ export default async function Home() {
             <Link href="/shop">VER CATÁLOGO</Link>
             <CartOpenButton>MI CARRITO</CartOpenButton>
           </div>
+          {heroProduct ? (
+            <Link href={`/product/${heroProduct.slug}`} className="featured-cover-meta">
+              <span>DESTACADO · {heroProduct.brand?.toUpperCase() || "GIRTZ"}</span>
+              <strong>{heroProduct.name}</strong>
+              <small>{formatCop(heroProduct.price)}</small>
+            </Link>
+          ) : null}
           {showCatalogUpdate ? (
             <div className="refined-empty-catalog-note" role="status">
               <strong>CATÁLOGO EN ACTUALIZACIÓN</strong>
@@ -112,26 +130,6 @@ export default async function Home() {
             </div>
           ) : null}
         </div>
-
-        {heroProduct ? (
-          <div className="editorial-hero-product refined-hero-product">
-            <Link href={`/product/${heroProduct.slug}`} className="editorial-product-shot" aria-label={`Ver ${heroProduct.name}`}>
-              <ProductVisual product={heroProduct} priority sizes="(max-width: 800px) 92vw, 56vw" />
-              <span className="editorial-shot-index">01</span>
-            </Link>
-
-            <div className="editorial-product-meta">
-              <div>
-                <span>{heroProduct.brand?.toUpperCase() || "GIRTZ"}</span>
-                <h2>{heroProduct.name}</h2>
-              </div>
-              <div className="editorial-product-price">
-                <span>{heroProduct.audience?.toUpperCase() || "UNISEX"}</span>
-                <strong>{formatCop(heroProduct.price)}</strong>
-              </div>
-            </div>
-          </div>
-        ) : null}
       </section>
 
       <section className="refined-category-section">
