@@ -40,15 +40,35 @@ function mergeItems(cart: CartItem[], current?: Product): ConsultItem[] {
   });
 }
 
+function getModelName(name: string, brand: string) {
+  const cleanName = name.trim().replace(/\s+/g, " ");
+  const cleanBrand = brand.trim().replace(/\s+/g, " ");
+  if (!cleanBrand) return cleanName;
+
+  const lowerName = cleanName.toLocaleLowerCase("es");
+  const lowerBrand = cleanBrand.toLocaleLowerCase("es");
+  if (!lowerName.startsWith(lowerBrand)) return cleanName;
+
+  const remainder = cleanName.slice(cleanBrand.length);
+  if (!remainder || !/^[\s\-–—:/|]/.test(remainder)) return cleanName;
+
+  const model = remainder.replace(/^[\s\-–—:/|]+/, "").trim();
+  return model || cleanName;
+}
+
 function createMessage(items: ConsultItem[]) {
-  const lines = items.map((item, index) =>
-    `${index + 1}. ${item.brand} ${item.name} — ${formatCop(item.price)} — Talla EUR: ${item.size || "por definir"} — Cantidad: ${item.quantity}`,
-  );
+  const productBlocks = items.map((item, index) => [
+    `${index + 1}. Marca: ${item.brand || "Por definir"}`,
+    `Modelo: ${getModelName(item.name, item.brand)}`,
+    `Precio: ${formatCop(item.price)}`,
+    `Talla EUR: ${item.size || "por definir"}`,
+    `Cantidad: ${item.quantity}`,
+  ].join("\n"));
 
   return [
     "Hola, quiero consultar disponibilidad en GIRTZ WEAR de los siguientes modelos:",
     "",
-    ...lines,
+    productBlocks.join("\n\n"),
     "",
     "¿Me confirman disponibilidad de estas tallas?",
     "También quisiera confirmar el valor del envío.",
