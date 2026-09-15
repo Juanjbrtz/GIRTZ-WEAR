@@ -30,7 +30,6 @@ function filenameToName(filename: string) {
   return filename.replace(/\.[^.]+$/, "").replace(/[_-]+/g, " ").replace(/\s+/g, " ").trim();
 }
 function onlyDigits(value: string) { return value.replace(/\D/g, "").slice(0, 10); }
-function fileFingerprint(file: File) { return `${file.name.toLowerCase()}-${file.size}-${file.lastModified}`; }
 
 export function AdminBulkProductUpload() {
   const router = useRouter();
@@ -43,18 +42,11 @@ export function AdminBulkProductUpload() {
 
   function handleFiles(event: ChangeEvent<HTMLInputElement>) {
     const selected = Array.from(event.target.files || []).slice(0, maxBatch);
-    const seen = new Set<string>();
-    const valid = selected.filter((file) => {
-      if (!allowedTypes.has(file.type) || file.size > maxBytes) return false;
-      const key = fileFingerprint(file);
-      if (seen.has(key)) return false;
-      seen.add(key);
-      return true;
-    });
+    const valid = selected.filter((file) => allowedTypes.has(file.type) && file.size <= maxBytes);
     setItems((current) => {
       current.forEach((item) => URL.revokeObjectURL(item.preview));
       return valid.map((file) => ({
-        id: fileFingerprint(file),
+        id: crypto.randomUUID(),
         file,
         preview: URL.createObjectURL(file),
         name: filenameToName(file.name),
@@ -67,7 +59,7 @@ export function AdminBulkProductUpload() {
       }));
     });
     const rejected = selected.length - valid.length;
-    setMessage(rejected ? `${rejected} foto(s) fueron omitidas por repetirse, superar 7 MB o usar un formato no compatible.` : null);
+    setMessage(rejected ? `${rejected} foto(s) fueron omitidas por superar 7 MB o usar un formato no compatible.` : null);
     event.target.value = "";
   }
 
@@ -108,11 +100,13 @@ export function AdminBulkProductUpload() {
     publishingLock.current = true;
     setPublishing(true);
     let published = 0; let duplicates = 0; let failed = 0;
+    const failedIds = new Set<string>();
     try {
       for (const item of items) {
         if (item.status === "done") continue;
         setItems((current) => current.map((entry) => entry.id === item.id ? { ...entry, status: "publishing", error: undefined } : entry));
         const formData = new FormData();
+        formData.set("submissionKey", item.id);
         formData.set("image", item.file);
         formData.set("name", item.name.trim());
         formData.set("brand", item.brand.trim());
@@ -126,6 +120,7 @@ export function AdminBulkProductUpload() {
           setItems((current) => current.map((entry) => entry.id === item.id ? { ...entry, status: "done", error: undefined } : entry));
         } catch (error) {
           failed++;
+          failedIds.add(item.id);
           const errorMessage = getShortUserError(error, "No fue posible publicar este producto.");
           setItems((current) => current.map((entry) => entry.id === item.id ? { ...entry, status: "error", error: errorMessage } : entry));
         }
@@ -134,7 +129,19 @@ export function AdminBulkProductUpload() {
       publishingLock.current = false;
       setPublishing(false);
     }
-    setMessage(failed ? `${published} publicados, ${duplicates} repetidos bloqueados y ${failed} con error.` : duplicates ? `${published} publicados. ${duplicates} repetidos fueron bloqueados automáticamente.` : `${published} producto(s) publicados correctamente.`);
+
+    setItems((current) => current.filter((item) => {
+      if (failedIds.has(item.id)) return true;
+      URL.revokeObjectURL(item.preview);
+      return false;
+    }));
+    setBatchSizes([]);
+    if (failed) {
+      const loaded = published + duplicates;
+      setMessage(`${loaded} producto(s) cargados. ${failed} requieren revisión.`);
+    } else {
+      setMessage("Lote cargado correctamente.");
+    }
     router.refresh();
   }
 
