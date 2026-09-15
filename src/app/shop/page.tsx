@@ -1,32 +1,21 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { CartAutoOpen } from "@/components/cart-auto-open";
-import { ProductCard } from "@/components/product-card";
+import { CatalogClient } from "@/components/catalog-client";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
-import type { Audience } from "@/data/products";
 import { getCatalogProducts } from "@/lib/catalog";
 import { getCatalogUpdateSettings } from "@/lib/store-settings";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "Catálogo", description: "Explora sneakers multimarca en GIRTZ WEAR y confirma disponibilidad por WhatsApp." };
-type ShopPageProps = { searchParams: Promise<{ categoria?: string; marca?: string; carrito?: string }> };
-const filters = [
-  { label: "Todo", value: "todos", href: "/shop" },
-  { label: "Hombre", value: "hombre", href: "/shop?categoria=hombre" },
-  { label: "Mujer", value: "mujer", href: "/shop?categoria=mujer" },
-  { label: "Unisex", value: "unisex", href: "/shop?categoria=unisex" },
-];
-const categoryMap: Record<string, Audience> = { hombre: "Hombre", mujer: "Mujer", unisex: "Unisex" };
-function brandHref(category: string, brand?: string) { const params = new URLSearchParams(); if (category !== "todos") params.set("categoria", category); if (brand) params.set("marca", brand); const query = params.toString(); return query ? `/shop?${query}` : "/shop"; }
+export const metadata: Metadata = {
+  title: "Catálogo",
+  description: "Explora sneakers multimarca en GIRTZ WEAR y confirma disponibilidad por WhatsApp.",
+};
 
-function matchesCategory(productAudience: Audience, category: string) {
-  if (category === "todos") return true;
-  if (category === "unisex") return productAudience === "Unisex";
-  if (category === "hombre") return productAudience === "Hombre" || productAudience === "Unisex";
-  if (category === "mujer") return productAudience === "Mujer" || productAudience === "Unisex";
-  return true;
-}
+type ShopPageProps = {
+  searchParams: Promise<{ categoria?: string; marca?: string; carrito?: string }>;
+};
 
 export default async function ShopPage({ searchParams }: ShopPageProps) {
   const [{ categoria, marca, carrito }, catalogProducts, catalogUpdate] = await Promise.all([
@@ -35,68 +24,19 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
     getCatalogUpdateSettings(),
   ]);
   const hasCatalog = catalogProducts.length > 0;
-  const activeCategory = categoria && categoryMap[categoria] ? categoria : "todos";
-  const categoryProducts = catalogProducts.filter((product) => matchesCategory(product.audience, activeCategory));
-  const brands = [...new Set(categoryProducts.map((product) => product.brand).filter(Boolean))].sort((a, b) => a.localeCompare(b, "es"));
-  const activeBrand = marca && brands.includes(marca) ? marca : "";
-  const visibleProducts = activeBrand ? categoryProducts.filter((product) => product.brand === activeBrand) : categoryProducts;
 
   return (
     <main className="inner-page catalog-page editorial-shop refined-shop">
       {carrito === "1" ? <CartAutoOpen /> : null}
       <SiteHeader />
 
-      <section className="refined-shop-head">
-        <div>
-          <span>CATÁLOGO / {String(visibleProducts.length).padStart(2, "0")}</span>
-          <h1>Catálogo</h1>
-        </div>
-        <p>Explora por categoría o marca. Agrega tus modelos favoritos y confirma talla, disponibilidad y envío por WhatsApp.</p>
-      </section>
-
-      {hasCatalog && catalogUpdate.forceNotice ? (
-        <section className="catalog-update-banner" role="status">
-          <span>CATÁLOGO EN ACTUALIZACIÓN</span>
-          <p>{catalogUpdate.message}</p>
-        </section>
-      ) : null}
-
       {hasCatalog ? (
-        <>
-          <section className="editorial-filter-bar refined-filter-bar">
-            <nav aria-label="Filtrar catálogo por sección">
-              {filters.map((filter) => (
-                <Link key={filter.value} href={filter.href} className={activeCategory === filter.value ? "active" : undefined}>{filter.label}</Link>
-              ))}
-            </nav>
-
-            {brands.length ? (
-              <nav className="editorial-brand-nav" aria-label="Filtrar catálogo por marca">
-                <span>Marca</span>
-                <Link href={brandHref(activeCategory)} className={!activeBrand ? "active" : undefined}>Todas</Link>
-                {brands.map((brand) => <Link key={brand} href={brandHref(activeCategory, brand)} className={activeBrand === brand ? "active" : undefined}>{brand}</Link>)}
-              </nav>
-            ) : null}
-          </section>
-
-          <section className="editorial-catalog-meta refined-catalog-meta">
-            <span>{activeCategory === "todos" ? "Todos los modelos" : categoryMap[activeCategory]}</span>
-            <span>{activeBrand || "Todas las marcas"}</span>
-            <span>{visibleProducts.length} {visibleProducts.length === 1 ? "referencia" : "referencias"}</span>
-          </section>
-        </>
-      ) : null}
-
-      {visibleProducts.length ? (
-        <section className="editorial-product-grid refined-product-grid">
-          {visibleProducts.map((product, index) => <ProductCard key={product.slug} product={product} index={index} />)}
-        </section>
-      ) : hasCatalog ? (
-        <section className="editorial-empty refined-empty">
-          <span>FILTROS</span>
-          <h2>No encontramos modelos con esta selección.</h2>
-          <Link href="/shop">LIMPIAR FILTROS ↗</Link>
-        </section>
+        <CatalogClient
+          products={catalogProducts}
+          initialCategory={categoria || "todos"}
+          initialBrand={marca || ""}
+          noticeMessage={catalogUpdate.forceNotice ? catalogUpdate.message : ""}
+        />
       ) : (
         <section className="editorial-empty refined-empty">
           <span>CATÁLOGO EN ACTUALIZACIÓN</span>
