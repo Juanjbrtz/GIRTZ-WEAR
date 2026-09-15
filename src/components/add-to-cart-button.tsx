@@ -55,8 +55,8 @@ export function AddToCartButton({
   const sizePicker = showSizeSelector ? (
     <div className="product-size-picker">
       <div className="product-size-picker-head">
-        <span>TALLA EUR</span>
-        <small>{currentSize ? `Seleccionada: ${currentSize}` : "Selecciona tu talla deseada"}</small>
+        <span>ELIGE TU TALLA EUR</span>
+        <small>{currentSize ? `Seleccionada: ${currentSize}` : "Selecciona una talla disponible"}</small>
       </div>
       <div className="product-size-options" role="group" aria-label={`Talla EUR para ${product.name}`}>
         {sizeOptions.map((size) => (
